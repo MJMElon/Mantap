@@ -16142,26 +16142,28 @@ if ('serviceWorker' in navigator) {
      on the Stock home returns to the portal's module list. -->
 <script>
 (function () {
-    // Sign out of the worker session only (the admin's Supabase Auth
-    // session may be in the same browser during the Mobile Demo).
+    // Sign out of the worker session only. The Mantap admin session is
+    // stored under a different key, so the Mobile Demo leaves it alone.
     window.logoutUser = function () {
         if (!confirm('Sign out?')) return;
         try { stopStatusWatcher(); } catch (e) {}
         clearSession();
         sessionStorage.removeItem('opp_active_section');
+        supabaseClient.auth.signOut({ scope: 'local' }).catch(function () {});
         location.replace('../');
     };
     window.forceLogoutInactive = function () {
         try { stopStatusWatcher(); } catch (e) {}
         clearSession();
         sessionStorage.removeItem('opp_active_section');
-        location.replace('../?inactive=1');
+        supabaseClient.auth.signOut({ scope: 'local' }).catch(function () {});
+        location.replace('../#/?inactive=1');
     };
     document.addEventListener('DOMContentLoaded', function () {
         var hub = document.querySelector('#estate_hub > div');
         if (!hub) return;
         var a = document.createElement('a');
-        a.href = '../app.html';
+        a.href = '../#/app';
         a.textContent = '\u2190 Mantap';
         a.style.cssText = 'display:inline-flex;align-items:center;margin:16px 20px 0;padding:6px 12px;border-radius:999px;background:#fff;border:1px solid #BBF7D0;color:#166534;font-size:13px;font-weight:700;text-decoration:none;font-family:Inter,sans-serif;';
         hub.insertBefore(a, hub.firstChild);

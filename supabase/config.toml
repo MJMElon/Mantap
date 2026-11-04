@@ -1,0 +1,10 @@
+# Mantap Edge Functions, deployed to the Plantation Stock Supabase project.
+# supabase link --project-ref eukvdlyzhyjohkjqbqjb
+project_id = "Mantap"
+
+[functions.mantap-worker-auth]
+# Sign-in is called before the worker has a session (the anon key is still sent).
+verify_jwt = false
+
+[functions.mantap-worker-admin]
+verify_jwt = true

@@ -5,54 +5,85 @@ worker access and can preview the mobile view. On a phone, workers sign in and
 open their work modules. The only module today is **Stock**; more will be
 added later.
 
-- Plain HTML + JavaScript with no build step. Publish with GitHub Pages
-  ("Deploy from a branch" → `main` / root).
-- Database: the **Plantation Stock** Supabase project (`eukvdlyzhyjohkjqbqjb`),
-  so workers keep the same accounts and stock data as before.
-- Interface text: English and Bahasa Melayu (`shared/i18n.js`).
+- **Frontend:** React 18 + TypeScript + Vite, with React Router (hash routes).
+  The published site is the minified build in `dist/`.
+- **Backend:** the **Plantation Stock** Supabase project (`eukvdlyzhyjohkjqbqjb`):
+  - database tables `opp_*`
+  - Supabase Auth
+  - the Edge Functions in `supabase/functions/`
+- **Hosting:** GitHub Pages, built by `.github/workflows/pages.yml` on every
+  push to `main`.
+- **Interface text:** English and Bahasa Melayu (`src/lib/i18n.tsx`).
 
-## Files
+## Project layout
 
 ```
-index.html          Sign-in (workers and the Super Admin)
-app.html            Worker home (mobile): greeting, estates, module cards
-admin.html          Web admin: Workers (list, add, edit estates and module
-                    access, reset password, activate/deactivate, delete)
-                    and Mobile Demo (phone-sized preview of the worker side)
-stock/              Stock module: the worker (estate_user) view of the
-                    Plantation Stock app, moved here from
-                    oliviawsc/plantationstockmanagementsystem
-shared/config.js    Supabase URL / anon key, session keys
-shared/auth.js      Sign-in, sessions, worker rows (opp_users)
-shared/modules.js   Module list shown on the worker home; Stock access items
-shared/i18n.js      EN / BM text
-shared/style.css    Shared styles
+src/
+  main.tsx, App.tsx          entry point and routes (#/, #/app, #/admin, #/admin/demo)
+  styles.css                 all styles
+  lib/
+    config.ts                Supabase URL / anon key, storage keys
+    supabase.ts              Supabase clients (worker and admin) + Edge Function caller
+    auth.ts                  sign-in, sign-out, worker session refresh
+    workers.ts               admin worker API (calls mantap-worker-admin)
+    modules.ts               modules on the worker home; Stock access items
+    i18n.tsx                 EN / BM text and language switch
+    types.ts                 shared types
+  components/                Brand, LangToggle
+  pages/
+    LoginPage.tsx            sign-in for workers and the Super Admin
+    WorkerHomePage.tsx       worker home (phone): greeting, estates, module cards
+    admin/
+      AdminLayout.tsx        admin header, tabs, Super Admin check
+      WorkersPage.tsx        worker list: search, estate filter, actions
+      WorkerDialog.tsx       add / edit worker (estates, Stock access)
+      MobileDemoPage.tsx     phone-sized preview of the worker side
+public/stock/                Stock module (legacy worker view of the Stock app;
+                             replaced when the Stock app is rebuilt in React)
+supabase/
+  functions/mantap-worker-auth    worker sign-in (password checked on the server,
+                                  5 wrong tries → 15-minute lock) and "me" refresh
+  functions/mantap-worker-admin   worker list / create / update / reset password /
+                                  status / delete (Super Admin only)
+  migrations/                     mantap_login_attempts table
 ```
 
-## Accounts and access
+## Security model
 
-- Workers are rows in `opp_users` with `permissions.__role = 'estate_user'`
-  (the same rules as the Stock app). Their User ID is stored as
-  `<id>@psms.app`.
-- Stock access is set per item (Baja, Racun, Anak Sawit, Hujan, Peralatan) as
-  None, View or Edit. Workers only see the Stock card if at least one item
-  is not None.
-- Only the Super Admin (`hqadmin.puigroups@gmail.com`, Supabase Auth) can
-  open `admin.html`.
-- The worker session uses the same storage key as the Stock app
-  (`opp_auth_session`), so signing in here opens Stock straight away. The
-  admin session uses a separate key, so the Mobile Demo can sign in a worker
-  without signing the admin out.
+- Worker passwords are checked **only in the `mantap-worker-auth` Edge
+  Function**. The browser never receives password hashes. After a correct
+  password, the function issues a normal Supabase Auth session for the
+  worker (`<id>@psms.app`).
+- All worker management goes through `mantap-worker-admin`, which checks that
+  the caller is signed in as the Super Admin and validates every field.
+- The admin session is stored separately (`mantap-admin-auth`), so the
+  Mobile Demo can sign in a worker without signing the admin out.
+- Still open until the Stock app is rebuilt: the old Stock app reads
+  `opp_users` directly, so the anon key can still read that table. See
+  `docs/security-next.md`.
+
+## Local development
+
+```bash
+npm install
+npm run dev          # http://localhost:5173/Mantap/
+npm run build        # type-check + production build into dist/
+```
+
+## Deploying the backend (once, and after changes)
+
+```bash
+npx supabase link --project-ref eukvdlyzhyjohkjqbqjb
+npx supabase db push                          # creates mantap_login_attempts
+npx supabase functions deploy mantap-worker-auth --no-verify-jwt
+npx supabase functions deploy mantap-worker-admin
+# optional overrides:
+# npx supabase secrets set SUPER_ADMIN_EMAIL=... MANTAP_ALLOWED_ORIGINS=https://mjmelon.github.io
+```
 
 ## Adding a module
 
-1. Put the module's pages in a new folder (for example `harvest/`).
-2. Add an entry to `MODULES` in `shared/modules.js` (icon, name, URL, and
-   who is allowed to see it).
-3. If it needs per-worker access settings, add them to the admin edit
-   dialog in `admin.html`.
-
-## Link from the Stock app
-
-When an `estate_user` signs in to the Stock app, the app sends them here
-(`WORKER_PORTAL_URL` in that repo's `index.html`).
+1. Build its pages (a new route in `src/App.tsx`, or a folder under `public/`).
+2. Add an entry to `MODULES` in `src/lib/modules.ts`.
+3. If it needs per-worker access settings, add them to `WorkerDialog.tsx` and
+   to the allowed keys in `supabase/functions/_shared/common.ts`.

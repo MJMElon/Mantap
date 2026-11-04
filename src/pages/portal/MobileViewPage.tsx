@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useI18n } from '../../lib/i18n';
 
-const DEMO_URL = `${import.meta.env.BASE_URL}#/?demo=1`;
+const DEMO_URL = `${import.meta.env.BASE_URL}#/m?demo=1`;
 
-export function MobileDemoPage() {
+export function MobileViewPage() {
   const { t } = useI18n();
   const [key, setKey] = useState(0);
   return (

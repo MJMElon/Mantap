@@ -85,7 +85,7 @@ export function WorkersPage() {
               const access = STOCK_SECTIONS.filter((s) => stockAccess(w.permissions, s.id) !== 'none');
               return (
                 <tr key={w.id}>
-                  <td><strong>{w.name}</strong></td>
+                  <td><strong>{w.name}</strong>{w.intranet && <> <span className="pill view">{t('intranet_badge')}</span></>}</td>
                   <td>{toUserId(w.email)}</td>
                   <td>{w.estates.length ? w.estates.map((n) => <span key={n} className="pill est">{n}</span>) : <span className="muted">—</span>}</td>
                   <td>
@@ -99,7 +99,7 @@ export function WorkersPage() {
                   <td>
                     <div className="acts">
                       <button className="btn sm" type="button" onClick={() => setEditing(w)}>{t('edit')}</button>
-                      <button className="btn sm" type="button" onClick={() => resetPassword(w)}>{t('reset_pw')}</button>
+                      {!w.intranet && <button className="btn sm" type="button" onClick={() => resetPassword(w)}>{t('reset_pw')}</button>}
                       <button className="btn sm" type="button" onClick={() => run(() => setWorkerStatus(w.id, active ? 'inactive' : 'active'))}>
                         {t(active ? 'deactivate' : 'activate')}
                       </button>

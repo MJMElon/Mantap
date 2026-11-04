@@ -7,8 +7,8 @@
 (function () {
     try {
         var s = JSON.parse(localStorage.getItem('opp_auth_session') || 'null');
-        if (!s || s.role !== 'estate_user') { location.replace('../'); }
-    } catch (e) { location.replace('../'); }
+        if (!s || s.role !== 'estate_user') { location.replace('../#/m'); }
+    } catch (e) { location.replace('../#/m'); }
 })();
 </script>
     <meta charset="UTF-8" />
@@ -16150,20 +16150,20 @@ if ('serviceWorker' in navigator) {
         clearSession();
         sessionStorage.removeItem('opp_active_section');
         supabaseClient.auth.signOut({ scope: 'local' }).catch(function () {});
-        location.replace('../');
+        location.replace('../#/m');
     };
     window.forceLogoutInactive = function () {
         try { stopStatusWatcher(); } catch (e) {}
         clearSession();
         sessionStorage.removeItem('opp_active_section');
         supabaseClient.auth.signOut({ scope: 'local' }).catch(function () {});
-        location.replace('../#/?inactive=1');
+        location.replace('../#/m?inactive=1');
     };
     document.addEventListener('DOMContentLoaded', function () {
         var hub = document.querySelector('#estate_hub > div');
         if (!hub) return;
         var a = document.createElement('a');
-        a.href = '../#/app';
+        a.href = '../#/m/home';
         a.textContent = '\u2190 Mantap';
         a.style.cssText = 'display:inline-flex;align-items:center;margin:16px 20px 0;padding:6px 12px;border-radius:999px;background:#fff;border:1px solid #BBF7D0;color:#166534;font-size:13px;font-weight:700;text-decoration:none;font-family:Inter,sans-serif;';
         hub.insertBefore(a, hub.firstChild);

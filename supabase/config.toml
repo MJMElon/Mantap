@@ -8,3 +8,7 @@ verify_jwt = false
 
 [functions.mantap-worker-admin]
 verify_jwt = true
+
+[functions.mantap-sso]
+# Called right after the Intranet redirect, before there is a session.
+verify_jwt = false

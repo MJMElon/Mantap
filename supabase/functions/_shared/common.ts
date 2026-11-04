@@ -94,6 +94,33 @@ export interface UserRow {
 export const roleOf = (row: UserRow) =>
   row.permissions && typeof row.permissions === 'object' ? (row.permissions as { __role?: string }).__role ?? 'user' : 'user';
 
+/** Creates the Supabase Auth user for `email` if needed and returns a session for it
+ *  (no password: a one-time magic-link token is generated and redeemed on the server). */
+export async function issueSession(email: string, meta: Record<string, unknown>) {
+  const admin = serviceClient().auth.admin;
+  const created = await admin.createUser({ email, email_confirm: true, user_metadata: meta });
+  if (created.error && !/already|exists|registered/i.test(created.error.message)) throw created.error;
+  const link = await admin.generateLink({ type: 'magiclink', email });
+  if (link.error) throw link.error;
+  const { data, error } = await anonClient().auth.verifyOtp({ type: 'magiclink', token_hash: link.data.properties.hashed_token });
+  if (error || !data.session) throw error ?? new Error('no session');
+  return { access_token: data.session.access_token, refresh_token: data.session.refresh_token };
+}
+
+export interface PortalUser {
+  email: string;
+  name: string;
+  intranet_user_id: string | null;
+  web_access: boolean;
+  mobile_access: boolean;
+}
+
+export async function getPortalUser(email: string): Promise<PortalUser | null> {
+  const { data, error } = await serviceClient().from('mantap_portal_users').select('*').eq('email', email.toLowerCase()).maybeSingle();
+  if (error) throw error;
+  return (data as PortalUser) ?? null;
+}
+
 /** The worker session shape the Stock module expects (no password hash). */
 export function toWorkerSession(row: UserRow) {
   return {

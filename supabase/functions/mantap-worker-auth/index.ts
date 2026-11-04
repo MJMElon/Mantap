@@ -4,7 +4,7 @@
 // The password hash never leaves the server. After 5 wrong passwords the
 // User ID is locked for 15 minutes.
 import {
-  anonClient, ApiError, callerEmail, handler, roleOf, serviceClient, sha256Hex,
+  ApiError, issueSession, callerEmail, handler, roleOf, serviceClient, sha256Hex,
   timingSafeEqual, toAuthEmail, toWorkerSession, USERS_TABLE, WORKER_ROLE, type UserRow,
 } from '../_shared/common.ts';
 
@@ -37,19 +37,6 @@ async function recordAttempt(email: string, ok: boolean) {
   await db.from('mantap_login_attempts').upsert({ email, fails: locked_until ? 0 : fails, locked_until, updated_at: new Date().toISOString() });
 }
 
-/** Creates the worker's Supabase Auth user if needed and returns a session for it. */
-async function issueSession(row: UserRow) {
-  const admin = serviceClient().auth.admin;
-  const created = await admin.createUser({ email: row.email, email_confirm: true, user_metadata: { opp_user_id: row.id, name: row.name } });
-  if (created.error && !/already|exists|registered/i.test(created.error.message)) throw created.error;
-
-  const link = await admin.generateLink({ type: 'magiclink', email: row.email });
-  if (link.error) throw link.error;
-  const { data, error } = await anonClient().auth.verifyOtp({ type: 'magiclink', token_hash: link.data.properties.hashed_token });
-  if (error || !data.session) throw error ?? new Error('no session');
-  return { access_token: data.session.access_token, refresh_token: data.session.refresh_token };
-}
-
 Deno.serve(handler(async (req, body) => {
   if (body.action === 'sign_in') {
     const userId = String(body.userId ?? '').trim().toLowerCase();
@@ -71,7 +58,7 @@ Deno.serve(handler(async (req, body) => {
     if (!ok) throw new ApiError('err_wrong', 401);
     assertUsable(row);
 
-    const session = await issueSession(row);
+    const session = await issueSession(row.email, { opp_user_id: row.id, name: row.name });
     await serviceClient().from(USERS_TABLE).update({ last_active: new Date().toISOString() }).eq('id', row.id);
     return { session, worker: toWorkerSession(row) };
   }

@@ -1,9 +1,16 @@
 # Mantap · Worker Portal
 
-The portal for estate workers. On the web, admins manage the worker list and
-worker access and can preview the mobile view. On a phone, workers sign in and
-open their work modules. The only module today is **Stock**; more will be
-added later.
+The portal for estate workers.
+
+- **Web portal** (`#/portal`) is opened from the **Worker Portal** icon in MJM
+  Intranet (signed in automatically). It has three tiles:
+  - **Worker Manage:** workers, estates, Stock access, passwords.
+  - **User Access:** which MJM Intranet users can use the portal on web or
+    mobile, and which workers can sign in.
+  - **Mobile View:** the phone app in a phone frame.
+- **Mobile app** (`#/m`): workers sign in with their User ID and password (or
+  arrive from MJM Intranet on a phone). They land on the Worker Portal home
+  and tap **Stock**. More modules will be added later.
 
 - **Frontend:** React 18 + TypeScript + Vite, with React Router (hash routes).
   The published site is the minified build in `dist/`.
@@ -70,6 +77,24 @@ npm run dev          # http://localhost:5173/Mantap/
 npm run build        # type-check + production build into dist/
 ```
 
+## Sign-in from MJM Intranet (one-time setup)
+
+1. MJM Intranet → Admin → Master Manage → Module → **Mantap**:
+   - set it to **"2 · Token redirect"**, URL `https://mjmelon.github.io/Mantap/`
+   - press **Generate API Key** and copy the key (it is shown once).
+2. Give the key to the Mantap functions (stock Supabase project):
+   ```bash
+   npx supabase secrets set INTRANET_MODULE_API_KEY=gwk_... --project-ref eukvdlyzhyjohkjqbqjb
+   ```
+3. Add yourself as the first Worker Portal web user. In the stock project's
+   SQL Editor, run this once (after that, use the User Access page):
+   ```sql
+   insert into public.mantap_portal_users (email, name, web_access)
+   values ('you@puigroups.com', 'Your Name', true);
+   ```
+4. In MJM Intranet, open the Mantap module for the people who should see the
+   icon. What they can do inside Mantap is set on Mantap's **User Access** page.
+
 ## Deploying the backend (once, and after changes)
 
 ```bash
@@ -77,6 +102,7 @@ npx supabase link --project-ref eukvdlyzhyjohkjqbqjb
 npx supabase db push                          # creates mantap_login_attempts
 npx supabase functions deploy mantap-worker-auth --no-verify-jwt
 npx supabase functions deploy mantap-worker-admin
+npx supabase functions deploy mantap-sso --no-verify-jwt
 # optional overrides:
 # npx supabase secrets set SUPER_ADMIN_EMAIL=... MANTAP_ALLOWED_ORIGINS=https://mjmelon.github.io
 ```

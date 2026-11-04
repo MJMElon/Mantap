@@ -57,11 +57,53 @@ export async function refreshWorker(): Promise<WorkerSession | null> {
   }
 }
 
-// ── Admin ─────────────────────────────────────────────────────────────
-export async function isAdminSignedIn(): Promise<boolean> {
-  const { data } = await adminSupabase.auth.getSession();
-  return data.session?.user.email === SUPER_ADMIN_EMAIL;
+// ── Sign-in from MJM Intranet (?gw_token=…) ──────────────────────────
+interface SsoResult {
+  session: { access_token: string; refresh_token: string };
+  portal: { email: string; name: string; web: boolean; mobile: boolean };
+  worker: WorkerSession | null;
 }
+
+/** Reads and removes ?gw_token from the address bar. */
+export function takeIntranetToken(): string | null {
+  const url = new URL(window.location.href);
+  const token = url.searchParams.get('gw_token');
+  if (!token) return null;
+  url.searchParams.delete('gw_token');
+  window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+  return token;
+}
+
+/** Redeems the Intranet token. Web access → admin session; mobile access → worker session. */
+export async function signInFromIntranet(token: string): Promise<SsoResult['portal']> {
+  const r = await callFunction<SsoResult>(supabase, 'mantap-sso', { token });
+  if (r.portal.web) await adminSupabase.auth.setSession(r.session);
+  if (r.portal.mobile && r.worker) {
+    await supabase.auth.setSession(r.session);
+    setWorker(r.worker, getWorker());
+  }
+  return r.portal;
+}
+
+// ── Web portal (Super Admin or Intranet user with web access) ─────────
+export interface PortalMe { email: string; name: string; isSuper: boolean }
+
+/** Returns who is signed in to the web portal, or null. */
+export async function portalMe(): Promise<PortalMe | null> {
+  const { data } = await adminSupabase.auth.getSession();
+  if (!data.session) return null;
+  try {
+    return await callFunction<PortalMe>(adminSupabase, 'mantap-worker-admin', { action: 'whoami' });
+  } catch {
+    return null;
+  }
+}
+
+/** True when someone is signed in to the web portal. */
+export async function isAdminSignedIn(): Promise<boolean> {
+  return !!(await portalMe());
+}
+
 export async function signOutAdmin() {
   await adminSupabase.auth.signOut().catch(() => {});
 }

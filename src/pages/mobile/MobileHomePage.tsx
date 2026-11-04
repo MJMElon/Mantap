@@ -1,29 +1,30 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { Brand } from '../components/Brand';
-import { LangToggle } from '../components/LangToggle';
-import { getWorker, refreshWorker, signOutWorker } from '../lib/auth';
-import { useI18n } from '../lib/i18n';
-import { MODULES } from '../lib/modules';
+import { Brand } from '../../components/Brand';
+import { LangToggle } from '../../components/LangToggle';
+import { getWorker, refreshWorker, signOutWorker } from '../../lib/auth';
+import { useI18n } from '../../lib/i18n';
+import { MODULES } from '../../lib/modules';
 
-export function WorkerHomePage() {
+/** Worker Portal mobile home: greeting, estates and module buttons (Stock, …). */
+export function MobileHomePage() {
   const { t, lang } = useI18n();
   const navigate = useNavigate();
   const [worker, setWorker] = useState(getWorker);
 
   // Pick up access / estate / status changes made by the admin.
   useEffect(() => {
-    refreshWorker().then((w) => (w ? setWorker(w) : navigate('/?inactive=1', { replace: true })));
+    refreshWorker().then((w) => (w ? setWorker(w) : navigate('/m?inactive=1', { replace: true })));
   }, [navigate]);
 
-  if (!worker) return <Navigate to="/" replace />;
+  if (!worker) return <Navigate to="/m" replace />;
 
   const modules = MODULES.filter((m) => m.allowed(worker));
 
   async function signOut() {
     if (!confirm(t('sign_out_q'))) return;
     await signOutWorker();
-    navigate('/', { replace: true });
+    navigate('/m', { replace: true });
   }
 
   return (

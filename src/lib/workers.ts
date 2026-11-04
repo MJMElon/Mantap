@@ -20,3 +20,20 @@ export const setWorkerStatus = (id: number, status: 'active' | 'inactive') =>
   call<{ ok: true }>({ action: 'set_status', id, status });
 
 export const deleteWorker = (id: number) => call<{ ok: true }>({ action: 'delete', id });
+
+// ── User Access (who may use the Worker Portal) ───────────────────────
+export interface PortalUser {
+  email: string;
+  name: string;
+  web_access: boolean;
+  mobile_access: boolean;
+  estates: string[];
+  permissions: Record<string, unknown>;
+}
+
+export const listPortalUsers = () => call<{ users: PortalUser[]; estates: string[] }>({ action: 'portal_list' });
+
+export const savePortalUser = (u: { email: string; name: string; web: boolean; mobile: boolean; estates: string[]; access: Record<string, string> }) =>
+  call<{ ok: true }>({ action: 'portal_save', ...u });
+
+export const removePortalUser = (email: string) => call<{ ok: true }>({ action: 'portal_remove', email });

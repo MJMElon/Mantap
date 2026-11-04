@@ -1,11 +1,12 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Brand } from '../components/Brand';
-import { LangToggle } from '../components/LangToggle';
-import { getWorker, isAdminSignedIn, signIn, signOutAdmin } from '../lib/auth';
-import { useErrorText, useI18n } from '../lib/i18n';
+import { Brand } from '../../components/Brand';
+import { LangToggle } from '../../components/LangToggle';
+import { getWorker, signIn, signOutAdmin } from '../../lib/auth';
+import { useErrorText, useI18n } from '../../lib/i18n';
 
-export function LoginPage() {
+/** Mobile sign-in (workers with User ID + password). Also shown inside the web portal's Mobile View. */
+export function MobileLoginPage() {
   const { t } = useI18n();
   const errorText = useErrorText();
   const navigate = useNavigate();
@@ -19,9 +20,8 @@ export function LoginPage() {
   const [error, setError] = useState(params.has('inactive') ? t('err_inactive') : '');
 
   useEffect(() => {
-    if (getWorker()) { navigate('/app', { replace: true }); return; }
-    if (!isDemo) isAdminSignedIn().then((ok) => ok && navigate('/admin', { replace: true }));
-  }, [isDemo, navigate]);
+    if (getWorker()) { navigate('/m/home', { replace: true }); return; }
+  }, [navigate]);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -34,7 +34,7 @@ export function LoginPage() {
         setError(t('err_not_worker'));
         return;
       }
-      navigate(kind === 'admin' ? '/admin' : '/app', { replace: true });
+      navigate(kind === 'admin' ? '/portal' : '/m/home', { replace: true });
     } catch (ex) {
       setError(errorText(ex));
     } finally {

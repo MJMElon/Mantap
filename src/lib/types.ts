@@ -9,6 +9,8 @@ export interface Worker {
   permissions: Record<string, unknown>;
   status: 'active' | 'inactive';
   lastActive: string | null;
+  /** true for an MJM Intranet user with mobile access (signs in from the Intranet) */
+  intranet?: boolean;
 }
 
 /** Shape the legacy Stock module expects in localStorage. */

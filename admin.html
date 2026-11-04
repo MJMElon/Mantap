@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#166534">
+<title>Mantap · Admin</title>
+<link rel="stylesheet" href="shared/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+<script src="shared/config.js"></script>
+<script src="shared/i18n.js"></script>
+<script src="shared/auth.js"></script>
+<script src="shared/modules.js"></script>
+<script>if (!AdminSession.get()) location.replace('./');</script>
+<style>
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 24px; background: #fff; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; }
+  .right { display: flex; align-items: center; gap: 10px; }
+  .tabs { display: flex; gap: 4px; padding: 0 24px; background: #fff; border-bottom: 1px solid var(--line); }
+  .tab { border: 0; background: none; padding: 12px 14px; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; }
+  .tab.on { color: var(--green); border-bottom-color: var(--green-2); }
+  main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  .tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .tools .input { width: auto; flex: 1 1 220px; padding: 8px 12px; font-size: 14px; }
+  .tools select.input { flex: 0 1 200px; }
+  .count { color: var(--muted); font-size: 13px; }
+  .table-wrap { background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 10px 12px; background: #f8fafc; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; margin: 0 4px 4px 0; white-space: nowrap; }
+  .pill.on { background: #dcfce7; color: #166534; }
+  .pill.off { background: #fee2e2; color: #991b1b; }
+  .pill.est { background: #f1f5f9; color: #334155; }
+  .pill.view { background: #dbeafe; color: #1d4ed8; }
+  .pill.edit { background: #dcfce7; color: #166534; }
+  .acts { display: flex; flex-wrap: wrap; gap: 6px; }
+  .muted { color: var(--muted); }
+  /* dialog */
+  dialog { border: 0; border-radius: 16px; padding: 0; width: min(560px, calc(100vw - 32px)); box-shadow: 0 20px 50px rgba(15,23,42,.25); }
+  dialog::backdrop { background: rgba(15,23,42,.45); }
+  .dlg-h { padding: 16px 20px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 16px; }
+  .dlg-b { padding: 16px 20px; max-height: 65vh; overflow-y: auto; }
+  .dlg-f { padding: 12px 20px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; gap: 8px; }
+  .row { margin-bottom: 14px; }
+  .checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px; }
+  .checks label { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .acc { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .acc-h { padding: 8px 12px; background: var(--green-bg); font-weight: 700; font-size: 13px; color: var(--green); }
+  .acc-r { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-top: 1px solid #f1f5f9; font-size: 14px; }
+  .acc-r span { flex: 1; }
+  .acc-r label { display: flex; align-items: center; gap: 4px; font-size: 12px; }
+  /* demo */
+  .demo { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: start; }
+  .demo h2 { margin: 0 0 6px; font-size: 20px; }
+  .phone { width: 390px; height: 800px; border-radius: 48px; padding: 14px; background: #0f172a; box-shadow: 0 25px 60px rgba(15,23,42,.35); position: relative; }
+  .phone::before { content: ""; position: absolute; top: 22px; left: 50%; transform: translateX(-50%); width: 110px; height: 26px; border-radius: 14px; background: #0f172a; z-index: 2; }
+  .phone iframe { width: 100%; height: 100%; border: 0; border-radius: 36px; background: #fff; }
+  @media (max-width: 860px) { .demo { grid-template-columns: 1fr; } .phone { width: 100%; max-width: 390px; margin: 0 auto; } }
+  @media (max-width: 600px) { header, main { padding-left: 16px; padding-right: 16px; } .tabs { padding: 0 8px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="brand-mark">M</div>
+    <div><div class="brand-name">Mantap</div><div class="brand-sub" data-i18n="admin_title">Worker Portal Admin</div></div>
+  </div>
+  <div class="right">
+    <div class="lang"><button data-lang="en" onclick="setLang('en')">EN</button><button data-lang="ms" onclick="setLang('ms')">BM</button></div>
+    <button class="btn sm" onclick="doSignOut()" data-i18n="sign_out">Sign out</button>
+  </div>
+</header>
+<nav class="tabs">
+  <button class="tab on" data-tab="workers" onclick="showTab('workers')" data-i18n="tab_workers">Workers</button>
+  <button class="tab" data-tab="demo" onclick="showTab('demo')" data-i18n="tab_demo">Mobile Demo</button>
+</nav>
+
+<main>
+  <!-- Workers -->
+  <section id="tab-workers">
+    <div class="tools">
+      <input class="input" id="q" data-i18n-placeholder="search" oninput="renderTable()">
+      <select class="input" id="fEstate" onchange="renderTable()"></select>
+      <span class="count" id="count"></span>
+      <button class="btn primary" onclick="openWorker(null)" data-i18n="add_worker">Add Worker</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th data-i18n="col_name">Name</th><th data-i18n="col_id">User ID</th><th data-i18n="col_estates">Estates</th>
+          <th data-i18n="col_access">Stock access</th><th data-i18n="col_status">Status</th><th data-i18n="col_last">Last active</th><th></th>
+        </tr></thead>
+        <tbody id="rows"><tr><td colspan="7" class="muted" data-i18n="loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Mobile Demo -->
+  <section id="tab-demo" class="hidden">
+    <div class="demo">
+      <div>
+        <h2 data-i18n="demo_title">Mobile view demo</h2>
+        <p class="muted" data-i18n="demo_sub"></p>
+        <div class="acts" style="margin-top:16px">
+          <button class="btn" onclick="reloadDemo()" data-i18n="reload">Reload</button>
+          <a class="btn" href="./?demo=1" target="_blank" rel="noopener" data-i18n="open_tab">Open in new tab</a>
+        </div>
+      </div>
+      <div class="phone"><iframe id="demoFrame" title="Mobile demo"></iframe></div>
+    </div>
+  </section>
+</main>
+
+<dialog id="dlg">
+  <form method="dialog" onsubmit="return false">
+    <div class="dlg-h" id="dlgTitle"></div>
+    <div class="dlg-b">
+      <div class="row"><label class="label" data-i18n="full_name">Full name</label><input class="input" id="fName"></div>
+      <div class="row" id="idRow"><label class="label" data-i18n="col_id">User ID</label><input class="input" id="fId" autocapitalize="none" spellcheck="false"></div>
+      <div class="row" id="pwRow"><label class="label" data-i18n="new_password">New password</label><input class="input" id="fPw" type="password" autocomplete="new-password"></div>
+      <div class="row"><label class="label" data-i18n="estates">Estates</label><div class="checks" id="fEstates"></div></div>
+      <div class="row"><label class="label" data-i18n="module_access">Module access</label><div id="fAccess"></div></div>
+      <p class="err" id="dlgErr"></p>
+    </div>
+    <div class="dlg-f">
+      <button class="btn" type="button" onclick="dlg.close()" data-i18n="cancel">Cancel</button>
+      <button class="btn primary" type="button" id="dlgSave" onclick="saveWorker()" data-i18n="save">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+  const dlg = document.getElementById('dlg');
+  let workers = [], estates = [], editing = null;
+
+  // Admin pages need the Super Admin's Supabase Auth session.
+  db.auth.getSession().then(({ data }) => {
+    if (!data.session || data.session.user.email !== MANTAP_CONFIG.SUPER_ADMIN_EMAIL) { AdminSession.clear(); location.replace('./'); }
+  });
+
+  function showTab(name) {
+    document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+    document.getElementById('tab-workers').classList.toggle('hidden', name !== 'workers');
+    document.getElementById('tab-demo').classList.toggle('hidden', name !== 'demo');
+    const f = document.getElementById('demoFrame');
+    if (name === 'demo' && !f.src) f.src = './?demo=1';
+  }
+  function reloadDemo() { document.getElementById('demoFrame').src = './?demo=1&t=' + Date.now(); }
+
+  async function doSignOut() {
+    if (!confirm(t('sign_out_q'))) return;
+    await signOutAdmin();
+    location.replace('./');
+  }
+
+  async function load() {
+    const [u, e] = await Promise.all([
+      db.from(MANTAP_CONFIG.USERS_TABLE).select('*'),
+      db.from('opp_estates').select('name').order('name'),
+    ]);
+    if (u.error) { document.getElementById('rows').innerHTML = '<tr><td colspan="7" class="err">' + escapeHtml(u.error.message) + '</td></tr>'; return; }
+    workers = (u.data || []).map(rowToUser).filter(x => x.role === 'estate_user')
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    estates = (e.data || []).map(r => r.name);
+    const sel = document.getElementById('fEstate'), cur = sel.value;
+    sel.innerHTML = '<option value="">' + escapeHtml(t('all_estates')) + '</option>' + estates.map(n => '<option>' + escapeHtml(n) + '</option>').join('');
+    sel.value = cur;
+    renderTable();
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return t('never');
+    const d = new Date(iso);
+    return d.toLocaleDateString(getLang() === 'ms' ? 'ms-MY' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' +
+           d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderTable() {
+    const q = document.getElementById('q').value.trim().toLowerCase();
+    const est = document.getElementById('fEstate').value;
+    const lang = getLang();
+    const list = workers.filter(w =>
+      (!q || (w.name || '').toLowerCase().includes(q) || toUserId(w.email).includes(q)) &&
+      (!est || (w.estates || []).includes(est)));
+    document.getElementById('count').textContent = list.length + ' ' + t('workers_count');
+    document.getElementById('rows').innerHTML = list.length ? list.map(w => {
+      const acc = STOCK_SECTIONS.map(s => {
+        const a = stockAccess(w.permissions, s.id);
+        return a === 'none' ? '' : '<span class="pill ' + a + '" title="' + escapeHtml(t(a === 'edit' ? 'edit_access' : 'view')) + '">' + s.icon + ' ' + escapeHtml(s[lang]) + '</span>';
+      }).join('') || '<span class="muted">' + escapeHtml(t('none')) + '</span>';
+      const on = w.status !== 'inactive';
+      return '<tr>' +
+        '<td><strong>' + escapeHtml(w.name) + '</strong></td>' +
+        '<td>' + escapeHtml(toUserId(w.email)) + '</td>' +
+        '<td>' + ((w.estates || []).map(n => '<span class="pill est">' + escapeHtml(n) + '</span>').join('') || '<span class="muted">—</span>') + '</td>' +
+        '<td>' + acc + '</td>' +
+        '<td><span class="pill ' + (on ? 'on' : 'off') + '">' + escapeHtml(t(on ? 'active' : 'inactive')) + '</span></td>' +
+        '<td class="muted" style="white-space:nowrap">' + escapeHtml(fmtDate(w.lastActive)) + '</td>' +
+        '<td><div class="acts">' +
+          '<button class="btn sm" onclick="openWorker(' + w.id + ')">' + escapeHtml(t('edit')) + '</button>' +
+          '<button class="btn sm" onclick="resetPw(' + w.id + ')">' + escapeHtml(t('reset_pw')) + '</button>' +
+          '<button class="btn sm" onclick="toggleStatus(' + w.id + ')">' + escapeHtml(t(on ? 'deactivate' : 'activate')) + '</button>' +
+          '<button class="btn sm danger" onclick="removeWorker(' + w.id + ')">' + escapeHtml(t('delete')) + '</button>' +
+        '</div></td></tr>';
+    }).join('') : '<tr><td colspan="7" class="muted">' + escapeHtml(t('no_workers')) + '</td></tr>';
+  }
+
+  function openWorker(id) {
+    editing = id == null ? null : workers.find(w => w.id === id);
+    const isNew = !editing, w = editing || { name: '', email: '', estates: [], permissions: {} };
+    const lang = getLang();
+    document.getElementById('dlgTitle').textContent = isNew ? t('add_worker') : t('edit') + ' · ' + w.name;
+    document.getElementById('fName').value = w.name || '';
+    document.getElementById('fId').value = isNew ? '' : toUserId(w.email);
+    document.getElementById('fId').disabled = !isNew;
+    document.getElementById('pwRow').classList.toggle('hidden', !isNew);
+    document.getElementById('fPw').value = '';
+    document.getElementById('dlgErr').textContent = '';
+    document.getElementById('fEstates').innerHTML = estates.map(n =>
+      '<label><input type="checkbox" class="est-cb" value="' + escapeHtml(n) + '"' + ((w.estates || []).includes(n) ? ' checked' : '') + '> ' + escapeHtml(n) + '</label>').join('');
+    const lvl = ['none', 'view', 'edit'], lbl = { none: 'none', view: 'view', edit: 'edit_access' };
+    document.getElementById('fAccess').innerHTML = MODULES.map(m => m.id !== 'stock' ? '' :
+      '<div class="acc"><div class="acc-h">' + m.icon + ' ' + escapeHtml(m.name[lang]) + '</div>' +
+      STOCK_SECTIONS.map(s => {
+        const a = stockAccess(w.permissions, s.id);
+        return '<div class="acc-r"><span>' + s.icon + ' ' + escapeHtml(s[lang]) + '</span>' +
+          lvl.map(v => '<label><input type="radio" name="acc_' + s.id + '" value="' + v + '"' + (a === v ? ' checked' : '') + '> ' + escapeHtml(t(lbl[v])) + '</label>').join('') + '</div>';
+      }).join('') + '</div>').join('');
+    dlg.showModal();
+  }
+
+  async function saveWorker() {
+    const err = document.getElementById('dlgErr'), btn = document.getElementById('dlgSave');
+    err.textContent = '';
+    const name = document.getElementById('fName').value.trim();
+    const est = [...document.querySelectorAll('.est-cb:checked')].map(c => c.value);
+    // Keep any other permission keys the Stock app stores; only replace the module-access ones.
+    const perms = Object.assign({}, editing ? editing.permissions : {}, { __role: 'estate_user' });
+    STOCK_SECTIONS.forEach(s => {
+      const c = document.querySelector('input[name="acc_' + s.id + '"]:checked');
+      perms[s.id] = c ? c.value : 'none';
+    });
+
+    let row;
+    if (editing) {
+      if (!name) { err.textContent = t('need_name_id'); return; }
+      if (!est.length) { err.textContent = t('need_estate'); return; }
+      row = { name, estates: est, permissions: perms };
+    } else {
+      const uid = document.getElementById('fId').value.trim().toLowerCase();
+      const pw = document.getElementById('fPw').value;
+      if (!name || !uid) { err.textContent = t('need_name_id'); return; }
+      if (pw.length < 6) { err.textContent = t('pw_short'); return; }
+      if (!est.length) { err.textContent = t('need_estate'); return; }
+      const email = toAuthEmail(uid);
+      if (email === MANTAP_CONFIG.SUPER_ADMIN_EMAIL) { err.textContent = t('id_reserved'); return; }
+      try { if (await fetchUserByEmail(email)) { err.textContent = t('id_exists'); return; } }
+      catch (e) { err.textContent = e.message; return; }
+      row = { id: Date.now(), name, email, password_hash: await sha256Hex(pw), estates: est, permissions: perms, status: 'active' };
+    }
+
+    btn.disabled = true; btn.textContent = t('saving');
+    try {
+      const q = editing
+        ? db.from(MANTAP_CONFIG.USERS_TABLE).update(row).eq('id', editing.id)
+        : db.from(MANTAP_CONFIG.USERS_TABLE).insert(row);
+      const { error } = await q;
+      if (error) throw error;
+      dlg.close();
+      await load();
+    } catch (e) {
+      err.textContent = e.message || String(e);
+    } finally {
+      btn.disabled = false; btn.textContent = t('save');
+    }
+  }
+
+  async function resetPw(id) {
+    const w = workers.find(x => x.id === id); if (!w) return;
+    const pw = prompt(t('new_password') + ' — ' + w.name);
+    if (pw == null) return;
+    if (pw.length < 6) { alert(t('pw_short')); return; }
+    const { error } = await db.from(MANTAP_CONFIG.USERS_TABLE).update({ password_hash: await sha256Hex(pw) }).eq('id', id);
+    alert(error ? error.message : t('saved'));
+  }
+
+  async function toggleStatus(id) {
+    const w = workers.find(x => x.id === id); if (!w) return;
+    const { error } = await db.from(MANTAP_CONFIG.USERS_TABLE).update({ status: w.status === 'inactive' ? 'active' : 'inactive' }).eq('id', id);
+    if (error) alert(error.message); else load();
+  }
+
+  async function removeWorker(id) {
+    if (!confirm(t('confirm_delete'))) return;
+    const { error } = await db.from(MANTAP_CONFIG.USERS_TABLE).delete().eq('id', id);
+    if (error) alert(error.message); else load();
+  }
+
+  window.onLangChange = () => { renderTable(); const s = document.getElementById('fEstate'); if (s.options[0]) s.options[0].textContent = t('all_estates'); };
+  applyI18n();
+  load();
+</script>
+</body>
+</html>

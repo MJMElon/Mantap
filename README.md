@@ -77,35 +77,24 @@ npm run dev          # http://localhost:5173/Mantap/
 npm run build        # type-check + production build into dist/
 ```
 
-## Sign-in from MJM Intranet (one-time setup)
+## Setup (no software needed, only the Supabase and GitHub websites)
 
-1. MJM Intranet → Admin → Master Manage → Module → **Mantap**:
-   - set it to **"2 · Token redirect"**, URL `https://mjmelon.github.io/Mantap/`
-   - press **Generate API Key** and copy the key (it is shown once).
-2. Give the key to the Mantap functions (stock Supabase project):
-   ```bash
-   npx supabase secrets set INTRANET_MODULE_API_KEY=gwk_... --project-ref eukvdlyzhyjohkjqbqjb
-   ```
-3. Add yourself as the first Worker Portal web user. In the stock project's
-   SQL Editor, run this once (after that, use the User Access page):
-   ```sql
-   insert into public.mantap_portal_users (email, name, web_access)
-   values ('you@puigroups.com', 'Your Name', true);
-   ```
+1. **Database:** stock Supabase project → SQL Editor → paste `supabase/setup.sql`
+   (change the email/name at the bottom to yours) → Run.
+2. **Server functions:**
+   - Supabase → Account (top right) → **Access Tokens** → Generate new token → copy.
+   - GitHub → this repo → Settings → Secrets and variables → Actions →
+     **New repository secret** `SUPABASE_ACCESS_TOKEN` = the token.
+   - GitHub → **Actions** → "Deploy Supabase functions" → **Run workflow**.
+     (After that it redeploys by itself when function code changes.)
+3. **Sign-in from MJM Intranet:**
+   - MJM Intranet → Admin → Master Manage → Module → **Mantap**: access level
+     **2 · Token redirect**, URL `https://mjmelon.github.io/Mantap/`, press
+     **Generate API Key** and copy it (shown once).
+   - Stock Supabase project → Edge Functions → **Secrets** → add
+     `INTRANET_MODULE_API_KEY` = that key.
 4. In MJM Intranet, open the Mantap module for the people who should see the
    icon. What they can do inside Mantap is set on Mantap's **User Access** page.
-
-## Deploying the backend (once, and after changes)
-
-```bash
-npx supabase link --project-ref eukvdlyzhyjohkjqbqjb
-npx supabase db push                          # creates mantap_login_attempts
-npx supabase functions deploy mantap-worker-auth --no-verify-jwt
-npx supabase functions deploy mantap-worker-admin
-npx supabase functions deploy mantap-sso --no-verify-jwt
-# optional overrides:
-# npx supabase secrets set SUPER_ADMIN_EMAIL=... MANTAP_ALLOWED_ORIGINS=https://mjmelon.github.io
-```
 
 ## Adding a module
 

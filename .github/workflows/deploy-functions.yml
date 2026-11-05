@@ -34,6 +34,6 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-      - run: supabase functions deploy mantap-worker-auth --no-verify-jwt --project-ref "$PROJECT_REF"
-      - run: supabase functions deploy mantap-worker-admin --project-ref "$PROJECT_REF"
-      - run: supabase functions deploy mantap-sso --no-verify-jwt --project-ref "$PROJECT_REF"
+      - run: supabase functions deploy mantap-worker-auth --no-verify-jwt --project-ref "$PROJECT_REF" --yes
+      - run: supabase functions deploy mantap-worker-admin --project-ref "$PROJECT_REF" --yes
+      - run: supabase functions deploy mantap-sso --no-verify-jwt --project-ref "$PROJECT_REF" --yes

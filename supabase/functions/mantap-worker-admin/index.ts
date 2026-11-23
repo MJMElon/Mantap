@@ -24,10 +24,14 @@ function password(v: unknown): string {
   return s;
 }
 
+// The estate list follows the MJM Intranet companies (synced by the Stock
+// project's stock-master-sync); inactive rows are hidden but their data kept.
 async function knownEstates(): Promise<string[]> {
-  const { data, error } = await serviceClient().from('opp_estates').select('name').order('name');
-  if (error) throw error;
-  return (data ?? []).map((r: { name: string }) => r.name);
+  const db = serviceClient();
+  let res = await db.from('opp_estates').select('name, is_active').order('sort_order').order('name');
+  if (res.error) res = await db.from('opp_estates').select('name').order('name'); // before the 20261123 migration
+  if (res.error) throw res.error;
+  return (res.data ?? []).filter((r: { is_active?: boolean }) => r.is_active !== false).map((r: { name: string }) => r.name);
 }
 
 async function estatesArg(v: unknown): Promise<string[]> {

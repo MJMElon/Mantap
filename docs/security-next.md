@@ -8,14 +8,14 @@ Done in Mantap:
 Still open, because the old Stock app (HQ side) talks to the database
 directly with the anon key:
 
-1. **`opp_users.password_hash` can be read with the anon key.** Once the Stock
+1. **`port_users.password_hash` can be read with the anon key.** Once the Stock
    app signs HQ users in through an Edge Function too, run:
 
    ```sql
-   revoke select on public.opp_users from anon;
+   revoke select on public.port_users from anon;
    -- signed-in users read only their own row (others via Edge Functions)
-   alter table public.opp_users enable row level security;
-   create policy opp_users_self on public.opp_users for select to authenticated
+   alter table public.port_users enable row level security;
+   create policy opp_users_self on public.port_users for select to authenticated
      using (email = auth.jwt() ->> 'email');
    ```
 

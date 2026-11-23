@@ -66,7 +66,7 @@ supabase/
 - The admin session is stored separately (`mantap-admin-auth`), so the
   Mobile Demo can sign in a worker without signing the admin out.
 - Still open until the Stock app is rebuilt: the old Stock app reads
-  `opp_users` directly, so the anon key can still read that table. See
+  `port_users` directly, so the anon key can still read that table. See
   `docs/security-next.md`.
 
 ## Local development

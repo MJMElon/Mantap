@@ -3936,7 +3936,7 @@ const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 /* Authentication is now handled by Supabase Auth (supabase.auth.signInWithPassword).
-   Passwords are never stored in opp_users — that table holds only profile data. */
+   Passwords are never stored in port_users — that table holds only profile data. */
 
 /* -----------------------------------------------------------------
    GLOBAL STATE - Loaded from / persisted to localStorage
@@ -3949,32 +3949,32 @@ let activeEstate = '';
 
 /**
  * Returns localStorage key names scoped to the active estate.
- * e.g. "opp_items::Ulu Niah Estate"
+ * e.g. "port_items::Ulu Niah Estate"
  */
 function getEstateKeys(estate) {
     const e = estate || activeEstate;
     return {
-        items:            `opp_items::${e}`,
-        locations:        `opp_locations::${e}`,
-        transactions:     `opp_transactions::${e}`,
-        manuringRounds:   `opp_manuring_rounds::${e}`,
-        fieldMaintRounds: `opp_fieldmaint_rounds::${e}`,
-        maintClaims:      `opp_maint_claims::${e}`,
-        chemIngredients:  `opp_chem_ingredients::${e}`,
-        rainfallTxns:     `opp_rainfall_txns::${e}`,
+        items:            `port_items::${e}`,
+        locations:        `port_locations::${e}`,
+        transactions:     `port_transactions::${e}`,
+        manuringRounds:   `port_manuring_rounds::${e}`,
+        fieldMaintRounds: `port_fieldmaint_rounds::${e}`,
+        maintClaims:      `port_maint_claims::${e}`,
+        chemIngredients:  `port_chem_ingredients::${e}`,
+        rainfallTxns:     `port_rainfall_txns::${e}`,
     };
 }
 
 // Keep STORAGE_KEYS for backward-compat reference (table names used for Supabase)
 const STORAGE_KEYS = {
-    items:            'opp_items',
-    locations:        'opp_locations',
-    transactions:     'opp_transactions',
-    manuringRounds:   'opp_manuring_rounds',
-    fieldMaintRounds: 'opp_fieldmaint_rounds',
-    maintClaims:      'opp_maint_claims',
-    chemIngredients:  'opp_chem_ingredients',
-    rainfallTxns:     'opp_rainfall_txns'
+    items:            'port_items',
+    locations:        'port_locations',
+    transactions:     'port_transactions',
+    manuringRounds:   'port_manuring_rounds',
+    fieldMaintRounds: 'port_fieldmaint_rounds',
+    maintClaims:      'port_maint_claims',
+    chemIngredients:  'port_chem_ingredients',
+    rainfallTxns:     'port_rainfall_txns'
 };
 
 // In-memory arrays — always reflect the ACTIVE estate's data
@@ -3989,14 +3989,14 @@ let rainfallTxns     = []; // { id, date, mm, picture, createdAt }
 
 // Snapshot of last-known ids per estate+table for Supabase delete sync
 const lastKnownIds = {
-    opp_items:              new Set(),
-    opp_locations:          new Set(),
-    opp_transactions:       new Set(),
-    opp_manuring_rounds:    new Set(),
-    opp_fieldmaint_rounds:  new Set(),
-    opp_maint_claims:       new Set(),
-    opp_chem_ingredients:   new Set(),
-    opp_rainfall_txns:      new Set()
+    port_items:              new Set(),
+    port_locations:          new Set(),
+    port_transactions:       new Set(),
+    port_manuring_rounds:    new Set(),
+    port_fieldmaint_rounds:  new Set(),
+    port_maint_claims:       new Set(),
+    port_chem_ingredients:   new Set(),
+    port_rainfall_txns:      new Set()
 };
 
 /**
@@ -4015,14 +4015,14 @@ function loadEstateData(estate) {
     chemIngredients  = _parseArr(keys.chemIngredients);
     rainfallTxns     = _parseArr(keys.rainfallTxns);
     // Refresh id snapshots
-    lastKnownIds.opp_items              = new Set(items.map(r => r.id));
-    lastKnownIds.opp_locations          = new Set(locations.map(r => r.id));
-    lastKnownIds.opp_transactions       = new Set(transactions.map(r => r.id));
-    lastKnownIds.opp_manuring_rounds    = new Set(manuringRounds.map(r => r.id));
-    lastKnownIds.opp_fieldmaint_rounds  = new Set(fieldMaintRounds.map(r => r.id));
-    lastKnownIds.opp_maint_claims       = new Set(maintClaims.map(r => r.id));
-    lastKnownIds.opp_chem_ingredients   = new Set(chemIngredients.map(r => r.id));
-    lastKnownIds.opp_rainfall_txns      = new Set(rainfallTxns.map(r => r.id));
+    lastKnownIds.port_items              = new Set(items.map(r => r.id));
+    lastKnownIds.port_locations          = new Set(locations.map(r => r.id));
+    lastKnownIds.port_transactions       = new Set(transactions.map(r => r.id));
+    lastKnownIds.port_manuring_rounds    = new Set(manuringRounds.map(r => r.id));
+    lastKnownIds.port_fieldmaint_rounds  = new Set(fieldMaintRounds.map(r => r.id));
+    lastKnownIds.port_maint_claims       = new Set(maintClaims.map(r => r.id));
+    lastKnownIds.port_chem_ingredients   = new Set(chemIngredients.map(r => r.id));
+    lastKnownIds.port_rainfall_txns      = new Set(rainfallTxns.map(r => r.id));
 }
 
 // Show a spinner + disable a save button while an operation is in flight.
@@ -4298,14 +4298,14 @@ async function loadFromSupabase() {
     try {
         const [itemsRes, locsRes, txnsRes, roundsRes,
                fmRoundsRes, claimsRes, chemRes, rainfallRes] = await Promise.all([
-            supabaseClient.from('opp_items').select('*').eq('estate', activeEstate),
-            supabaseClient.from('opp_locations').select('*').eq('estate', activeEstate),
-            supabaseClient.from('opp_transactions').select('*').eq('estate', activeEstate),
-            supabaseClient.from('opp_manuring_rounds').select('*').eq('estate', activeEstate),
-            supabaseClient.from('opp_fieldmaint_rounds').select('*').eq('estate', activeEstate),
-            supabaseClient.from('opp_maint_claims').select('*').eq('estate', activeEstate),
-            supabaseClient.from('opp_chem_ingredients').select('*').eq('estate', activeEstate),
-            supabaseClient.from('opp_rainfall_txns').select('*').eq('estate', activeEstate)
+            supabaseClient.from('port_items').select('*').eq('estate', activeEstate),
+            supabaseClient.from('port_locations').select('*').eq('estate', activeEstate),
+            supabaseClient.from('port_transactions').select('*').eq('estate', activeEstate),
+            supabaseClient.from('port_manuring_rounds').select('*').eq('estate', activeEstate),
+            supabaseClient.from('port_fieldmaint_rounds').select('*').eq('estate', activeEstate),
+            supabaseClient.from('port_maint_claims').select('*').eq('estate', activeEstate),
+            supabaseClient.from('port_chem_ingredients').select('*').eq('estate', activeEstate),
+            supabaseClient.from('port_rainfall_txns').select('*').eq('estate', activeEstate)
         ]);
 
         if (itemsRes.error)    console.error('[Supabase] load items',          itemsRes.error);
@@ -4321,7 +4321,7 @@ async function loadFromSupabase() {
         if (!locsRes.error   && locsRes.data   !== null) locations        = locsRes.data;
         if (!txnsRes.error   && txnsRes.data   !== null) {
             const sbTxns    = txnsRes.data;
-            const prevKnown = lastKnownIds.opp_transactions; // ids known at last sync
+            const prevKnown = lastKnownIds.port_transactions; // ids known at last sync
             const localIds  = new Set(transactions.map(r => String(r.id)));
             // Tombstone: ids deleted locally that may not yet be deleted in Supabase
             let tombstoneIds = new Set();
@@ -4339,7 +4339,7 @@ async function loadFromSupabase() {
             if (tombstoneIds.size > 0) {
                 const stillInSb = sbTxns.filter(r => tombstoneIds.has(String(r.id))).map(r => r.id);
                 if (stillInSb.length > 0 && typeof supabaseClient !== 'undefined') {
-                    supabaseClient.from('opp_transactions').delete().in('id', stillInSb)
+                    supabaseClient.from('port_transactions').delete().in('id', stillInSb)
                         .then(function(res) {
                             if (res && !res.error) {
                                 try {
@@ -4364,7 +4364,7 @@ async function loadFromSupabase() {
             );
             transactions = [...filtered, ...localUnsynced];
             // Update lastKnownIds to reflect what is actually in Supabase now
-            lastKnownIds.opp_transactions = new Set(transactions.map(r => r.id));
+            lastKnownIds.port_transactions = new Set(transactions.map(r => r.id));
             // Persist updated transactions to localStorage so stale remote-deleted records
             // don't survive the next page load on this device.
             if (activeEstate) {
@@ -4415,14 +4415,14 @@ async function loadFromSupabase() {
         localStorage.setItem(keys.rainfallTxns,     JSON.stringify(rainfallTxns));
 
         // Refresh lastKnownIds snapshots for all tables
-        lastKnownIds.opp_items              = new Set(items.map(r => r.id));
-        lastKnownIds.opp_locations          = new Set(locations.map(r => r.id));
-        lastKnownIds.opp_transactions       = new Set(transactions.map(r => r.id));
-        lastKnownIds.opp_manuring_rounds    = new Set(manuringRounds.map(r => r.id));
-        lastKnownIds.opp_fieldmaint_rounds  = new Set(fieldMaintRounds.map(r => r.id));
-        lastKnownIds.opp_maint_claims       = new Set(maintClaims.map(r => r.id));
-        lastKnownIds.opp_chem_ingredients   = new Set(chemIngredients.map(r => r.id));
-        lastKnownIds.opp_rainfall_txns      = new Set(rainfallTxns.map(r => r.id));
+        lastKnownIds.port_items              = new Set(items.map(r => r.id));
+        lastKnownIds.port_locations          = new Set(locations.map(r => r.id));
+        lastKnownIds.port_transactions       = new Set(transactions.map(r => r.id));
+        lastKnownIds.port_manuring_rounds    = new Set(manuringRounds.map(r => r.id));
+        lastKnownIds.port_fieldmaint_rounds  = new Set(fieldMaintRounds.map(r => r.id));
+        lastKnownIds.port_maint_claims       = new Set(maintClaims.map(r => r.id));
+        lastKnownIds.port_chem_ingredients   = new Set(chemIngredients.map(r => r.id));
+        lastKnownIds.port_rainfall_txns      = new Set(rainfallTxns.map(r => r.id));
 
         try { refreshAll(); } catch (_e) { console.error('[refreshAll in loadFromSupabase]', _e); }
         renderManuringRounds();
@@ -5957,7 +5957,7 @@ async function deleteSummaryTransaction(id) {
     // Write to localStorage DIRECTLY (not via save() which has an activeEstate guard).
     // Update lastKnownIds immediately so any future diff-sync won't try to re-delete.
     transactions = transactions.filter(t => String(t.id) !== String(id));
-    lastKnownIds.opp_transactions = new Set(transactions.map(r => r.id));
+    lastKnownIds.port_transactions = new Set(transactions.map(r => r.id));
     if (deletingEstate) {
         try {
             const estateKey = getEstateKeys(deletingEstate);
@@ -5969,7 +5969,7 @@ async function deleteSummaryTransaction(id) {
     // Step 3: await the Supabase DELETE — same pattern as all other deletes in this codebase.
     if (typeof supabaseClient !== 'undefined') {
         try {
-            const { error } = await supabaseClient.from('opp_transactions').delete().eq('id', id);
+            const { error } = await supabaseClient.from('port_transactions').delete().eq('id', id);
             if (error) {
                 console.error('[Delete txn] Supabase error:', error);
                 // Keep tombstone so loadFromSupabase will retry on next page load
@@ -9229,7 +9229,7 @@ function setLang(lang) {
 /* =================================================================
    AUTH SYSTEM
    - Super Admin: hardcoded, full access.
-   - Normal Users: stored in Supabase table `opp_users` (global, not
+   - Normal Users: stored in Supabase table `port_users` (global, not
      estate-scoped) so any user can log in from any device. Passwords
      are SHA-256 hashed client-side before ever leaving the browser —
      only the hash is sent to / stored in Supabase.
@@ -9244,7 +9244,7 @@ const AUTH_KEYS = {
     users:   'opp_auth_users',   // local cache of users (array) — NOT source of truth
     session: 'opp_auth_session', // current session (object)
 };
-const USERS_TABLE = 'opp_users';
+const USERS_TABLE = 'port_users';
 
 // All permission-controlled navigable sections (useradmin is super-admin-only and excluded)
 const ALL_SECTIONS = [
@@ -9309,7 +9309,7 @@ const SUPER_ADMIN = {
     role:  'superadmin',
 };
 
-// Convert a plain User ID to an internal key used for opp_users lookup.
+// Convert a plain User ID to an internal key used for port_users lookup.
 // Real email addresses (containing '@') are passed through unchanged.
 function toAuthEmail(userId) {
     return userId.includes('@') ? userId : userId + '@psms.app';
@@ -9595,7 +9595,7 @@ function clearSession()      { localStorage.removeItem(AUTH_KEYS.session); }
 
 // Convert a Supabase row (snake_case) <-> the app's in-memory user shape (camelCase).
 // Note: password_hash is preserved in round-trips but is no longer used for auth
-// (authentication is handled by Supabase Auth; opp_users stores profile data only).
+// (authentication is handled by Supabase Auth; port_users stores profile data only).
 function rowToUser(row) {
     const rawPerms = row.permissions || {};
     const role = (typeof rawPerms === 'object' && !Array.isArray(rawPerms) && rawPerms.__role)
@@ -9704,7 +9704,7 @@ let GLOBAL_ESTATES = ['Elewsun','Estet Seri Mawar','Gama Menang','Mega Jutamas (
 
 async function loadEstatesFromSupabase() {
     try {
-        const { data, error } = await supabaseClient.from('opp_estates').select('name').order('name');
+        const { data, error } = await supabaseClient.from('port_estates').select('name').order('name');
         if (error) throw error;
         if (data && data.length > 0) GLOBAL_ESTATES = data.map(r => r.name).sort((a, b) => a.localeCompare(b));
     } catch (e) {
@@ -9751,7 +9751,7 @@ async function renderEstatesList() {
     // Fetch block counts per estate
     let blockCounts = {};
     try {
-        const { data: blkData } = await supabaseClient.from('opp_locations').select('estate');
+        const { data: blkData } = await supabaseClient.from('port_locations').select('estate');
         if (blkData) blkData.forEach(r => { blockCounts[r.estate] = (blockCounts[r.estate] || 0) + 1; });
     } catch (e) { /* non-fatal */ }
 
@@ -9844,7 +9844,7 @@ async function saveEditEstate(oldName, idx) {
         alert('An estate with that name already exists.'); inp.focus(); return;
     }
     try {
-        const { error } = await supabaseClient.from('opp_estates').update({ name: newName }).eq('name', oldName);
+        const { error } = await supabaseClient.from('port_estates').update({ name: newName }).eq('name', oldName);
         if (error) throw error;
         await renderEstatesList();
     } catch (e) {
@@ -9860,7 +9860,7 @@ async function addEstate() {
         alert('An estate with that name already exists.'); return;
     }
     try {
-        const { error } = await supabaseClient.from('opp_estates').insert({ name });
+        const { error } = await supabaseClient.from('port_estates').insert({ name });
         if (error) throw error;
         input.value = '';
         await renderEstatesList();
@@ -9872,7 +9872,7 @@ async function addEstate() {
 async function deleteEstate(name) {
     if (!confirm(`Delete estate "${name}"?\n\nThis removes it from the selector and user assignment. Existing stock records linked to this estate are not deleted. This cannot be undone.`)) return;
     try {
-        const { error } = await supabaseClient.from('opp_estates').delete().eq('name', name);
+        const { error } = await supabaseClient.from('port_estates').delete().eq('name', name);
         if (error) throw error;
         await renderEstatesList();
     } catch (e) {
@@ -9906,7 +9906,7 @@ async function attemptLogin() {
         if (rawId === SUPER_ADMIN.email) {
             const { error: authError } = await supabaseClient.auth.signInWithPassword({ email: rawId, password });
             if (authError) { showLoginError('Incorrect User ID or password.'); return; }
-            // Fetch id from opp_users so last_active tracking works
+            // Fetch id from port_users so last_active tracking works
             const saProfile = await fetchUserByEmail(SUPER_ADMIN.email);
             const session = {
                 id:          saProfile ? saProfile.id : undefined,
@@ -9924,7 +9924,7 @@ async function attemptLogin() {
             return;
         }
 
-        // ── Regular users: look up in opp_users and verify SHA-256 password hash ──
+        // ── Regular users: look up in port_users and verify SHA-256 password hash ──
         const email = toAuthEmail(rawId);
         const user  = await fetchUserByEmail(email);
         if (!user) {
@@ -13904,7 +13904,7 @@ function populateChemFilters() {
                 var updateRes = await supabaseClient.auth.updateUser({ password: nw });
                 if (updateRes.error) throw updateRes.error;
             } else {
-                // Regular users: password stored as SHA-256 hash in opp_users
+                // Regular users: password stored as SHA-256 hash in port_users
                 var curHash = await sha256Hex(cur);
                 var dbUser  = await fetchUserByEmail(session.email);
                 if (!dbUser || dbUser.passwordHash !== curHash) {
@@ -14040,7 +14040,7 @@ async function deleteRainfallTxn(id) {
     // Remove from local array and update lastKnownIds so diff-based sync
     // does not try to re-insert it via upsert
     rainfallTxns = rainfallTxns.filter(r => String(r.id) !== String(id));
-    lastKnownIds.opp_rainfall_txns = new Set(rainfallTxns.map(r => r.id));
+    lastKnownIds.port_rainfall_txns = new Set(rainfallTxns.map(r => r.id));
 
     // Persist to localStorage
     const estateKey = STORAGE_KEYS.rainfallTxns + '::' + activeEstate;
@@ -14049,7 +14049,7 @@ async function deleteRainfallTxn(id) {
     // Delete directly from Supabase by id — more reliable than diff-based sync
     try {
         const { error } = await supabaseClient
-            .from('opp_rainfall_txns').delete().eq('id', id);
+            .from('port_rainfall_txns').delete().eq('id', id);
         if (error) {
             console.error('[Supabase] delete rainfall txn', error);
             showSyncError('Delete failed: ' + error.message);
@@ -14060,7 +14060,7 @@ async function deleteRainfallTxn(id) {
 
     // Re-apply deletion: loadFromSupabase may have run concurrently and restored the record
     rainfallTxns = rainfallTxns.filter(r => String(r.id) !== String(id));
-    lastKnownIds.opp_rainfall_txns = new Set(rainfallTxns.map(r => r.id));
+    lastKnownIds.port_rainfall_txns = new Set(rainfallTxns.map(r => r.id));
     const estateKey2 = STORAGE_KEYS.rainfallTxns + '::' + activeEstate;
     localStorage.setItem(estateKey2, JSON.stringify(rainfallTxns));
 
@@ -14742,15 +14742,15 @@ function deleteMobileRainfallRecord(id) {
     var _d = (window.I18N && (window.I18N[typeof currentLang !== 'undefined' ? currentLang : 'en'] || window.I18N['en'])) || {};
     if (!confirm(_d.alert_delete_txn || 'Delete this transaction?')) return;
     rainfallTxns = rainfallTxns.filter(function(r) { return String(r.id) !== String(id); });
-    lastKnownIds.opp_rainfall_txns = new Set(rainfallTxns.map(function(r) { return r.id; }));
+    lastKnownIds.port_rainfall_txns = new Set(rainfallTxns.map(function(r) { return r.id; }));
     var estateKey = STORAGE_KEYS.rainfallTxns + '::' + activeEstate;
     localStorage.setItem(estateKey, JSON.stringify(rainfallTxns));
-    supabaseClient.from('opp_rainfall_txns').delete().eq('id', id)
+    supabaseClient.from('port_rainfall_txns').delete().eq('id', id)
         .then(function(res) {
             if (res.error) console.error('[Supabase] delete rainfall txn', res.error);
             // Re-apply deletion in case loadFromSupabase ran concurrently and restored the record
             rainfallTxns = rainfallTxns.filter(function(r) { return String(r.id) !== String(id); });
-            lastKnownIds.opp_rainfall_txns = new Set(rainfallTxns.map(function(r) { return r.id; }));
+            lastKnownIds.port_rainfall_txns = new Set(rainfallTxns.map(function(r) { return r.id; }));
             localStorage.setItem(estateKey, JSON.stringify(rainfallTxns));
             renderMobileRainfallList();
         })
@@ -15275,7 +15275,7 @@ function deleteToolsTxn(id) {
     save(STORAGE_KEYS.transactions, transactions);
     refreshAll();
     if (typeof supabaseClient !== 'undefined') {
-        supabaseClient.from('opp_transactions').delete().eq('id', id).then(function(res) {
+        supabaseClient.from('port_transactions').delete().eq('id', id).then(function(res) {
             if (res.error) console.error('[Delete tools txn]', res.error);
         });
     }
@@ -15761,7 +15761,7 @@ function mobileDeleteToolsTxnMobile(id) {
     refreshAll();
     renderToolsCatTransaksi();
     if (typeof supabaseClient !== 'undefined') {
-        supabaseClient.from('opp_transactions').delete().eq('id', id).then(function(res) {
+        supabaseClient.from('port_transactions').delete().eq('id', id).then(function(res) {
             if (res.error) console.error('[Delete tools txn mobile]', res.error);
         });
     }
@@ -16010,7 +16010,7 @@ async function renderSettingsBlocksList() {
     container.innerHTML = '<p class="text-sm text-gray-400 italic">Loading…</p>';
     try {
         const { data, error } = await supabaseClient
-            .from('opp_locations').select('*')
+            .from('port_locations').select('*')
             .eq('estate', settingsBlocksEstate);
         if (error) throw error;
         const blocks = (data || []).sort((a, b) =>
@@ -16067,11 +16067,11 @@ async function saveSettingsBlock() {
     if (!settingsBlocksEstate) return;
     try {
         if (editId) {
-            const { error } = await supabaseClient.from('opp_locations')
+            const { error } = await supabaseClient.from('port_locations')
                 .update({ name, area, numPalms }).eq('id', parseInt(editId)).eq('estate', settingsBlocksEstate);
             if (error) throw error;
         } else {
-            const { error } = await supabaseClient.from('opp_locations')
+            const { error } = await supabaseClient.from('port_locations')
                 .insert({ id: Date.now(), name, area, numPalms, estate: settingsBlocksEstate });
             if (error) throw error;
         }
@@ -16084,7 +16084,7 @@ async function saveSettingsBlock() {
 }
 
 function startEditSettingsBlock(id) {
-    supabaseClient.from('opp_locations').select('*').eq('id', id).single().then(({ data, error }) => {
+    supabaseClient.from('port_locations').select('*').eq('id', id).single().then(({ data, error }) => {
         if (error || !data) { alert('Could not load block data.'); return; }
         document.getElementById('sbEditId').value  = id;
         document.getElementById('sbName').value    = data.name || '';
@@ -16110,7 +16110,7 @@ function cancelEditSettingsBlock() {
 async function deleteSettingsBlock(id) {
     if (!confirm('Delete this block? This removes it from all manuring and maintenance rounds that reference it. This cannot be undone.')) return;
     try {
-        const { error } = await supabaseClient.from('opp_locations').delete().eq('id', id);
+        const { error } = await supabaseClient.from('port_locations').delete().eq('id', id);
         if (error) throw error;
         await renderSettingsBlocksList();
         if (settingsBlocksEstate === activeEstate) { loadEstateData(activeEstate); refreshAll(); }

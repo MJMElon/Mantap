@@ -5,7 +5,7 @@ const ALLOWED_ORIGINS = (Deno.env.get('MANTAP_ALLOWED_ORIGINS') ??
   'https://mjmelon.github.io,http://localhost:5173,http://localhost:4173').split(',');
 
 export const SUPER_ADMIN_EMAIL = Deno.env.get('SUPER_ADMIN_EMAIL') ?? 'hqadmin.puigroups@gmail.com';
-export const USERS_TABLE = 'opp_users';
+export const USERS_TABLE = 'port_users';
 export const WORKER_ROLE = 'estate_user';
 export const STOCK_ITEMS = ['estate_baja', 'estate_racun', 'estate_anak', 'mobile_rainfall', 'tools_mobile_cat'];
 

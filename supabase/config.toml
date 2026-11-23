@@ -1,5 +1,5 @@
 # Mantap Edge Functions, deployed to the Plantation Stock Supabase project.
-# supabase link --project-ref eukvdlyzhyjohkjqbqjb
+# supabase link --project-ref pxzvayptwpvuvlenmdwp
 project_id = "Mantap"
 
 [functions.mantap-worker-auth]

@@ -14,7 +14,7 @@ The portal for estate workers.
 
 - **Frontend:** React 18 + TypeScript + Vite, with React Router (hash routes).
   The published site is the minified build in `dist/`.
-- **Backend:** the **Plantation Stock** Supabase project (`eukvdlyzhyjohkjqbqjb`):
+- **Backend:** the **Plantation Stock** Supabase project (`pxzvayptwpvuvlenmdwp`):
   - database tables `opp_*`
   - Supabase Auth
   - the Edge Functions in `supabase/functions/`

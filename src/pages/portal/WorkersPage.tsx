@@ -1,12 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useErrorText, useI18n } from '../../lib/i18n';
 import { STOCK_SECTIONS, stockAccess } from '../../lib/modules';
 import type { Worker } from '../../lib/types';
-import { deleteWorker, listWorkers, resetWorkerPassword, setWorkerStatus } from '../../lib/workers';
-import { WorkerDialog } from './WorkerDialog';
+import { listWorkers } from '../../lib/workers';
 
 export const toUserId = (email: string) => email.replace(/@psms\.app$/, '');
 
+export function fmtDateTime(iso: string | null, lang: string) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString(lang === 'ms' ? 'ms-MY' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) +
+    ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+/** Worker Manage: the worker list, view only. Accounts are changed in User Setting. */
 export function WorkersPage() {
   const { t, lang } = useI18n();
   const errorText = useErrorText();
@@ -15,8 +23,6 @@ export function WorkersPage() {
   const [loadError, setLoadError] = useState('');
   const [q, setQ] = useState('');
   const [estate, setEstate] = useState('');
-  // undefined = closed, null = new worker, Worker = edit
-  const [editing, setEditing] = useState<Worker | null | undefined>(undefined);
 
   const load = useCallback(async () => {
     try {
@@ -38,24 +44,6 @@ export function WorkersPage() {
       (!estate || w.estates.includes(estate)));
   }, [workers, q, estate]);
 
-  const run = async (fn: () => Promise<unknown>) => {
-    try { await fn(); await load(); } catch (e) { alert(errorText(e)); }
-  };
-
-  const fmtDate = (iso: string | null) => {
-    if (!iso) return '—';
-    const d = new Date(iso);
-    return d.toLocaleDateString(lang === 'ms' ? 'ms-MY' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) +
-      ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  function resetPassword(w: Worker) {
-    const pw = prompt(`${t('new_password')} — ${w.name}`);
-    if (pw == null) return;
-    if (pw.length < 6) { alert(t('pw_short')); return; }
-    run(async () => { await resetWorkerPassword(w.id, pw); alert(t('saved')); });
-  }
-
   return (
     <section>
       <div className="tools">
@@ -65,7 +53,7 @@ export function WorkersPage() {
           {estates.map((n) => <option key={n}>{n}</option>)}
         </select>
         <span className="count">{list.length} {t('workers_count')}</span>
-        <button className="btn primary" type="button" onClick={() => setEditing(null)}>{t('add_worker')}</button>
+        <Link className="btn sm" to="/portal/users">{t('manage_accounts')}</Link>
       </div>
 
       <div className="table-wrap">
@@ -95,29 +83,14 @@ export function WorkersPage() {
                     }) : <span className="muted">{t('none')}</span>}
                   </td>
                   <td><span className={`pill ${active ? 'on' : 'off'}`}>{t(active ? 'active' : 'inactive')}</span></td>
-                  <td className="muted" style={{ whiteSpace: 'nowrap' }}>{fmtDate(w.lastActive)}</td>
-                  <td>
-                    <div className="acts">
-                      <button className="btn sm" type="button" onClick={() => setEditing(w)}>{t('edit')}</button>
-                      {!w.intranet && <button className="btn sm" type="button" onClick={() => resetPassword(w)}>{t('reset_pw')}</button>}
-                      <button className="btn sm" type="button" onClick={() => run(() => setWorkerStatus(w.id, active ? 'inactive' : 'active'))}>
-                        {t(active ? 'deactivate' : 'activate')}
-                      </button>
-                      <button className="btn sm danger" type="button" onClick={() => confirm(t('confirm_delete')) && run(() => deleteWorker(w.id))}>
-                        {t('delete')}
-                      </button>
-                    </div>
-                  </td>
+                  <td className="muted" style={{ whiteSpace: 'nowrap' }}>{fmtDateTime(w.lastActive, lang)}</td>
+                  <td><Link className="btn sm" to={`/portal/workers/${w.id}`}>{t('view_profile')}</Link></td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
-
-      {editing !== undefined && (
-        <WorkerDialog worker={editing} estates={estates} onClose={() => setEditing(undefined)} onSaved={() => { setEditing(undefined); load(); }} />
-      )}
     </section>
   );
 }

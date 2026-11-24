@@ -3,10 +3,11 @@
 The portal for estate workers.
 
 - **Web portal** (`#/portal`) is opened from the **Worker Portal** icon in MJM
-  Intranet (signed in automatically). It has three tiles:
-  - **Worker Manage:** workers, estates, Stock access, passwords.
-  - **User Access:** which MJM Intranet users can use the portal on web or
-    mobile, and which workers can sign in.
+  Intranet (signed in automatically, role Admin). It has three tiles:
+  - **User Setting:** every account and its role. Admin users (from MJM
+    Intranet, web and/or mobile) and Workers (User ID + password, estates,
+    Stock access, reset password, deactivate).
+  - **Worker Manage:** the worker list and each worker's profile, view only.
   - **Mobile View:** the phone app in a phone frame.
 - **Mobile app** (`#/m`): workers sign in with their User ID and password (or
   arrive from MJM Intranet on a phone). They land on the Worker Portal home

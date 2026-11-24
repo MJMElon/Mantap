@@ -28,7 +28,8 @@ export function PortalLayout() {
       <header className="admin-head">
         <Link to="/portal" style={{ textDecoration: 'none', color: 'inherit' }}><Brand sub="admin_title" /></Link>
         <div className="right">
-          <span className="muted" style={{ fontSize: 13 }}>{me.name}</span>
+          <span className="muted" style={{ fontSize: 13 }}>{me.name} · {t('role_admin')}</span>
+          {pathname !== '/portal/mobile' && <Link to="/portal/mobile" className="btn sm">📱 {t('tile_mobile')}</Link>}
           <LangToggle />
           <button className="btn sm" type="button" onClick={signOut}>{t('sign_out')}</button>
         </div>

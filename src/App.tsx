@@ -6,10 +6,11 @@ import { MobileHomePage } from './pages/mobile/MobileHomePage';
 import { PortalLayout } from './pages/portal/PortalLayout';
 import { PortalHomePage } from './pages/portal/PortalHomePage';
 import { WorkersPage } from './pages/portal/WorkersPage';
-import { AccessPage } from './pages/portal/AccessPage';
+import { UserSettingPage } from './pages/portal/UserSettingPage';
+import { WorkerProfilePage } from './pages/portal/WorkerProfilePage';
 import { MobileViewPage } from './pages/portal/MobileViewPage';
 
-// Web portal:  #/portal (Worker Manage, User Access, Mobile View) — opened from MJM Intranet
+// Web portal:  #/portal (User Setting, Worker Manage, Mobile View) — opened from MJM Intranet (admins)
 // Mobile app:  #/m (sign-in) → #/m/home (module buttons) → stock/
 // Hash routes work on GitHub Pages without server rewrites.
 export function App() {
@@ -22,8 +23,10 @@ export function App() {
         <Route path="/m/home" element={<MobileHomePage />} />
         <Route path="/portal" element={<PortalLayout />}>
           <Route index element={<PortalHomePage />} />
+          <Route path="users" element={<UserSettingPage />} />
           <Route path="workers" element={<WorkersPage />} />
-          <Route path="access" element={<AccessPage />} />
+          <Route path="workers/:id" element={<WorkerProfilePage />} />
+          <Route path="access" element={<Navigate to="/portal/users" replace />} />
           <Route path="mobile" element={<MobileViewPage />} />
         </Route>
         {/* old addresses */}

@@ -85,6 +85,23 @@ export async function signInFromIntranet(token: string): Promise<SsoResult['port
   return r.portal;
 }
 
+// ── Arriving from Plantation Operation (PORT) ────────────────────────
+// PORT and Mantap share one Supabase project, so PORT's sign-in session works
+// here. PORT opens #/portal/workers?pt=<access token>&pr=<refresh token>.
+export async function takePortSession(): Promise<boolean> {
+  const hash = window.location.hash || '';
+  const q = hash.indexOf('?');
+  if (q < 0) return false;
+  const params = new URLSearchParams(hash.slice(q + 1));
+  const pt = params.get('pt'), pr = params.get('pr');
+  if (!pt || !pr) return false;
+  params.delete('pt'); params.delete('pr');
+  const rest = params.toString();
+  window.history.replaceState(null, '', window.location.pathname + window.location.search + hash.slice(0, q) + (rest ? '?' + rest : ''));
+  const { error } = await adminSupabase.auth.setSession({ access_token: pt, refresh_token: pr });
+  return !error;
+}
+
 // ── Web portal (Super Admin or Intranet user with web access) ─────────
 export interface PortalMe { email: string; name: string; isSuper: boolean }
 

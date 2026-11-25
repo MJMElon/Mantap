@@ -74,8 +74,15 @@ async function authorize(req: Request) {
   if (!email) throw new ApiError('err_forbidden', 401);
   if (email === SUPER_ADMIN_EMAIL) return { email, name: 'HQ Admin', isSuper: true };
   const p = await getPortalUser(email);
-  if (!p?.web_access) throw new ApiError('err_forbidden', 403);
-  return { email, name: p.name || email, isSuper: false };
+  if (p?.web_access) return { email, name: p.name || email, isSuper: false };
+  // A Plantation Operation (PORT) Admin or Super Admin opens Worker Manage from PORT
+  const { data } = await serviceClient().from(USERS_TABLE).select('name, permissions, status').eq('email', email).maybeSingle();
+  const row = data as (UserRow & { permissions?: Record<string, unknown> }) | null;
+  const role = row ? roleOf(row) : '';
+  if (row && row.status !== 'inactive' && (role === 'admin' || role === 'superadmin')) {
+    return { email, name: row.name || email, isSuper: role === 'superadmin' };
+  }
+  throw new ApiError('err_forbidden', 403);
 }
 
 /** Intranet user with mobile access ↔ a linked port_users worker row (same email, no password). */

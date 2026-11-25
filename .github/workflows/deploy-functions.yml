@@ -31,9 +31,11 @@ jobs:
             echo "::error::Add the SUPABASE_ACCESS_TOKEN secret first (see the top of this file)."
             exit 1
           fi
-      - uses: supabase/setup-cli@v1
+      - uses: actions/setup-node@v4
         with:
-          version: latest
+          node-version: 22
+      # The Supabase CLI from npm (the GitHub release lookup gets rate-limited on shared runners)
+      - run: npm install -g supabase@2
       - run: supabase functions deploy mantap-worker-auth --no-verify-jwt --project-ref "$PROJECT_REF" --yes
       - run: supabase functions deploy mantap-worker-admin --project-ref "$PROJECT_REF" --yes
       - run: supabase functions deploy mantap-sso --no-verify-jwt --project-ref "$PROJECT_REF" --yes

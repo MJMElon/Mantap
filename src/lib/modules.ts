@@ -32,6 +32,8 @@ export interface PortalModule {
   allowed: (w: WorkerSession) => boolean;
 }
 
+const hasAccess = (w: WorkerSession, id: string) => stockAccess(w.permissions, id) !== 'none';
+
 /** Cards on the worker home. Add a module here to show it to workers. */
 export const MODULES: PortalModule[] = [
   {
@@ -39,8 +41,18 @@ export const MODULES: PortalModule[] = [
     icon: '📦',
     color: '#16a34a',
     name: { en: 'Stock', ms: 'Stok' },
-    desc: { en: 'Fertilizer, chemical, seedling, rainfall and tools', ms: 'Baja, racun, anak sawit, hujan dan peralatan' },
+    desc: { en: 'Fertilizer, chemical, seedling and tools', ms: 'Baja, racun, anak sawit dan peralatan' },
     href: `${import.meta.env.BASE_URL}stock/`,
-    allowed: (w) => STOCK_SECTIONS.some((s) => stockAccess(w.permissions, s.id) !== 'none'),
+    allowed: (w) => STOCK_SECTIONS.some((s) => s.id !== 'mobile_rainfall' && hasAccess(w, s.id)),
+  },
+  {
+    id: 'rainfall',
+    icon: '🌧️',
+    color: '#0284c7',
+    name: { en: 'Rainfall', ms: 'Hujan' },
+    desc: { en: 'Record and view daily rainfall', ms: 'Rekod dan lihat hujan harian' },
+    // Same Stock app, opened on its rainfall screens
+    href: `${import.meta.env.BASE_URL}stock/?open=rainfall`,
+    allowed: (w) => hasAccess(w, 'mobile_rainfall'),
   },
 ];

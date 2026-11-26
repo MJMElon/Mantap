@@ -14,8 +14,16 @@ function setWorker(w: WorkerSession, prev: WorkerSession | null) {
 /** An Intranet / PORT person opens the mobile app as themselves: a preview session
  *  built from their portal identity (every module allowed, no worker account). */
 export function previewWorkerFromAdmin(me: PortalMe): WorkerSession {
-  const co = portCompany();
-  const w: WorkerSession = { id: 0, email: me.email, name: me.name, estates: co ? [co.name] : [], estate: '', role: 'estate_user', permissions: {}, preview: true };
+  // The company PORT opened us for; else the person's first company. Its locations
+  // (from the Intranet) are the estates, so the Stock / Rainfall screens always
+  // open on a location (never the empty "Select an Estate" screen).
+  let co = portCompany();
+  if (!co && me.companies?.length) { co = { id: me.companies[0].id, name: me.companies[0].name }; setPortCompany(co); }
+  const locs = co ? (me.locations?.[co.id] ?? []).filter(Boolean) : [];
+  const estates = locs.length ? locs : co ? [co.name] : [];
+  const prev = getWorker();
+  const estate = prev?.preview && prev.estate && estates.includes(prev.estate) ? prev.estate : estates[0] ?? '';
+  const w: WorkerSession = { id: 0, email: me.email, name: me.name, estates, estate, role: 'estate_user', permissions: {}, preview: true };
   localStorage.setItem(WORKER_SESSION_KEY, JSON.stringify(w));
   return w;
 }

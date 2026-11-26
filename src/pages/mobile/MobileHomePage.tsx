@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { LangToggle } from '../../components/LangToggle';
-import { getWorker, portalMe, portCompany, refreshWorker, setPortCompany, signOutAdmin, signOutWorker, updateWorker, type PortalMe } from '../../lib/auth';
+import { getWorker, portalMe, portCompany, previewWorkerFromAdmin, refreshWorker, setPortCompany, signOutAdmin, signOutWorker, updateWorker, type PortalMe } from '../../lib/auth';
 import { useI18n } from '../../lib/i18n';
 import { MODULES } from '../../lib/modules';
 
@@ -21,6 +21,12 @@ export function MobileHomePage() {
     if (getWorker()?.preview) { portalMe().then(setMe); return; } // Intranet person's preview: companies from the portal
     refreshWorker().then((w) => (w ? setWorker(w) : navigate('/m?inactive=1', { replace: true })));
   }, [navigate]);
+
+  // Preview without a location yet (e.g. opened before the companies were known): fill it in
+  useEffect(() => {
+    if (!me || !worker?.preview || (worker.estates.length && worker.estate)) return;
+    setWorker(previewWorkerFromAdmin(me));
+  }, [me]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!worker) return <Navigate to="/m" replace />;
 

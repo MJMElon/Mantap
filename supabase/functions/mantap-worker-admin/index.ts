@@ -153,7 +153,14 @@ Deno.serve(handler(async (req, body) => {
   const db = serviceClient();
   // View only (Worker list = View in PORT → User Access): reading is allowed, changing is not
   if (me.viewOnly && !['whoami', 'list', 'portal_list'].includes(String(body.action))) throw new ApiError('err_forbidden', 403);
-  const scope = companyId ? new Set(await companyEstates(companyId)) : null;
+  // The company's locations: its old estate names, plus its MJM Intranet Locations
+  // as PORT sends them (body.locations), plus the company name itself
+  const intranetLocs = Array.isArray(body.locations) ? body.locations.map((x: unknown) => String(x ?? '').trim()).filter((x: string) => x && x.length <= 100).slice(0, 200) : [];
+  const scope = companyId ? new Set([...await companyEstates(companyId), ...intranetLocs]) : null;
+  if (companyId && scope) {
+    const { data: co } = await serviceClient().from('port_companies').select('name').eq('id', companyId).maybeSingle();
+    if (co?.name) scope.add(String(co.name));
+  }
   /** A worker of another company cannot be changed from this company. */
   const mine = async (id: unknown) => {
     const w = await getWorker(id);
@@ -272,6 +279,14 @@ Deno.serve(handler(async (req, body) => {
       const gender = String(body.gender ?? '');
       const workerType = String(body.workerType ?? '');
       if (!['', 'male', 'female'].includes(gender) || !['', 'local', 'foreign'].includes(workerType)) throw new ApiError('err_invalid');
+      // Location (one of the company's Intranet Locations): replaces the worker's
+      // location in this company; their estates in other companies stay
+      if (body.location !== undefined) {
+        const loc = String(body.location ?? '').trim();
+        if (!loc || !intranetLocs.includes(loc)) throw new ApiError('err_invalid');
+        const estates = mergeEstates(w.estates, [loc], scope);
+        await write(db.from(USERS_TABLE).update({ estates }).eq('id', w.id));
+      }
       const row: Record<string, unknown> = { user_id: w.id, gender, worker_type: workerType, updated_by: me.email, updated_at: new Date().toISOString() };
       for (const [k, col] of [['workerNo', 'worker_no'], ['opisproId', 'opispro_id']] as const) {
         if (body[k] === undefined) continue;

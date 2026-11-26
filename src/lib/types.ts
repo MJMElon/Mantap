@@ -10,7 +10,9 @@ export interface Worker {
   status: 'active' | 'inactive';
   lastActive: string | null;
   /** true for an MJM Intranet user with mobile access (signs in from the Intranet) */
-  intranet?: boolean;
+  intranet?: boolean;  /** Set in PORT → Worker list: 'male' | 'female' | '' and 'local' | 'foreign' | '' */
+  gender?: string;
+  workerType?: string;
 }
 
 /** Shape the legacy Stock module expects in localStorage. */

@@ -1,6 +1,6 @@
 // Worker Portal web admin. Callers: the Stock Super Admin, or an MJM Intranet
 // user with web access in Mantap's User Access list (mantap_portal_users).
-// Workers: list, create, update, reset_password, set_status, delete.
+// Workers: list, create, update, set_details, reset_password, set_status, delete.
 // User Access: whoami, portal_list, portal_save, portal_remove.
 import {
   ApiError, callerEmail, getPortalUser, handler, roleOf, serviceClient, sha256Hex, STOCK_ITEMS,
@@ -95,7 +95,7 @@ async function write(q: PromiseLike<{ error: unknown }>) {
 }
 
 /** Who is calling: Super Admin, or Intranet user with web access. */
-async function authorize(req: Request) {
+async function authorize(req: Request, companyId: string | null = null) {
   const email = await callerEmail(req);
   if (!email) throw new ApiError('err_forbidden', 401);
   if (email === SUPER_ADMIN_EMAIL) return { email, name: 'HQ Admin', isSuper: true };
@@ -107,6 +107,12 @@ async function authorize(req: Request) {
   const role = row ? roleOf(row) : '';
   if (row && row.status !== 'inactive' && (role === 'admin' || role === 'superadmin')) {
     return { email, name: row.name || email, isSuper: role === 'superadmin' };
+  }
+  // Admin of this company in PORT → User Access (set per company)
+  if (row && row.status !== 'inactive' && companyId) {
+    const { data: acc } = await serviceClient().from('port_user_company_access')
+      .select('role, status').eq('email', email.toLowerCase()).eq('company_id', companyId).maybeSingle();
+    if (acc && acc.role === 'admin' && acc.status !== 'inactive') return { email, name: row.name || email, isSuper: false };
   }
   throw new ApiError('err_forbidden', 403);
 }
@@ -128,9 +134,9 @@ async function syncMobileWorker(email: string, name: string, mobile: boolean, es
 }
 
 Deno.serve(handler(async (req, body) => {
-  const me = await authorize(req);
-  const db = serviceClient();
   const companyId = companyArg(body.company_id);
+  const me = await authorize(req, companyId);
+  const db = serviceClient();
   const scope = companyId ? new Set(await companyEstates(companyId)) : null;
   /** A worker of another company cannot be changed from this company. */
   const mine = async (id: unknown) => {
@@ -195,8 +201,15 @@ Deno.serve(handler(async (req, body) => {
         scopeEstates(companyId),
       ]);
       if (error) throw error;
+      // Worker details kept by PORT → Worker list (gender, type, …); empty before the 20261129 SQL
+      const details = new Map<number, Record<string, unknown>>();
+      {
+        const { data: d } = await db.from('port_worker_details').select('*');
+        for (const x of (d ?? []) as Record<string, unknown>[]) details.set(Number(x.user_id), x);
+      }
       // One company: only its workers, with only its estates shown
       const workers = (data as UserRow[]).filter((r) => inScope(r.estates, scope)).map((r) => ({
+        gender: String(details.get(r.id)?.gender ?? ''), workerType: String(details.get(r.id)?.worker_type ?? ''),
         id: r.id, name: r.name, email: r.email, estates: (r.estates ?? []).filter((e) => !scope || scope.has(e)), permissions: r.permissions ?? {},
         status: r.status === 'inactive' ? 'inactive' : 'active', lastActive: r.last_active,
         intranet: !r.email.endsWith('@psms.app'),
@@ -229,6 +242,17 @@ Deno.serve(handler(async (req, body) => {
       return write(db.from(USERS_TABLE).update({
         name: str(body.name), estates: mergeEstates(w.estates, await estatesArg(body.estates, companyId), scope), permissions,
       }).eq('id', w.id));
+    }
+
+    case 'set_details': {
+      // PORT → Worker list: gender and type (more columns later)
+      const w = await mine(body.id);
+      const gender = String(body.gender ?? '');
+      const workerType = String(body.workerType ?? '');
+      if (!['', 'male', 'female'].includes(gender) || !['', 'local', 'foreign'].includes(workerType)) throw new ApiError('err_invalid');
+      return write(db.from('port_worker_details').upsert({
+        user_id: w.id, gender, worker_type: workerType, updated_by: me.email, updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' }));
     }
 
     case 'reset_password': {

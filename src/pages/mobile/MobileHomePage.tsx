@@ -14,6 +14,7 @@ export function MobileHomePage() {
 
   // Pick up access / estate / status changes made by the admin.
   useEffect(() => {
+    if (getWorker()?.preview) return; // Intranet person's preview: nothing to refresh
     refreshWorker().then((w) => (w ? setWorker(w) : navigate('/m?inactive=1', { replace: true })));
   }, [navigate]);
 

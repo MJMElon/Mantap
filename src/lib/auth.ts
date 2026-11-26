@@ -11,6 +11,14 @@ function setWorker(w: WorkerSession, prev: WorkerSession | null) {
   const estate = prev?.estate && w.estates.includes(prev.estate) ? prev.estate : '';
   localStorage.setItem(WORKER_SESSION_KEY, JSON.stringify({ ...w, estate }));
 }
+/** An Intranet / PORT person opens the mobile app as themselves: a preview session
+ *  built from their portal identity (every module allowed, no worker account). */
+export function previewWorkerFromAdmin(me: PortalMe): WorkerSession {
+  const co = portCompany();
+  const w: WorkerSession = { id: 0, email: me.email, name: me.name, estates: co ? [co.name] : [], estate: '', role: 'estate_user', permissions: {}, preview: true };
+  localStorage.setItem(WORKER_SESSION_KEY, JSON.stringify(w));
+  return w;
+}
 export async function signOutWorker() {
   localStorage.removeItem(WORKER_SESSION_KEY);
   sessionStorage.removeItem('opp_active_section');

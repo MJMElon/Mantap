@@ -27,4 +27,5 @@ export interface WorkerSession {
   estate: string;
   role: 'estate_user';
   permissions: Record<string, unknown>;
+  preview?: boolean; // an Intranet / PORT person looking at the mobile app (not a worker account)
 }

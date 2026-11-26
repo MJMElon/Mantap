@@ -5,8 +5,8 @@ import { getWorker, portalMe, portCompany, refreshWorker, setPortCompany, signOu
 import { useI18n } from '../../lib/i18n';
 import { MODULES } from '../../lib/modules';
 
-/** MANTAP mobile home: the module buttons. The ☰ menu picks the company and
- *  location; the profile circle shows the worker profile and sign out. */
+/** MANTAP mobile home: the module buttons. The ☰ menu has two dropdowns to pick
+ *  the company and the location; the profile circle shows the worker profile and sign out. */
 export function MobileHomePage() {
   const { t, lang } = useI18n();
   const navigate = useNavigate();
@@ -86,20 +86,21 @@ export function MobileHomePage() {
       <aside className={`drawer${drawer ? ' open' : ''}`} aria-hidden={!drawer}>
         <div className="drawer-head"><b>MANTAP</b><button className="bar-btn dark" type="button" aria-label={t('close')} onClick={() => setDrawer(false)}>✕</button></div>
         {companies.length > 0 && (
-          <div className="drawer-sec">
-            <div className="drawer-label">{t('company')}</div>
-            {companies.map((c) => (
-              <button key={c.id} type="button" className={`drawer-item${company && company.id === c.id ? ' on' : ''}`} onClick={() => pickCompany(c.id)}>{c.name}</button>
-            ))}
-          </div>
+          <label className="drawer-sec drawer-pick">
+            <span className="drawer-label">{t('company')}</span>
+            <select value={company?.id ?? ''} onChange={(e) => pickCompany(e.target.value)}>
+              {!company && <option value="">—</option>}
+              {companies.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </label>
         )}
         {locations.length > 0 && (
-          <div className="drawer-sec">
-            <div className="drawer-label">{t('location')}</div>
-            {locations.map((n) => (
-              <button key={n} type="button" className={`drawer-item${n === location ? ' on' : ''}`} onClick={() => pickLocation(n)}>{n}</button>
-            ))}
-          </div>
+          <label className="drawer-sec drawer-pick">
+            <span className="drawer-label">{t('location')}</span>
+            <select value={location} onChange={(e) => pickLocation(e.target.value)}>
+              {locations.map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </label>
         )}
         {companies.length === 0 && locations.length === 0 && <p className="muted" style={{ padding: 16 }}>—</p>}
       </aside>

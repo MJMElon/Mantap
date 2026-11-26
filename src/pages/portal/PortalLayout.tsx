@@ -20,7 +20,7 @@ export function PortalLayout() {
     if (!confirm(t('sign_out_q'))) return;
     await signOutAdmin();
     // Opened from Plantation Operation: sign out of MJM Intranet too
-    if (portCompany()) { setPortCompany(null); window.location.href = 'https://mjmelon.github.io/MJM-Intranet/?gw_logout=1'; return; }
+    if (portCompany()) { setPortCompany(null); window.location.href = 'https://mjm.opispro.com/?gw_logout=1'; return; }
     navigate('/login', { replace: true });
   }
 

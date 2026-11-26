@@ -14,4 +14,4 @@ export const WORKER_SESSION_KEY = 'opp_auth_session';
 export const LANG_KEY = 'opp_lang';
 
 // MJM Intranet: the Worker Portal icon there signs people in to Mantap.
-export const INTRANET_URL = 'https://mjmelon.github.io/MJM-Intranet/';
+export const INTRANET_URL = 'https://mjm.opispro.com/';

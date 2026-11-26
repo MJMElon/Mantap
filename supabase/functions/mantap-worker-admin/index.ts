@@ -94,6 +94,42 @@ async function write(q: PromiseLike<{ error: unknown }>) {
   return { ok: true };
 }
 
+// ── The caller's companies and each company's Locations (as set in the Intranet) ──
+const INTRANET_URL = Deno.env.get('INTRANET_SUPABASE_URL') ?? 'https://briqzyxfxsvulyizzbiu.supabase.co';
+const INTRANET_KEY = Deno.env.get('INTRANET_MODULE_API_KEY') ?? '';
+interface IntranetLoc { company_id: string; group_id?: string | null; name: string; sort_order: number | null; is_active: boolean }
+let mdCache: { at: number; locations: IntranetLoc[]; businesses: { id: string }[] } | null = null;
+async function intranetLocations(): Promise<{ locations: IntranetLoc[]; businesses: { id: string }[] }> {
+  if (mdCache && Date.now() - mdCache.at < 10 * 60 * 1000) return mdCache;
+  if (!INTRANET_KEY) return { locations: [], businesses: [] };
+  try {
+    const res = await fetch(`${INTRANET_URL}/functions/v1/gw-master-data`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-gw-api-key': INTRANET_KEY }, body: '{}' });
+    if (!res.ok) return { locations: [], businesses: [] };
+    const md = await res.json();
+    mdCache = { at: Date.now(), locations: md.locations ?? [], businesses: md.businesses ?? [] };
+    return mdCache;
+  } catch { return { locations: [], businesses: [] }; }
+}
+async function myCompanies(email: string): Promise<{ companies: { id: string; name: string }[]; locations: Record<string, string[]> }> {
+  const db = serviceClient();
+  const { data: uc } = await db.from('port_user_companies').select('company_id').eq('email', email.toLowerCase());
+  const ids = [...new Set(((uc ?? []) as { company_id: string }[]).map((r) => r.company_id))];
+  if (!ids.length) return { companies: [], locations: {} };
+  const { data: cos } = await db.from('port_companies').select('id, code, name, is_active').in('id', ids).order('code').order('name');
+  const companies = ((cos ?? []) as { id: string; name: string; is_active: boolean }[]).filter((c) => c.is_active !== false).map((c) => ({ id: c.id, name: c.name }));
+  const md = await intranetLocations();
+  const bizOrder = new Map(md.businesses.map((b, i) => [b.id, i]));
+  const locations: Record<string, string[]> = {};
+  for (const c of companies) {
+    const out: string[] = [];
+    md.locations.filter((l) => l.company_id === c.id && l.is_active !== false)
+      .sort((a, b) => ((a.group_id && bizOrder.get(a.group_id)) ?? 1e6) - ((b.group_id && bizOrder.get(b.group_id)) ?? 1e6) || (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name))
+      .forEach((l) => { const n = l.name.trim(); if (n && !out.includes(n)) out.push(n); });
+    locations[c.id] = out;
+  }
+  return { companies, locations };
+}
+
 /** Who is calling: Super Admin, or Intranet user with web access. */
 async function authorize(req: Request, companyId: string | null = null) {
   const email = await callerEmail(req);
@@ -170,7 +206,7 @@ Deno.serve(handler(async (req, body) => {
 
   switch (body.action) {
     case 'whoami':
-      return me;
+      return { ...me, ...(await myCompanies(me.email)) };
 
     case 'portal_list': {
       const [{ data, error }, linked] = await Promise.all([

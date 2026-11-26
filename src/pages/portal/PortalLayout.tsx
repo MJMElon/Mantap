@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Brand } from '../../components/Brand';
 import { LangToggle } from '../../components/LangToggle';
-import { portalMe, signOutAdmin, type PortalMe } from '../../lib/auth';
+import { portCompany, portalMe, setPortCompany, signOutAdmin, type PortalMe } from '../../lib/auth';
 import { useI18n } from '../../lib/i18n';
 
 /** Web portal frame: header, back link on sub-pages, and the sign-in check. */
@@ -19,6 +19,8 @@ export function PortalLayout() {
   async function signOut() {
     if (!confirm(t('sign_out_q'))) return;
     await signOutAdmin();
+    // Opened from Plantation Operation: sign out of MJM Intranet too
+    if (portCompany()) { setPortCompany(null); window.location.href = 'https://mjmelon.github.io/MJM-Intranet/?gw_logout=1'; return; }
     navigate('/login', { replace: true });
   }
 

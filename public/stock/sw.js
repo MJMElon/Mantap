@@ -1,4 +1,4 @@
-const CACHE = 'opp-v1';
+const CACHE = 'opp-v2';
 
 self.addEventListener('install', () => self.skipWaiting());
 

@@ -108,11 +108,16 @@ async function authorize(req: Request, companyId: string | null = null) {
   if (row && row.status !== 'inactive' && (role === 'admin' || role === 'superadmin')) {
     return { email, name: row.name || email, isSuper: role === 'superadmin' };
   }
-  // Admin of this company in PORT → User Access (set per company)
+  // PORT → User Access for this company: an Admin, or Worker list = View / Edit
   if (row && row.status !== 'inactive' && companyId) {
     const { data: acc } = await serviceClient().from('port_user_company_access')
-      .select('role, status').eq('email', email.toLowerCase()).eq('company_id', companyId).maybeSingle();
-    if (acc && acc.role === 'admin' && acc.status !== 'inactive') return { email, name: row.name || email, isSuper: false };
+      .select('role, status, permissions').eq('email', email.toLowerCase()).eq('company_id', companyId).maybeSingle();
+    if (acc && acc.status !== 'inactive') {
+      const w = (acc.permissions as Record<string, unknown> | null)?.workers;
+      if (acc.role === 'admin') return { email, name: row.name || email, isSuper: false };
+      if (w === 'edit') return { email, name: row.name || email, isSuper: false };
+      if (w === 'view') return { email, name: row.name || email, isSuper: false, viewOnly: true };
+    }
   }
   throw new ApiError('err_forbidden', 403);
 }
@@ -135,8 +140,10 @@ async function syncMobileWorker(email: string, name: string, mobile: boolean, es
 
 Deno.serve(handler(async (req, body) => {
   const companyId = companyArg(body.company_id);
-  const me = await authorize(req, companyId);
+  const me: { email: string; name: string; isSuper: boolean; viewOnly?: boolean } = await authorize(req, companyId);
   const db = serviceClient();
+  // View only (Worker list = View in PORT → User Access): reading is allowed, changing is not
+  if (me.viewOnly && !['whoami', 'list', 'portal_list'].includes(String(body.action))) throw new ApiError('err_forbidden', 403);
   const scope = companyId ? new Set(await companyEstates(companyId)) : null;
   /** A worker of another company cannot be changed from this company. */
   const mine = async (id: unknown) => {

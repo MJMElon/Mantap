@@ -5,7 +5,7 @@ import { createClient, type SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 // (Worker Manage → Worker list), so its address is always allowed.
 const PORT_ORIGIN = 'https://oliviawsc.github.io';
 const ALLOWED_ORIGINS = [...new Set([
-  ...(Deno.env.get('MANTAP_ALLOWED_ORIGINS') ?? 'https://mjmelon.github.io,http://localhost:5173,http://localhost:4173').split(',').map((o) => o.trim()).filter(Boolean),
+  ...(Deno.env.get('MANTAP_ALLOWED_ORIGINS') ?? 'https://mjmelon.github.io,http://localhost:5173,http://localhost:4173').split(',').map((o: string) => o.trim()).filter(Boolean),
   PORT_ORIGIN,
 ])];
 

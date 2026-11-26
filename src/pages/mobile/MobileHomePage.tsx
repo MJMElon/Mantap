@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { Brand } from '../../components/Brand';
 import { LangToggle } from '../../components/LangToggle';
 import { getWorker, refreshWorker, signOutWorker } from '../../lib/auth';
 import { useI18n } from '../../lib/i18n';
@@ -30,14 +29,17 @@ export function MobileHomePage() {
 
   return (
     <div className="worker-page">
-      <header className="worker-bar">
-        <Brand />
-        <LangToggle />
+      <header className="worker-bar worker-bar-3">
+        <span />
+        <div className="brand-title">MANTAP</div>
+        <div className="bar-right">
+          <LangToggle />
+          <button className="profile" type="button" title={worker.name} aria-label={worker.name}>{(worker.name || '?').trim().slice(0, 1).toUpperCase()}</button>
+        </div>
       </header>
       <main className="worker-wrap">
         <p className="hello">{t('welcome')}</p>
         <h1 className="name" id="who">{worker.name}</h1>
-        <p className="est">{worker.estates.length ? `🌴 ${worker.estates.join(', ')}` : ''}</p>
         <p className="sect">{t('modules')}</p>
         <div className="mod-grid">
           {modules.length === 0 && <div className="empty">{t('no_modules')}</div>}

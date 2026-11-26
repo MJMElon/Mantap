@@ -10204,6 +10204,7 @@ function bootApp(session) {
     if (_module) {
         if (_module === 'report') navigateToSection('mgmtreport');
         else if (_module === 'stock') navigateToSection('home');
+        else if (_module === 'rainfall') navigateToFirstRainfallSection();
         const _url = new URL(window.location.href);
         _url.searchParams.delete('module');
         history.replaceState(null, '', _url.pathname + _url.search + _url.hash);

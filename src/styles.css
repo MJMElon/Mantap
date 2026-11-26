@@ -43,6 +43,10 @@ button, input, select { font: inherit; }
 .worker-page { min-height: 100vh; background: linear-gradient(160deg, #f0fdf4 0%, #e8f5e9 40%, #f8fafc 100%); }
 .worker-bar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; padding-top: max(12px, env(safe-area-inset-top)); background: linear-gradient(90deg, #1b5e20, #2e7d32); color: #fff; }
 .worker-bar .brand-sub { color: rgba(255,255,255,.75); }
+.worker-bar-3 { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+.worker-bar .brand-title { text-align: center; font-weight: 800; font-size: 20px; letter-spacing: .12em; }
+.worker-bar .bar-right { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.worker-bar .profile { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,255,255,.45); background: rgba(255,255,255,.18); color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; }
 .worker-bar .brand-mark { background: rgba(255,255,255,.18); width: 34px; height: 34px; font-size: 16px; }
 .worker-bar .lang { border-color: rgba(255,255,255,.35); background: transparent; }
 .worker-bar .lang button { color: rgba(255,255,255,.8); }

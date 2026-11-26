@@ -138,3 +138,31 @@ export function toWorkerSession(row: UserRow) {
     permissions: row.permissions ?? {},
   };
 }
+
+// ── Worker PIN, readable copy ─────────────────────────────────────────
+// password_hash is one-way (nobody can read a PIN back). So that an Admin can
+// show a worker's PIN (PORT → Worker list, eye button), a copy is also kept
+// locked with AES-GCM: only these functions hold the key. Key = MANTAP_PIN_KEY
+// if set, else derived from the project's service key. Made whenever a PIN is
+// set or reset; older PINs stay unreadable until they are reset once.
+async function pinKey(): Promise<CryptoKey> {
+  const secret = Deno.env.get('MANTAP_PIN_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+  if (!secret) throw new Error('no PIN key');
+  const raw = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('mantap-pin:' + secret));
+  return crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['encrypt', 'decrypt']);
+}
+const b64 = (u: Uint8Array) => btoa(String.fromCharCode(...u));
+const unb64 = (s: string) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+export async function lockPin(pin: string): Promise<string> {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await pinKey(), new TextEncoder().encode(pin)));
+  return 'v1:' + b64(iv) + ':' + b64(ct);
+}
+export async function unlockPin(locked: string | null | undefined): Promise<string | null> {
+  const m = /^v1:([^:]+):(.+)$/.exec(locked ?? '');
+  if (!m) return null;
+  try {
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(m[1]) }, await pinKey(), unb64(m[2]));
+    return new TextDecoder().decode(pt);
+  } catch { return null; } // key changed: unreadable until the PIN is reset
+}

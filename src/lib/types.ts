@@ -13,6 +13,9 @@ export interface Worker {
   intranet?: boolean;  /** Set in PORT → Worker list: 'male' | 'female' | '' and 'local' | 'foreign' | '' */
   gender?: string;
   workerType?: string;
+  /** Set in PORT → Worker list */
+  workerNo?: string;
+  opisproId?: string;
 }
 
 /** Shape the legacy Stock module expects in localStorage. */

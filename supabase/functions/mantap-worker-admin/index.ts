@@ -3,7 +3,7 @@
 // Workers: list, create, update, set_details, reset_password, set_status, delete.
 // User Access: whoami, portal_list, portal_save, portal_remove.
 import {
-  ApiError, callerEmail, getPortalUser, handler, roleOf, serviceClient, sha256Hex, STOCK_ITEMS,
+  ApiError, callerEmail, lockPin, unlockPin, getPortalUser, handler, roleOf, serviceClient, sha256Hex, STOCK_ITEMS,
   SUPER_ADMIN_EMAIL, toAuthEmail, USERS_TABLE, WORKER_ROLE, type UserRow,
 } from '../_shared/common.ts';
 
@@ -138,6 +138,15 @@ async function syncMobileWorker(email: string, name: string, mobile: boolean, es
   else await write(db.from(USERS_TABLE).insert({ id: Date.now(), name, email, password_hash: '', estates, permissions, status: 'active' }));
 }
 
+/** Keeps the locked, readable copy of a worker's PIN (needs the 20261130 SQL; skipped before it). */
+async function keepPin(userId: number, pin: string) {
+  try {
+    const { error } = await serviceClient().from('port_worker_details')
+      .upsert({ user_id: userId, pin_locked: await lockPin(pin) }, { onConflict: 'user_id' });
+    if (error) console.warn('[mantap-worker-admin] PIN copy skipped:', error.message);
+  } catch (e) { console.warn('[mantap-worker-admin] PIN copy skipped:', e instanceof Error ? e.message : e); }
+}
+
 Deno.serve(handler(async (req, body) => {
   const companyId = companyArg(body.company_id);
   const me: { email: string; name: string; isSuper: boolean; viewOnly?: boolean } = await authorize(req, companyId);
@@ -217,6 +226,8 @@ Deno.serve(handler(async (req, body) => {
       // One company: only its workers, with only its estates shown
       const workers = (data as UserRow[]).filter((r) => inScope(r.estates, scope)).map((r) => ({
         gender: String(details.get(r.id)?.gender ?? ''), workerType: String(details.get(r.id)?.worker_type ?? ''),
+        workerNo: String(details.get(r.id)?.worker_no ?? ''), opisproId: String(details.get(r.id)?.opispro_id ?? ''),
+        pinReadable: !!details.get(r.id)?.pin_locked,
         id: r.id, name: r.name, email: r.email, estates: (r.estates ?? []).filter((e) => !scope || scope.has(e)), permissions: r.permissions ?? {},
         status: r.status === 'inactive' ? 'inactive' : 'active', lastActive: r.last_active,
         intranet: !r.email.endsWith('@psms.app'),
@@ -231,15 +242,19 @@ Deno.serve(handler(async (req, body) => {
       if (email === SUPER_ADMIN_EMAIL) throw new ApiError('err_reserved');
       const { data: existing } = await db.from(USERS_TABLE).select('id').eq('email', email).maybeSingle();
       if (existing) throw new ApiError('err_exists', 409);
-      return write(db.from(USERS_TABLE).insert({
-        id: Date.now(),
+      const newId = Date.now();
+      const pin = password(body.password);
+      await write(db.from(USERS_TABLE).insert({
+        id: newId,
         name: str(body.name),
         email,
-        password_hash: await sha256Hex(password(body.password)),
+        password_hash: await sha256Hex(pin),
         estates: await estatesArg(body.estates, companyId),
         permissions: { __role: WORKER_ROLE, ...accessArg(body.access) },
         status: 'active',
       }));
+      await keepPin(newId, pin);
+      return { ok: true };
     }
 
     case 'update': {
@@ -252,19 +267,36 @@ Deno.serve(handler(async (req, body) => {
     }
 
     case 'set_details': {
-      // PORT → Worker list: gender and type (more columns later)
+      // PORT → Worker list: gender, type, Worker ID, Opispro Worker ID (more later)
       const w = await mine(body.id);
       const gender = String(body.gender ?? '');
       const workerType = String(body.workerType ?? '');
       if (!['', 'male', 'female'].includes(gender) || !['', 'local', 'foreign'].includes(workerType)) throw new ApiError('err_invalid');
-      return write(db.from('port_worker_details').upsert({
-        user_id: w.id, gender, worker_type: workerType, updated_by: me.email, updated_at: new Date().toISOString(),
-      }, { onConflict: 'user_id' }));
+      const row: Record<string, unknown> = { user_id: w.id, gender, worker_type: workerType, updated_by: me.email, updated_at: new Date().toISOString() };
+      for (const [k, col] of [['workerNo', 'worker_no'], ['opisproId', 'opispro_id']] as const) {
+        if (body[k] === undefined) continue;
+        const v = String(body[k] ?? '').trim();
+        if (v.length > 50) throw new ApiError('err_invalid');
+        row[col] = v;
+      }
+      return write(db.from('port_worker_details').upsert(row, { onConflict: 'user_id' }));
+    }
+
+    case 'reveal_pin': {
+      // PORT → Worker list, eye button (Edit access only; View-only is refused above)
+      const w = await mine(body.id);
+      const { data: d } = await db.from('port_worker_details').select('pin_locked').eq('user_id', w.id).maybeSingle();
+      const pin = await unlockPin((d as { pin_locked?: string } | null)?.pin_locked);
+      console.log('[mantap-worker-admin] PIN shown', w.id, 'to', me.email, pin ? 'ok' : 'not available');
+      return { pin };
     }
 
     case 'reset_password': {
       const w = await mine(body.id);
-      return write(db.from(USERS_TABLE).update({ password_hash: await sha256Hex(password(body.password)) }).eq('id', w.id));
+      const pin = password(body.password);
+      await write(db.from(USERS_TABLE).update({ password_hash: await sha256Hex(pin) }).eq('id', w.id));
+      await keepPin(w.id, pin);
+      return { ok: true };
     }
 
     case 'set_status': {

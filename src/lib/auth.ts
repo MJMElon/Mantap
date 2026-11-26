@@ -19,6 +19,13 @@ export function previewWorkerFromAdmin(me: PortalMe): WorkerSession {
   localStorage.setItem(WORKER_SESSION_KEY, JSON.stringify(w));
   return w;
 }
+/** Changes the worker / preview session in place (company or location picked in the menu). */
+export function updateWorker(patch: Partial<WorkerSession>): WorkerSession | null {
+  const w = getWorker(); if (!w) return null;
+  const n = { ...w, ...patch };
+  localStorage.setItem(WORKER_SESSION_KEY, JSON.stringify(n));
+  return n;
+}
 export async function signOutWorker() {
   localStorage.removeItem(WORKER_SESSION_KEY);
   sessionStorage.removeItem('opp_active_section');
@@ -128,7 +135,7 @@ export async function takePortSession(): Promise<boolean> {
 }
 
 // ── Web portal (Super Admin or Intranet user with web access) ─────────
-export interface PortalMe { email: string; name: string; isSuper: boolean }
+export interface PortalMe { email: string; name: string; isSuper: boolean; companies?: { id: string; name: string }[]; locations?: Record<string, string[]> }
 
 /** Returns who is signed in to the web portal, or null. */
 export async function portalMe(): Promise<PortalMe | null> {

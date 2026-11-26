@@ -1,9 +1,14 @@
+import { portCompany } from './auth';
 import { adminSupabase, callFunction } from './supabase';
 import type { Worker } from './types';
 
 // All worker changes go through the mantap-worker-admin Edge Function,
 // which checks that the caller is the Super Admin.
-const call = <T>(body: Record<string, unknown>) => callFunction<T>(adminSupabase, 'mantap-worker-admin', body);
+// Opened from PORT for one company: every call is limited to that company.
+const call = <T>(body: Record<string, unknown>) => {
+  const co = portCompany();
+  return callFunction<T>(adminSupabase, 'mantap-worker-admin', co ? { ...body, company_id: co.id } : body);
+};
 
 export const listWorkers = () => call<{ workers: Worker[]; estates: string[] }>({ action: 'list' });
 

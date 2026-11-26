@@ -34,9 +34,35 @@ async function knownEstates(): Promise<string[]> {
   return (res.data ?? []).filter((r: { is_active?: boolean }) => r.is_active !== false).map((r: { name: string }) => r.name);
 }
 
-async function estatesArg(v: unknown): Promise<string[]> {
+// ── One company at a time ─────────────────────────────────────────────
+// Plantation Operation (PORT) opens Worker Manage for the company chosen on its
+// front page and sends that company's MJM Intranet id (company_id). Then only
+// that company's locations (estates) and workers are listed and changed.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function companyArg(v: unknown): string | null {
+  const s = String(v ?? '').trim();
+  return UUID_RE.test(s) ? s.toLowerCase() : null;
+}
+/** The locations (old estate names) of one Intranet company; the company name when none is linked. */
+async function companyEstates(companyId: string): Promise<string[]> {
+  const db = serviceClient();
+  const { data, error } = await db.from('port_estate_company').select('estate').eq('company_id', companyId).order('estate');
+  if (error) throw error;
+  const list = ((data ?? []) as { estate: string }[]).map((r) => r.estate).filter(Boolean);
+  if (list.length) return list;
+  const { data: co } = await db.from('port_companies').select('name').eq('id', companyId).maybeSingle();
+  return co?.name ? [String(co.name)] : [];
+}
+/** Estates a picker may offer: the company's, or (no company) every estate. */
+const scopeEstates = (companyId: string | null) => (companyId ? companyEstates(companyId) : knownEstates());
+const inScope = (estates: string[] | null | undefined, scope: Set<string> | null) => !scope || (estates ?? []).some((e) => scope.has(e));
+/** Saving from one company keeps the person's estates of OTHER companies as they were. */
+const mergeEstates = (before: string[] | null | undefined, chosen: string[], scope: Set<string> | null) =>
+  scope ? [...new Set([...(before ?? []).filter((e) => !scope.has(e)), ...chosen])] : chosen;
+
+async function estatesArg(v: unknown, companyId: string | null = null): Promise<string[]> {
   if (!Array.isArray(v) || v.length === 0) throw new ApiError('err_invalid');
-  const known = new Set(await knownEstates());
+  const known = new Set(await scopeEstates(companyId));
   const list = [...new Set(v.map(String))];
   if (!list.every((e) => known.has(e))) throw new ApiError('err_invalid');
   return list;
@@ -104,6 +130,14 @@ async function syncMobileWorker(email: string, name: string, mobile: boolean, es
 Deno.serve(handler(async (req, body) => {
   const me = await authorize(req);
   const db = serviceClient();
+  const companyId = companyArg(body.company_id);
+  const scope = companyId ? new Set(await companyEstates(companyId)) : null;
+  /** A worker of another company cannot be changed from this company. */
+  const mine = async (id: unknown) => {
+    const w = await getWorker(id);
+    if (!inScope(w.estates, scope)) throw new ApiError('err_forbidden', 403);
+    return w;
+  };
 
   switch (body.action) {
     case 'whoami':
@@ -116,12 +150,18 @@ Deno.serve(handler(async (req, body) => {
       ]);
       if (error) throw error;
       const byEmail = new Map(((linked.data ?? []) as UserRow[]).map((r) => [r.email, r]));
+      // One company: the people the Intranet gave this company, or who work on its estates
+      let given: Set<string> | null = null;
+      if (companyId) {
+        const { data: uc } = await db.from('port_user_companies').select('email').eq('company_id', companyId);
+        given = new Set(((uc ?? []) as { email: string }[]).map((r) => r.email.toLowerCase()));
+      }
       return {
         users: (data ?? []).map((p: Record<string, unknown>) => {
           const w = byEmail.get(p.email as string);
-          return { ...p, estates: w?.estates ?? [], permissions: w?.permissions ?? {} };
-        }),
-        estates: await knownEstates(),
+          return { ...p, estates: (w?.estates ?? []).filter((e) => !scope || scope.has(e)), permissions: w?.permissions ?? {} };
+        }).filter((p: Record<string, unknown>) => !given || given.has(String(p.email).toLowerCase()) || inScope(byEmail.get(p.email as string)?.estates, scope)),
+        estates: await scopeEstates(companyId),
       };
     }
 
@@ -131,7 +171,12 @@ Deno.serve(handler(async (req, body) => {
       const name = String(body.name ?? '').trim().slice(0, 200);
       const web = body.web === true, mobile = body.mobile === true;
       if (!me.isSuper && email === me.email && !web) throw new ApiError('err_forbidden', 403); // don't lock yourself out
-      await syncMobileWorker(email, name || email, mobile, mobile ? await estatesArg(body.estates) : null, accessArg(body.access));
+      let estates: string[] | null = null;
+      if (mobile) {
+        const { data: before } = await db.from(USERS_TABLE).select('estates').eq('email', email).maybeSingle();
+        estates = mergeEstates((before as { estates?: string[] } | null)?.estates, await estatesArg(body.estates, companyId), scope);
+      }
+      await syncMobileWorker(email, name || email, mobile, estates, accessArg(body.access));
       return write(db.from('mantap_portal_users').upsert({
         email, name, web_access: web, mobile_access: mobile, updated_at: new Date().toISOString(),
       }));
@@ -147,11 +192,12 @@ Deno.serve(handler(async (req, body) => {
     case 'list': {
       const [{ data, error }, estates] = await Promise.all([
         db.from(USERS_TABLE).select(PUBLIC_COLUMNS).eq('permissions->>__role', WORKER_ROLE).order('name'),
-        knownEstates(),
+        scopeEstates(companyId),
       ]);
       if (error) throw error;
-      const workers = (data as UserRow[]).map((r) => ({
-        id: r.id, name: r.name, email: r.email, estates: r.estates ?? [], permissions: r.permissions ?? {},
+      // One company: only its workers, with only its estates shown
+      const workers = (data as UserRow[]).filter((r) => inScope(r.estates, scope)).map((r) => ({
+        id: r.id, name: r.name, email: r.email, estates: (r.estates ?? []).filter((e) => !scope || scope.has(e)), permissions: r.permissions ?? {},
         status: r.status === 'inactive' ? 'inactive' : 'active', lastActive: r.last_active,
         intranet: !r.email.endsWith('@psms.app'),
       }));
@@ -170,34 +216,34 @@ Deno.serve(handler(async (req, body) => {
         name: str(body.name),
         email,
         password_hash: await sha256Hex(password(body.password)),
-        estates: await estatesArg(body.estates),
+        estates: await estatesArg(body.estates, companyId),
         permissions: { __role: WORKER_ROLE, ...accessArg(body.access) },
         status: 'active',
       }));
     }
 
     case 'update': {
-      const w = await getWorker(body.id);
+      const w = await mine(body.id);
       // Keep any other permission keys the Stock app stores; replace only module access.
       const permissions = { ...(w.permissions ?? {}), ...accessArg(body.access), __role: WORKER_ROLE };
       return write(db.from(USERS_TABLE).update({
-        name: str(body.name), estates: await estatesArg(body.estates), permissions,
+        name: str(body.name), estates: mergeEstates(w.estates, await estatesArg(body.estates, companyId), scope), permissions,
       }).eq('id', w.id));
     }
 
     case 'reset_password': {
-      const w = await getWorker(body.id);
+      const w = await mine(body.id);
       return write(db.from(USERS_TABLE).update({ password_hash: await sha256Hex(password(body.password)) }).eq('id', w.id));
     }
 
     case 'set_status': {
-      const w = await getWorker(body.id);
+      const w = await mine(body.id);
       if (body.status !== 'active' && body.status !== 'inactive') throw new ApiError('err_invalid');
       return write(db.from(USERS_TABLE).update({ status: body.status }).eq('id', w.id));
     }
 
     case 'delete': {
-      const w = await getWorker(body.id);
+      const w = await mine(body.id);
       return write(db.from(USERS_TABLE).delete().eq('id', w.id));
     }
   }

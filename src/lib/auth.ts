@@ -86,6 +86,16 @@ export async function signInFromIntranet(token: string): Promise<SsoResult['port
 }
 
 // ── Arriving from Plantation Operation (PORT) ────────────────────────
+// The company PORT opened us for (its MJM Intranet id and name), kept for this tab.
+const PORT_COMPANY_KEY = 'mantap_port_company';
+export interface PortCompany { id: string; name: string }
+export function setPortCompany(c: PortCompany | null) {
+  try { if (c) sessionStorage.setItem(PORT_COMPANY_KEY, JSON.stringify(c)); else sessionStorage.removeItem(PORT_COMPANY_KEY); } catch { /* private mode */ }
+}
+export function portCompany(): PortCompany | null {
+  try { const c = JSON.parse(sessionStorage.getItem(PORT_COMPANY_KEY) || 'null'); return c && typeof c.id === 'string' ? c : null; } catch { return null; }
+}
+
 // PORT and Mantap share one Supabase project, so PORT's sign-in session works
 // here. PORT opens #/portal/workers?pt=<access token>&pr=<refresh token>.
 export async function takePortSession(): Promise<boolean> {
@@ -94,7 +104,14 @@ export async function takePortSession(): Promise<boolean> {
   if (q < 0) return false;
   const params = new URLSearchParams(hash.slice(q + 1));
   const pt = params.get('pt'), pr = params.get('pr');
-  if (!pt || !pr) return false;
+  // The company chosen on PORT's front page: Worker Manage shows only its workers
+  const co = params.get('co'), con = params.get('con');
+  if (co) setPortCompany({ id: co, name: con || '' });
+  params.delete('co'); params.delete('con');
+  if (!pt || !pr) {
+    if (co) window.history.replaceState(null, '', window.location.pathname + window.location.search + hash.slice(0, q) + (params.toString() ? '?' + params.toString() : ''));
+    return false;
+  }
   params.delete('pt'); params.delete('pr');
   const rest = params.toString();
   window.history.replaceState(null, '', window.location.pathname + window.location.search + hash.slice(0, q) + (rest ? '?' + rest : ''));

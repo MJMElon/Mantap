@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useErrorText, useI18n } from '../../lib/i18n';
 import { STOCK_SECTIONS, stockAccess } from '../../lib/modules';
 import type { Worker } from '../../lib/types';
+import { portCompany } from '../../lib/auth';
 import { listWorkers } from '../../lib/workers';
 
 export const toUserId = (email: string) => email.replace(/@psms\.app$/, '');
@@ -47,6 +48,7 @@ export function WorkersPage() {
   return (
     <section>
       <div className="tools">
+        {portCompany() && <span className="pill est" title="Company chosen in Plantation Operation">🏢 {portCompany()!.name}</span>}
         <input className="input" placeholder={t('search')} value={q} onChange={(e) => setQ(e.target.value)} />
         <select className="input" value={estate} onChange={(e) => setEstate(e.target.value)}>
           <option value="">{t('all_estates')}</option>

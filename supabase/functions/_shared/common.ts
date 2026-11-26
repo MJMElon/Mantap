@@ -1,8 +1,13 @@
 // Shared helpers for Mantap Edge Functions.
 import { createClient, type SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 
-const ALLOWED_ORIGINS = (Deno.env.get('MANTAP_ALLOWED_ORIGINS') ??
-  'https://mjmelon.github.io,http://localhost:5173,http://localhost:4173').split(',');
+// Plantation Operation (PORT, oliviawsc.github.io) calls these functions too
+// (Worker Manage → Worker list), so its address is always allowed.
+const PORT_ORIGIN = 'https://oliviawsc.github.io';
+const ALLOWED_ORIGINS = [...new Set([
+  ...(Deno.env.get('MANTAP_ALLOWED_ORIGINS') ?? 'https://mjmelon.github.io,http://localhost:5173,http://localhost:4173').split(',').map((o) => o.trim()).filter(Boolean),
+  PORT_ORIGIN,
+])];
 
 export const SUPER_ADMIN_EMAIL = Deno.env.get('SUPER_ADMIN_EMAIL') ?? 'hqadmin.puigroups@gmail.com';
 export const USERS_TABLE = 'port_users';

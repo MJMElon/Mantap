@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { LangToggle } from '../../components/LangToggle';
 import { getWorker, portalMeOrDenied, portCompany, previewWorkerFromAdmin, refreshWorker, setPortCompany, signOutAdmin, signOutWorker, updateWorker, type PortalMe } from '../../lib/auth';
 import { useI18n } from '../../lib/i18n';
@@ -10,6 +10,9 @@ import { MODULES } from '../../lib/modules';
 export function MobileHomePage() {
   const { t, lang } = useI18n();
   const navigate = useNavigate();
+  // Stock sends people back here with the reason it could not open (?why=…)
+  const [params] = useSearchParams();
+  const why = params.get('why');
   const [worker, setWorker] = useState(getWorker);
   const [me, setMe] = useState<PortalMe | null>(null);
   const [drawer, setDrawer] = useState(false);
@@ -88,6 +91,7 @@ export function MobileHomePage() {
         <div className="mod-grid">
           {modules.length === 0 && <div className="empty">{t('no_modules')}</div>}
           {modules.length > 0 && !worker.estates.length && <div className="empty">{t('no_location')}</div>}
+          {why && <div className="empty">{t('stock_bounced')} ({why})</div>}
           {modules.map((m) => (
             <a key={m.id} className="mod" href={m.href}>
               <span className="mod-icon" style={{ background: `${m.color}1f` }}>{m.icon}</span>

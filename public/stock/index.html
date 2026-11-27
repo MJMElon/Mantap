@@ -9,7 +9,9 @@
 (function () {
     try {
         var s = JSON.parse(localStorage.getItem('opp_auth_session') || 'null');
-        if (!s || s.role !== 'estate_user') { location.replace('../#/m'); return; }
+        // Mantap: anything that stops Stock from opening goes back to the Mantap home with the reason (shown there)
+        if (!s) { location.replace('../#/m/home?why=nosession'); return; }
+        if (s.role !== 'estate_user') { location.replace('../#/m/home?why=' + encodeURIComponent('role ' + s.role)); return; }
         // Mantap: no location at all → nothing to open here; the Mantap home page sorts it out
         if (!Array.isArray(s.estates) || !s.estates.length) { location.replace('../#/m/home?noloc=1'); return; }
         // Mantap: start on a location (the first one) rather than the empty "Select an Estate" screen
@@ -17,7 +19,7 @@
             s.estate = s.estates[0];
             localStorage.setItem('opp_auth_session', JSON.stringify(s));
         }
-    } catch (e) { location.replace('../#/m'); }
+    } catch (e) { location.replace('../#/m/home?why=' + encodeURIComponent('error ' + (e && e.message))); }
 })();
 </script>
     <meta charset="UTF-8" />
@@ -12805,7 +12807,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     {
         const _s = loadSession();
         if (!_s || _s.role !== 'estate_user') { // Mantap: signed in on the Mantap home page
-            window.location.replace('../#/m');
+            window.location.replace('../#/m/home?why=' + encodeURIComponent(_s ? 'role ' + _s.role : 'nosession2'));
             return;
         }
     }

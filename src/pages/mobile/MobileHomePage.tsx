@@ -13,7 +13,13 @@ export function MobileHomePage() {
   // Stock sends people back here with the reason it could not open (?why=…)
   const [params] = useSearchParams();
   const why = params.get('why');
-  const [worker, setWorker] = useState(getWorker);
+  // A preview overwritten by an older Stock page (other name / role / id): rebuild it from the portal
+  const [damaged] = useState(() => { const w = getWorker(); return !!w?.preview && (w.role !== 'estate_user' || w.id !== 0); });
+  const [worker, setWorker] = useState(() => {
+    // The Stock page only opens for an estate-worker session: repair one saved with another role
+    const w = getWorker();
+    return w && w.role !== 'estate_user' ? updateWorker({ role: 'estate_user' }) : w;
+  });
   const [me, setMe] = useState<PortalMe | null>(null);
   const [drawer, setDrawer] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -36,7 +42,8 @@ export function MobileHomePage() {
 
   // Preview without a location yet (e.g. opened before the companies were known): fill it in
   useEffect(() => {
-    if (!me || !worker?.preview || (worker.estates.length && worker.estate)) return;
+    if (me && worker?.preview && me.name && me.name !== worker.name) { const w = updateWorker({ name: me.name }); if (w) setWorker(w); } // name changed in PORT
+    if (!me || !worker?.preview || (!damaged && worker.estates.length && worker.estate)) return;
     setWorker(previewWorkerFromAdmin(me));
   }, [me]); // eslint-disable-line react-hooks/exhaustive-deps
 

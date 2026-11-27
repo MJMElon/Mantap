@@ -134,7 +134,11 @@ async function myCompanies(email: string): Promise<{ companies: { id: string; na
 async function authorize(req: Request, companyId: string | null = null) {
   const email = await callerEmail(req);
   if (!email) throw new ApiError('err_forbidden', 401);
-  if (email === SUPER_ADMIN_EMAIL) return { email, name: 'HQ Admin', isSuper: true };
+  if (email === SUPER_ADMIN_EMAIL) {
+    // The name saved for this email in PORT → User Access (e.g. the person using it), else 'HQ Admin'
+    const { data: sa } = await serviceClient().from(USERS_TABLE).select('name').eq('email', email).maybeSingle();
+    return { email, name: (sa as { name?: string } | null)?.name?.trim() || 'HQ Admin', isSuper: true };
+  }
   const p = await getPortalUser(email);
   if (p?.web_access) return { email, name: p.name || email, isSuper: false };
   // A Plantation Operation (PORT) Admin or Super Admin opens Worker Manage from PORT

@@ -44,6 +44,7 @@ export function MobileHomePage() {
 
   // Preview without a location yet (e.g. opened before the companies were known): fill it in
   useEffect(() => {
+    if (me && worker?.preview && me.name && me.name !== worker.name) { const w = updateWorker({ name: me.name }); if (w) setWorker(w); } // name changed in PORT
     if (!me || !worker?.preview || (!damaged && worker.estates.length && worker.estate)) return;
     setWorker(previewWorkerFromAdmin(me));
   }, [me]); // eslint-disable-line react-hooks/exhaustive-deps

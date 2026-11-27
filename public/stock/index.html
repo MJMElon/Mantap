@@ -1118,7 +1118,7 @@
 <script>
 // APP_BUILD is checked by the auto-refresh guard below.
 // Bump this string whenever code is deployed to force stale cached pages to reload.
-var APP_BUILD = '20261126-70';
+var APP_BUILD = '20261127-71';
 (function () {
     var _vr = window.location.search.indexOf('_vr') !== -1;
     // Legacy guard: very old cached pages have no APP_BUILD at all.
@@ -4595,6 +4595,31 @@ function btnLoadThen(btn, work, label) {
     setTimeout(work, 300);
 }
 
+// Browser copy of the data (offline use). Browsers allow only ~5 MB per site, shared
+// with every app on the same address; when it is full, copies of the OTHER locations
+// are dropped and the write is tried again. If it still does not fit, the copy is
+// skipped: the data is already on screen (and in Supabase), so the page keeps working.
+function cacheSet(key, value) {
+    try { localStorage.setItem(key, value); return true; } catch (e) {}
+    try {
+        var cur = '::' + (typeof activeEstate !== 'undefined' ? activeEstate : '');
+        var drop = [];
+        for (var i = 0; i < localStorage.length; i++) {
+            var k = localStorage.key(i);
+            if (k && k.indexOf('::') > 0 && k.slice(-cur.length) !== cur && k !== SYNC_QUEUE_KEY) drop.push(k);
+        }
+        // never drop a location's copy that still has changes waiting to be sent
+        var waiting = {};
+        try { (JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY)) || []).forEach(function (q) { waiting[q.key + '::' + q.estate] = 1; }); } catch (e2) {}
+        drop.filter(function (k) { return !waiting[k]; }).forEach(function (k) { localStorage.removeItem(k); });
+        localStorage.setItem(key, value);
+        return true;
+    } catch (e3) {
+        console.warn('[cache] browser storage full, not keeping a copy of', key);
+        return false;
+    }
+}
+
 // Persist a key back to localStorage AND sync to Supabase.
 function save(key, data) {
     // Guard: never write to a key scoped to an empty estate
@@ -4604,7 +4629,7 @@ function save(key, data) {
     }
     // key is a STORAGE_KEYS value (table name); scope it to active estate
     const estateKey = `${key}::${activeEstate}`;
-    localStorage.setItem(estateKey, JSON.stringify(data));
+    cacheSet(estateKey, JSON.stringify(data));
     syncToSupabase(key, data);
 }
 
@@ -4940,7 +4965,7 @@ async function loadFromSupabase() {
             if (activeEstate) {
                 try {
                     const _estKey = getEstateKeys(activeEstate);
-                    localStorage.setItem(_estKey.transactions, JSON.stringify(transactions));
+                    cacheSet(_estKey.transactions, JSON.stringify(transactions));
                 } catch(e) {}
             }
             if (localUnsynced.length > 0) syncToSupabase(STORAGE_KEYS.transactions, transactions);
@@ -4975,14 +5000,14 @@ async function loadFromSupabase() {
 
         // Cache all tables with estate-scoped localStorage keys
         const keys = getEstateKeys(activeEstate);
-        localStorage.setItem(keys.items,            JSON.stringify(items));
-        localStorage.setItem(keys.locations,        JSON.stringify(locations));
-        localStorage.setItem(keys.transactions,     JSON.stringify(transactions));
-        localStorage.setItem(keys.manuringRounds,   JSON.stringify(manuringRounds));
-        localStorage.setItem(keys.fieldMaintRounds, JSON.stringify(fieldMaintRounds));
-        localStorage.setItem(keys.maintClaims,      JSON.stringify(maintClaims));
-        localStorage.setItem(keys.chemIngredients,  JSON.stringify(chemIngredients));
-        localStorage.setItem(keys.rainfallTxns,     JSON.stringify(rainfallTxns));
+        cacheSet(keys.items,            JSON.stringify(items));
+        cacheSet(keys.locations,        JSON.stringify(locations));
+        cacheSet(keys.transactions,     JSON.stringify(transactions));
+        cacheSet(keys.manuringRounds,   JSON.stringify(manuringRounds));
+        cacheSet(keys.fieldMaintRounds, JSON.stringify(fieldMaintRounds));
+        cacheSet(keys.maintClaims,      JSON.stringify(maintClaims));
+        cacheSet(keys.chemIngredients,  JSON.stringify(chemIngredients));
+        cacheSet(keys.rainfallTxns,     JSON.stringify(rainfallTxns));
 
         // Refresh lastKnownIds snapshots for all tables
         lastKnownIds.port_items              = new Set(items.map(r => r.id));
@@ -15357,7 +15382,7 @@ async function deleteRainfallTxn(id) {
     rainfallTxns = rainfallTxns.filter(r => String(r.id) !== String(id));
     lastKnownIds.port_rainfall_txns = new Set(rainfallTxns.map(r => r.id));
     const estateKey2 = STORAGE_KEYS.rainfallTxns + '::' + activeEstate;
-    localStorage.setItem(estateKey2, JSON.stringify(rainfallTxns));
+    cacheSet(estateKey2, JSON.stringify(rainfallTxns));
 
     renderRainfallTxns();
     renderRainfallReport();

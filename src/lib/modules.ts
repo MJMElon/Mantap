@@ -40,7 +40,7 @@ export const MODULES: PortalModule[] = [
     color: '#16a34a',
     name: { en: 'Stock', ms: 'Stok' },
     desc: { en: 'Fertilizer, chemical, seedling and tools', ms: 'Baja, racun, anak sawit dan peralatan' },
-    href: `${import.meta.env.BASE_URL}stock/`,
+    href: `${import.meta.env.BASE_URL}stock/?module=stock`,
     allowed: (w) => STOCK_SECTIONS.some((s) => s.id !== 'mobile_rainfall' && stockAccess(w.permissions, s.id) !== 'none'),
   },
   {

@@ -32,8 +32,6 @@ export interface PortalModule {
   allowed: (w: WorkerSession) => boolean;
 }
 
-const hasAccess = (w: WorkerSession, id: string) => stockAccess(w.permissions, id) !== 'none';
-
 /** Cards on the worker home. Add a module here to show it to workers. */
 export const MODULES: PortalModule[] = [
   {

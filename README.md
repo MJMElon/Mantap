@@ -11,7 +11,7 @@ The portal for estate workers.
   - **Mobile View:** the phone app in a phone frame.
 - **Mobile app** (`#/m`): workers sign in with their User ID and password (or
   arrive from MJM Intranet on a phone). They land on the Worker Portal home
-  and tap **Stock** or **Rainfall**. More modules will be added later.
+  and tap **Stock**. More modules will be added later.
 
 - **Frontend:** React 18 + TypeScript + Vite, with React Router (hash routes).
   The published site is the minified build in `dist/`.
@@ -46,10 +46,8 @@ src/
       WorkersPage.tsx        worker list: search, estate filter, actions
       WorkerDialog.tsx       add / edit worker (estates, Stock access)
       MobileDemoPage.tsx     phone-sized preview of the worker side
-public/stock/                Stock and Rainfall mobile screens (worker view of the
-                             Plantation Operation Stock app, copied from
-                             oliviawsc/plantationstockmanagementsystem stock/;
-                             stock/?open=rainfall opens it on Rainfall)
+public/stock/                Stock module (legacy worker view of the Stock app;
+                             replaced when the Stock app is rebuilt in React)
 supabase/
   functions/mantap-worker-auth    worker sign-in (password checked on the server,
                                   5 wrong tries → 15-minute lock) and "me" refresh

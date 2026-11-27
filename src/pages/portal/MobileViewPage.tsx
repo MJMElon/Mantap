@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useI18n } from '../../lib/i18n';
 
-const DEMO_URL = `${import.meta.env.BASE_URL}#/m?demo=1`;
+// The worker app as the signed-in person sees it (their companies and locations, no worker login)
+const DEMO_URL = `${import.meta.env.BASE_URL}#/m`;
 
 export function MobileViewPage() {
   const { t } = useI18n();

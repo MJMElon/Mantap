@@ -87,6 +87,7 @@ export function MobileHomePage() {
         <h1 className="name" id="who">{worker.name}</h1>
         <div className="mod-grid">
           {modules.length === 0 && <div className="empty">{t('no_modules')}</div>}
+          {modules.length > 0 && !worker.estates.length && <div className="empty">{t('no_location')}</div>}
           {modules.map((m) => (
             <a key={m.id} className="mod" href={m.href}>
               <span className="mod-icon" style={{ background: `${m.color}1f` }}>{m.icon}</span>

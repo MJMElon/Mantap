@@ -1110,6 +1110,67 @@
     .top-co-menu button.on { font-weight: 700; color: #14532D; }
     .top-co-menu button.on::before { content: '\2713\00a0'; color: #16A34A; }
     .top-co-menu button:not(.on)::before { content: ''; display: inline-block; width: 16px; }
+    /* ── Weighbridge Module ── */
+    .wb-filter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+    .wb-filter-label{font-size:12px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.04em;}
+    .wb-btn{display:inline-flex;align-items:center;gap:7px;padding:0 16px;height:36px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;}
+    .wb-btn-primary{background:#4338CA;color:#fff;}
+    .wb-btn-primary:hover{background:#3730A3;}
+    .wb-btn-ghost{background:transparent;border:1px solid #E2E8F0;color:#475569;}
+    .wb-btn-load{background:#F1F5F9;border:1px solid #E2E8F0;color:#0F172A;}
+    .wb-table-wrap{overflow-x:auto;border-radius:10px;border:1px solid #E2E8F0;}
+    .wb-table{width:100%;border-collapse:collapse;min-width:820px;font-variant-numeric:tabular-nums;}
+    .wb-table thead{background:#F8FAFC;}
+    .wb-table th{padding:10px 14px;font-size:11.5px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;text-align:left;border-bottom:2px solid #E2E8F0;}
+    .wb-table th.wb-th-est{color:#1E40AF;background:#EFF6FF;}
+    .wb-table th.wb-th-mill{color:#7C3AED;background:#F5F3FF;}
+    .wb-table th.wb-th-var{color:#15803D;background:#F0FDF4;}
+    .wb-table td{padding:11px 14px;font-size:13px;border-bottom:1px solid #E2E8F0;color:#0F172A;vertical-align:middle;}
+    .wb-table tr.wb-data-row:last-child td{border-bottom:none;}
+    .wb-table tr.wb-data-row:hover td{background:#EEF2FF;}
+    .wb-est-col{color:#1E40AF;font-weight:600;}
+    .wb-mill-col{color:#7C3AED;font-weight:600;}
+    .wb-tag{display:inline-block;padding:3px 9px;border-radius:99px;font-size:12px;font-weight:700;}
+    .wb-tag-pos{background:#DCFCE7;color:#15803D;}
+    .wb-tag-neg{background:#FEE2E2;color:#B91C1C;}
+    .wb-tag-warn{background:#FEF08A;color:#854D0E;border:1px solid #FACC15;}
+    .wb-tag-blue{background:#BFDBFE;color:#1D4ED8;font-weight:700;}
+    .wb-row-warn td{background:#FEFCE8!important;}
+    .wb-summary-row td{background:#EEF2FF;font-weight:700;border-top:2px solid #C7D2FE;}
+    .wb-summary-warn td{background:#DBEAFE!important;border-top-color:#93C5FD!important;}
+    .wb-row-actions{display:flex;gap:6px;justify-content:center;}
+    .wb-icon-btn{width:28px;height:28px;border-radius:6px;border:1px solid #E2E8F0;background:transparent;color:#475569;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;padding:0;}
+    .wb-icon-btn:hover{background:#F1F5F9;}
+    .wb-sub-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #E2E8F0;}
+    .wb-form-card{background:#fff;border:1px solid #E2E8F0;border-radius:14px;overflow:hidden;margin-bottom:16px;}
+    .wb-form-section{padding:18px 20px;border-bottom:1px solid #E2E8F0;}
+    .wb-form-section:last-child{border-bottom:none;}
+    .wb-col-header{display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:14px;}
+    .wb-col-est{background:#EFF6FF;color:#1E40AF;}
+    .wb-col-mill{background:#F5F3FF;color:#7C3AED;}
+    .wb-col-calc{background:#F0FDF4;color:#15803D;}
+    .wb-form-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+    @media(max-width:680px){.wb-form-row{grid-template-columns:1fr;}}
+    .wb-form-group{display:flex;flex-direction:column;gap:5px;}
+    .wb-form-label{font-size:11.5px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.04em;}
+    .wb-form-input{height:38px;padding:0 11px;border:1px solid #E2E8F0;border-radius:8px;background:#fff;color:#0F172A;font-size:13px;font-family:Inter,sans-serif;outline:none;width:100%;}
+    .wb-form-input:focus{border-color:#4338CA;box-shadow:0 0 0 2px rgba(67,56,202,.12);}
+    .wb-calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .wb-calc-field{border-radius:8px;padding:9px 13px;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;min-height:38px;display:flex;align-items:center;border:1px solid #86EFAC;background:#F0FDF4;color:#15803D;}
+    .wb-calc-field.wb-neg{background:#FEF2F2;border-color:#FCA5A5;color:#B91C1C;}
+    .wb-calc-field.wb-pos{background:#F0FDF4;border-color:#86EFAC;color:#15803D;}
+    .wb-calc-field.wb-zero{background:#F8FAFC;border-color:#E2E8F0;color:#475569;}
+    .wb-actions-bar{display:flex;gap:10px;justify-content:flex-end;padding:16px 20px;background:#F8FAFC;border-top:1px solid #E2E8F0;}
+    .wb-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;}
+    .wb-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#475569;}
+    .wb-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+    /* Stone Weighbridge */
+    .sw-po-block{margin-bottom:24px;}
+    .sw-po-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px 12px 0 0;padding:13px 16px;border-bottom:none;}
+    .sw-tbl-wrap{overflow-x:auto;border:1px solid #FDE68A;border-top:none;border-radius:0 0 12px 12px;}
+    .sw-tbl-wrap .wb-table th{font-size:11px;}
+    .sw-col-del{color:#0F766E;font-weight:600;}
+    @media(max-width:680px){.sw-po-header{flex-direction:column;}.sw-entry-grid{grid-template-columns:1fr!important;}}
     </style>
 </head>
 <body>
@@ -1120,7 +1181,7 @@
 <script>
 // APP_BUILD is checked by the auto-refresh guard below.
 // Bump this string whenever code is deployed to force stale cached pages to reload.
-var APP_BUILD = '20261127-72';
+var APP_BUILD = '20261127-98';
 (function () {
     var _vr = window.location.search.indexOf('_vr') !== -1;
     // Legacy guard: very old cached pages have no APP_BUILD at all.
@@ -1345,6 +1406,8 @@ var APP_BUILD = '20261127-72';
             <!-- Management Report is opened from the Plantation Operation portal (../), not from inside Stock -->
             <p class="sb-section" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,0.42);padding:8px 8px 3px;">Cases</p>
             <button data-target="carlos" class="nav-item" onclick="navigateToSection('carlos')"><span class="nav-icon">&#128269;</span><span class="sb-label">Carlos</span></button>
+            <p class="sb-section" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,0.42);padding:8px 8px 3px;">Weighbridge</p>
+            <button data-target="weighbridge" class="nav-item" onclick="navigateToSection('weighbridge')"><span class="nav-icon">&#9878;&#65039;</span><span class="sb-label">Weighbridge</span></button>
             <p class="sb-section" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,0.42);padding:8px 8px 3px;">Admin</p>
             <button data-target="settings" id="navSettings" class="nav-item hidden">
                 <span class="nav-icon">&#9881;&#65039;</span><span class="sb-label" data-i18n="sb_lbl_settings">Settings</span>
@@ -1396,7 +1459,7 @@ var APP_BUILD = '20261127-72';
         <div id="topHeaderBar">
             <!-- Left: home button + collapse toggle + estate name pill -->
             <div style="flex:1;display:flex;align-items:center;gap:10px;">
-                <button id="topHomeBtn" onclick="['home','rainfall','ffbrecord','mgmtreport','carlos'].includes(sessionStorage.getItem('opp_active_section'))?location.href='../':navigateToSection('home')" title="Home"
+                <button id="topHomeBtn" onclick="['home','rainfall','ffbrecord','mgmtreport','carlos','weighbridge'].includes(sessionStorage.getItem('opp_active_section'))?location.href='../':navigateToSection('home')" title="Home"
                     style="display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:8px;border:1px solid #D1FAE5;background:#F0FDF4;color:#1B5E20;font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;flex-shrink:0;transition:background .13s;"
                     onmouseover="this.style.background='#D1FAE5'" onmouseout="this.style.background='#F0FDF4'">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -3777,6 +3840,262 @@ var APP_BUILD = '20261127-72';
             <div id="mgmtReportSheet" class="mr-sheet"></div>
         </section>
 
+        <!-- ============ WEIGHBRIDGE ============ -->
+        <section id="weighbridge" class="page-section">
+            <!-- Main list view -->
+            <div id="weighbridgeMain">
+                <h2 class="text-3xl font-bold mb-1">&#9878;&#65039; Weighbridge</h2>
+                <p class="text-sm text-indigo-700 mb-4">Compare FFB weights between Estate and Mill Weighbridges.</p>
+                <!-- Tab bar -->
+                <div class="flex gap-1 border-b-2 border-indigo-200 mb-0">
+                    <button id="wbTabFfb" class="htab-btn active" onclick="wbShowTab('ffb')" style="background:#4338CA;color:#fff;border-radius:8px 8px 0 0;padding:9px 20px;font-size:13px;font-weight:600;border:1px solid #C7D2FE;border-bottom:none;cursor:pointer;font-family:Inter,sans-serif;position:relative;bottom:-2px;">FFB Weighbridge Variance</button>
+                    <button id="wbTabStone" class="htab-btn" onclick="wbShowTab('stone')" style="border-radius:8px 8px 0 0;padding:9px 20px;font-size:13px;font-weight:600;border:1px solid transparent;border-bottom:none;cursor:pointer;font-family:Inter,sans-serif;position:relative;bottom:-2px;background:transparent;color:#475569;">Stone Weighbridge Variance</button>
+                </div>
+                <div style="background:#fff;border:1px solid #E2E8F0;border-top:none;border-radius:0 0 14px 14px;padding:20px;">
+                    <div id="wbFfbPanel">
+                    <!-- Filter row -->
+                    <div class="wb-filter-row">
+                        <span class="wb-filter-label">Period</span>
+                        <select id="wbFilterMonth" class="wb-form-input" style="width:130px;" onchange="loadWeighbridgeData()">
+                            <option value="1">January</option><option value="2">February</option>
+                            <option value="3">March</option><option value="4">April</option>
+                            <option value="5">May</option><option value="6">June</option>
+                            <option value="7">July</option><option value="8">August</option>
+                            <option value="9">September</option><option value="10">October</option>
+                            <option value="11">November</option><option value="12">December</option>
+                        </select>
+                        <select id="wbFilterYear" class="wb-form-input" style="width:88px;" onchange="loadWeighbridgeData()"></select>
+                        <div style="margin-left:auto;">
+                            <button class="wb-btn wb-btn-primary" onclick="showWeighbridgeAddForm(null)">&#xFF0B; Add Entry</button>
+                        </div>
+                    </div>
+                    <!-- Table -->
+                    <div class="wb-table-wrap">
+                        <table class="wb-table">
+                            <thead>
+                                <tr>
+                                    <th class="wb-th-est">Estate Date</th>
+                                    <th class="wb-th-est">Estate DO No.</th>
+                                    <th class="wb-th-est">Estate Net Wt (MT)</th>
+                                    <th class="wb-th-mill">Mill Date</th>
+                                    <th class="wb-th-mill">Mill DO No.</th>
+                                    <th class="wb-th-mill">Mill Net Wt (MT)</th>
+                                    <th class="wb-th-var">Variance (MT)</th>
+                                    <th class="wb-th-var">Variance (%)</th>
+                                    <th style="text-align:center;white-space:nowrap;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="weighbridgeTableBody">
+                                <tr><td colspan="9" style="text-align:center;padding:28px;color:#94A3B8;">Select a period and click Load.</td></tr>
+                            </tbody>
+                            <tfoot>
+                                <tr id="weighbridgeSummaryRow" class="wb-summary-row" style="display:none;">
+                                    <td colspan="2" id="wbSummaryLabel"></td>
+                                    <td id="wbSummaryEstWt" class="wb-est-col"></td>
+                                    <td colspan="2"></td>
+                                    <td id="wbSummaryMillWt" class="wb-mill-col"></td>
+                                    <td id="wbSummaryVarKg"></td>
+                                    <td id="wbSummaryVarPct"></td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <!-- Legend -->
+                    <div class="wb-legend">
+                        <div class="wb-legend-item"><div class="wb-legend-dot" style="background:#15803D;"></div>Positive — Mill &gt; Estate</div>
+                        <div class="wb-legend-item"><div class="wb-legend-dot" style="background:#DC2626;"></div>Negative — Mill &lt; Estate</div>
+                        <div class="wb-legend-item"><div class="wb-legend-dot" style="background:#EAB308;"></div>Yellow — Individual variance &lt; −2%</div>
+                        <div class="wb-legend-item"><div class="wb-legend-dot" style="background:#3B82F6;"></div>Blue — Monthly total variance &lt; −1%</div>
+                    </div>
+                    </div><!-- /wbFfbPanel -->
+                    <!-- Stone Weighbridge Variance panel -->
+                    <div id="wbStonePanel" style="display:none;">
+                        <div class="wb-filter-row">
+                            <span class="wb-filter-label">PO Year</span>
+                            <select id="swFilterYear" class="wb-form-input" style="width:88px;" onchange="loadStonePOs()"></select>
+                            <div style="margin-left:auto;">
+                                <button class="wb-btn" style="background:#B45309;color:#fff;" onclick="showStoneAddPO(null)">&#xFF0B; Add PO</button>
+                            </div>
+                        </div>
+                        <div id="swPOBlocks"></div>
+                        <div class="wb-legend" style="margin-top:20px;">
+                            <div class="wb-legend-item"><div class="wb-legend-dot" style="background:#15803D;"></div>Positive — Estate &ge; Supplier</div>
+                            <div class="wb-legend-item"><div class="wb-legend-dot" style="background:#DC2626;"></div>Negative — Estate &lt; Supplier</div>
+                            <div class="wb-legend-item"><div class="wb-legend-dot" style="background:#EAB308;"></div>Yellow — Individual variance &lt; −3%</div>
+                        </div>
+                    </div><!-- /wbStonePanel -->
+                </div>
+            </div>
+            <!-- Stone: Add / Edit PO sub-page -->
+            <div id="stoneAddPOPage" style="display:none;">
+                <div class="wb-sub-header">
+                    <button class="wb-btn wb-btn-ghost" onclick="showStoneMain()">&#8592; Back</button>
+                    <div>
+                        <div style="font-size:20px;font-weight:700;color:#0F172A;" id="swAddPOTitle">Add Purchase Order</div>
+                        <div style="font-size:13px;color:#475569;margin-top:2px;">Stone Weighbridge Variance</div>
+                    </div>
+                </div>
+                <div class="wb-form-card">
+                    <div class="wb-form-section">
+                        <div class="wb-col-header" style="background:#FFFBEB;color:#B45309;border:1px solid #FDE68A;">&#128203; PO Details</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;" class="sw-entry-grid">
+                            <div style="display:flex;flex-direction:column;gap:14px;">
+                                <div class="wb-form-group">
+                                    <label class="wb-form-label">PO No.</label>
+                                    <input type="text" id="swPONo" class="wb-form-input" placeholder="e.g. PO-2026-044" maxlength="50">
+                                </div>
+                                <div class="wb-form-group">
+                                    <label class="wb-form-label">PO Date</label>
+                                    <input type="date" id="swPODate" class="wb-form-input">
+                                </div>
+                            </div>
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">Supplier Name</label>
+                                <input type="text" id="swSupplierName" class="wb-form-input" placeholder="e.g. Syarikat Batu Sdn Bhd" maxlength="150">
+                            </div>
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">Stone Size</label>
+                                <input type="text" id="swStoneSize" class="wb-form-input" placeholder="e.g. 20mm, 40mm" maxlength="50">
+                            </div>
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">Qty Ordered (MT)</label>
+                                <input type="number" id="swQtyOrdered" class="wb-form-input" placeholder="0.000" min="0" step="0.001">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wb-actions-bar">
+                        <button class="wb-btn wb-btn-ghost" onclick="showStoneMain()">Cancel</button>
+                        <button class="wb-btn" id="swSavePOBtn" onclick="saveStoneAddPO()" style="background:#B45309;color:#fff;">Save PO</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Stone: Add / Edit Entry sub-page -->
+            <div id="stoneAddEntryPage" style="display:none;">
+                <div class="wb-sub-header">
+                    <button class="wb-btn wb-btn-ghost" onclick="showStoneMain()">&#8592; Back</button>
+                    <div>
+                        <div style="font-size:20px;font-weight:700;color:#0F172A;">Add Delivery Entry</div>
+                        <div style="font-size:13px;color:#475569;margin-top:2px;">Stone Weighbridge Variance</div>
+                    </div>
+                </div>
+                <div class="wb-form-card">
+                    <!-- PO Reference (read-only) -->
+                    <div class="wb-form-section" style="background:#FFFBEB;border-bottom:1px solid #FDE68A;">
+                        <div class="wb-col-header" style="background:transparent;color:#B45309;border:none;padding-left:0;margin-bottom:10px;">&#128203; PO Reference</div>
+                        <div id="swEntryPORef" style="display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13px;color:#475569;"></div>
+                    </div>
+                    <!-- Delivery details -->
+                    <div class="wb-form-section">
+                        <div class="wb-col-header" style="background:#F0FDFA;color:#0F766E;border:1px solid #99F6E4;">&#128666; Delivery Details</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;" class="sw-entry-grid">
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">Supplier DO Date</label>
+                                <input type="date" id="swEntrySupDoDate" class="wb-form-input">
+                            </div>
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">Supplier DO No.</label>
+                                <input type="text" id="swEntrySupDoNo" class="wb-form-input" placeholder="e.g. DO-61280" maxlength="100">
+                            </div>
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">Supplier Net Wt (MT)</label>
+                                <input type="number" id="swEntrySupNetWt" class="wb-form-input" placeholder="0.000" min="0" step="0.001" oninput="calcStoneEntryVariance()">
+                            </div>
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">Estate Net Wt (MT)</label>
+                                <input type="number" id="swEntryEstNetWt" class="wb-form-input" placeholder="0.000" min="0" step="0.001" oninput="calcStoneEntryVariance()">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Variance auto -->
+                    <div class="wb-form-section">
+                        <div class="wb-col-header wb-col-calc">&#128202; Variance (auto-calculated)</div>
+                        <div class="wb-calc-grid">
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">Variance (MT) = Estate &minus; Supplier</label>
+                                <div id="swEntryVarMT" class="wb-calc-field wb-zero">&#8212;</div>
+                            </div>
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">Variance (%) = Variance &divide; Supplier &times; 100</label>
+                                <div id="swEntryVarPct" class="wb-calc-field wb-zero">&#8212;</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wb-actions-bar">
+                        <button class="wb-btn wb-btn-ghost" onclick="showStoneMain()">Cancel</button>
+                        <button class="wb-btn wb-btn-primary" id="swSaveEntryBtn" onclick="saveStoneEntry()">Save Entry</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Add / Edit entry sub-page -->
+            <div id="weighbridgeAddPage" style="display:none;">
+                <div class="wb-sub-header">
+                    <button class="wb-btn wb-btn-ghost" onclick="showWeighbridgeMain()">&#8592; Back</button>
+                    <div>
+                        <div style="font-size:20px;font-weight:700;color:#0F172A;" id="wbAddTitle">Add Weighbridge Entry</div>
+                        <div style="font-size:13px;color:#475569;margin-top:2px;" id="wbAddSubtitle">FFB Weighbridge Variance</div>
+                    </div>
+                </div>
+                <div class="wb-form-card">
+                    <!-- Estate Weighbridge -->
+                    <div class="wb-form-section">
+                        <div class="wb-col-header wb-col-est">&#127968; Estate Weighbridge</div>
+                        <div class="wb-form-row">
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">Date</label>
+                                <input type="date" id="wbEstateDate" class="wb-form-input">
+                            </div>
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">DO No.</label>
+                                <input type="text" id="wbEstateDoNo" class="wb-form-input" placeholder="e.g. EST-DO-001" maxlength="100">
+                            </div>
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">Net Weight (MT)</label>
+                                <input type="number" id="wbEstateNetWt" class="wb-form-input" placeholder="0" min="0" step="0.01" oninput="calculateWbVariance()">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Mill Weighbridge -->
+                    <div class="wb-form-section">
+                        <div class="wb-col-header wb-col-mill">&#127981; Mill Weighbridge</div>
+                        <div class="wb-form-row">
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">Date</label>
+                                <input type="date" id="wbMillDate" class="wb-form-input">
+                            </div>
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">DO No.</label>
+                                <input type="text" id="wbMillDoNo" class="wb-form-input" placeholder="e.g. MILL-DO-001" maxlength="100">
+                            </div>
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">Net Weight (MT)</label>
+                                <input type="number" id="wbMillNetWt" class="wb-form-input" placeholder="0" min="0" step="0.01" oninput="calculateWbVariance()">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Variance (auto) -->
+                    <div class="wb-form-section">
+                        <div class="wb-col-header wb-col-calc">&#128202; Variance (auto-calculated)</div>
+                        <div class="wb-calc-grid">
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">Weight Variance (MT) = Mill − Estate</label>
+                                <div id="wbCalcVarKg" class="wb-calc-field wb-zero">—</div>
+                            </div>
+                            <div class="wb-form-group">
+                                <label class="wb-form-label">Weight Variance (%) = Variance ÷ Estate × 100</label>
+                                <div id="wbCalcVarPct" class="wb-calc-field wb-zero">—</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Action bar -->
+                    <div class="wb-actions-bar">
+                        <button class="wb-btn wb-btn-ghost" onclick="showWeighbridgeMain()">Cancel</button>
+                        <button class="wb-btn wb-btn-primary" id="wbSaveBtn" onclick="saveWeighbridgeEntry()">Save Entry</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- ============ PAGE 12: USER MANAGEMENT (Super Admin only) ============ -->
         <section id="useradmin" class="page-section">
             <h2 class="text-3xl font-bold mb-2" data-i18n="page_useradmin">👤 User Management</h2>
@@ -4526,6 +4845,7 @@ let fieldMaintRounds = [];
 let maintClaims      = []; // { id, roundId, roundName, blockName, claimedArea, month }
 let chemIngredients  = []; // { id, name, itemId, itemName, unit, maxDosage }
 let rainfallTxns     = []; // { id, date, mm, picture, createdAt }
+let estateBlocks     = []; // { division, phase, block } from port_estate_blocks
 
 // Snapshot of last-known ids per estate+table for Supabase delete sync
 const lastKnownIds = {
@@ -4563,6 +4883,7 @@ function loadEstateData(estate) {
     lastKnownIds.port_maint_claims       = new Set(maintClaims.map(r => r.id));
     lastKnownIds.port_chem_ingredients   = new Set(chemIngredients.map(r => r.id));
     lastKnownIds.port_rainfall_txns      = new Set(rainfallTxns.map(r => r.id));
+    estateBlocks = []; // reset on estate switch; repopulated by loadFromSupabase()
 }
 
 // Show a spinner + disable a save button while an operation is in flight.
@@ -4744,10 +5065,12 @@ async function _executeSyncForEstate(key, estate, data) {
         }
 
         if (data.length > 0) {
+            const _syncCoId = (loadSession() || {}).company_id || null;
             const tagged = data.map(r => {
                 const rec = { ...r, estate };
                 delete rec.picture;
                 if (rec.created_at == null) delete rec.created_at;
+                if (_syncCoId) rec.company_id = _syncCoId;
                 return rec;
             });
             const { error: upErr } = await supabaseClient
@@ -4911,7 +5234,7 @@ async function loadFromSupabase() {
     _showDashLoadingSpinner();
     try {
         const [itemsRes, locsRes, txnsRes, roundsRes,
-               fmRoundsRes, claimsRes, chemRes, rainfallRes] = await Promise.all([
+               fmRoundsRes, claimsRes, chemRes, rainfallRes, estBlocksRes] = await Promise.all([
             supabaseClient.from('port_items').select('*').eq('estate', activeEstate),
             supabaseClient.from('port_locations').select('*').eq('estate', activeEstate),
             supabaseClient.from('port_transactions').select('*').eq('estate', activeEstate),
@@ -4919,7 +5242,8 @@ async function loadFromSupabase() {
             supabaseClient.from('port_fieldmaint_rounds').select('*').eq('estate', activeEstate),
             supabaseClient.from('port_maint_claims').select('*').eq('estate', activeEstate),
             supabaseClient.from('port_chem_ingredients').select('*').eq('estate', activeEstate),
-            supabaseClient.from('port_rainfall_txns').select('*').eq('estate', activeEstate)
+            supabaseClient.from('port_rainfall_txns').select('*').eq('estate', activeEstate),
+            supabaseClient.from('port_estate_blocks').select('division,phase,block,palm_count').eq('estate', activeEstate).order('division').order('phase').order('block')
         ]);
 
         if (itemsRes.error)    console.error('[Supabase] load items',          itemsRes.error);
@@ -4929,7 +5253,8 @@ async function loadFromSupabase() {
         if (fmRoundsRes.error) console.error('[Supabase] load fm_rounds',      fmRoundsRes.error);
         if (claimsRes.error)   console.error('[Supabase] load maint_claims',   claimsRes.error);
         if (chemRes.error)     console.error('[Supabase] load chem_ingr',      chemRes.error);
-        if (rainfallRes.error) console.error('[Supabase] load rainfall_txns',  rainfallRes.error);
+        if (rainfallRes.error)   console.error('[Supabase] load rainfall_txns',  rainfallRes.error);
+        if (estBlocksRes.error)  console.error('[Supabase] load estate_blocks',  estBlocksRes.error);
 
         if (!itemsRes.error  && itemsRes.data  !== null) items            = itemsRes.data;
         if (!locsRes.error   && locsRes.data   !== null) locations        = locsRes.data;
@@ -5016,6 +5341,7 @@ async function loadFromSupabase() {
                 syncToSupabase(STORAGE_KEYS.rainfallTxns, rainfallTxns);
             }
         }
+        if (!estBlocksRes.error && estBlocksRes.data !== null) estateBlocks = estBlocksRes.data;
 
         // Cache all tables with estate-scoped localStorage keys
         const keys = getEstateKeys(activeEstate);
@@ -5496,16 +5822,35 @@ function deleteLocation(id) {
    Each row holds an independent Quantity + Location, so a single
    submission can split one item across multiple blocks in a day.
    ----------------------------------------------------------------- */
+// Returns a human-readable label for one estate block row,
+// omitting levels that are blank ("whichever applicable").
+function _estateBlockLabel(r) {
+    var parts = [];
+    if (r.division) parts.push('Division ' + r.division);
+    if (r.phase)    parts.push('Phase ' + r.phase);
+    parts.push('Block ' + r.block);
+    return parts.join(' / ');
+}
+
 function buildLocationOptionsHtml() {
     const d = I18N[currentLang] || I18N['en'];
-    const sorted = locations.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true, sensitivity: 'base' }));
-    // On mobile Out Store, exclude None/Storage — blocks only
-    if (document.body.classList.contains('estate-mobile')) {
-        return `<option value="">-- Select Block --</option>` +
-            sorted.map(l => `<option value="${l.name}">${l.name}</option>`).join('');
+    const isMobile = document.body.classList.contains('estate-mobile');
+    const noneOpt  = `<option value="None/Storage">${d.opt_none_storage || 'None/Storage'}</option>`;
+
+    var blocks = estateBlocks.slice();
+    var optionsHtml;
+
+    // Flat list — full label as both value and display text so the stored
+    // transaction value already carries the full context (Phase / Block etc.)
+    optionsHtml = blocks.map(r => {
+        const lbl = _estateBlockLabel(r);
+        return `<option value="${lbl}">${lbl}</option>`;
+    }).join('');
+
+    if (isMobile) {
+        return `<option value="">-- Select Block --</option>` + optionsHtml;
     }
-    return `<option value="None/Storage">${d.opt_none_storage}</option>` +
-        sorted.map(l => `<option value="${l.name}">${l.name}</option>`).join('');
+    return noneOpt + optionsHtml;
 }
 
 function addTxnRow() {
@@ -5984,19 +6329,21 @@ function calcRoundBudget(round) {
 function renderMrBlocksGrid(checkedBlocks) {
     const grid = document.getElementById('mrBlocksGrid');
     if (!grid) return;
-    if (locations.length === 0) {
-        grid.innerHTML = '<p class="text-xs text-gray-400 col-span-full italic">No blocks registered yet. Add blocks in Location Area first.</p>';
+    if (estateBlocks.length === 0) {
+        grid.innerHTML = '<p class="text-xs text-gray-400 col-span-full italic">No blocks registered yet. Add blocks in Estate Info first.</p>';
         return;
     }
-    const sorted = locations.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true, sensitivity: 'base' }));
-    grid.innerHTML = sorted.map(l => `
+    grid.innerHTML = estateBlocks.map(r => {
+        const lbl = _estateBlockLabel(r);
+        return `
         <label class="flex items-center gap-2 text-sm cursor-pointer select-none">
             <input type="checkbox" class="mr-block-cb accent-green-700 w-4 h-4"
-                value="${l.name}"
-                ${checkedBlocks && checkedBlocks.includes(l.name) ? 'checked' : ''} />
-            <span>${l.name}</span>
-            <span class="text-xs text-gray-400">(${l.numPalms || 0} palms)</span>
-        </label>`).join('');
+                value="${lbl}"
+                ${checkedBlocks && checkedBlocks.includes(lbl) ? 'checked' : ''} />
+            <span>${lbl}</span>
+            <span class="text-xs text-gray-400">(${r.palm_count || 0} palms)</span>
+        </label>`;
+    }).join('');
 }
 
 // Select / deselect all block checkboxes in the manuring form
@@ -6360,9 +6707,7 @@ function populateLocationDropdowns() {
         sel.value = 'None/Storage';
         return;
     }
-    const sorted = locations.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true, sensitivity: 'base' }));
-    sel.innerHTML = `<option value="None/Storage">${d.opt_none_storage}</option>` +
-        sorted.map(l => `<option value="${l.name}">${l.name}</option>`).join('');
+    sel.innerHTML = buildLocationOptionsHtml();
 }
 
 /* -----------------------------------------------------------------
@@ -8196,9 +8541,10 @@ async function submitDashComment() {
     if (!text) { input.focus(); return; }
     var sess  = loadSession();
     var row   = {
-        estate:      (sess && sess.estate) ? sess.estate : '',
-        author_name: (sess && sess.name)   ? sess.name  : 'Manager',
-        author_role: (sess && sess.role)   ? sess.role  : 'hq_user',
+        estate:      (sess && sess.estate)     ? sess.estate     : '',
+        company_id:  (sess && sess.company_id) ? sess.company_id : null,
+        author_name: (sess && sess.name)       ? sess.name       : 'Manager',
+        author_role: (sess && sess.role)       ? sess.role       : 'hq_user',
         comment:     text,
     };
     var btn = input.nextElementSibling;
@@ -8569,6 +8915,12 @@ function refreshAll() {
         const _ffbSec = document.getElementById('ffbrecord');
         if (_ffbSec && _ffbSec.classList.contains('active')) renderFfbModule();
     }
+    { const _wbSec = document.getElementById('weighbridge');
+      if (_wbSec && _wbSec.classList.contains('active')) {
+          if (typeof loadWeighbridgeData === 'function') loadWeighbridgeData();
+          if (typeof loadStonePOs === 'function') loadStonePOs();
+      }
+    }
 }
 
 /* -----------------------------------------------------------------
@@ -8872,10 +9224,7 @@ function openEditTxnModal(id) {
 
     // Populate location dropdown and pre-select current value
     const locSel = document.getElementById('editTxnLocation');
-    const _dLoc = I18N[currentLang] || I18N['en'];
-    const _sortedLoc = locations.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true, sensitivity: 'base' }));
-    locSel.innerHTML = `<option value="None/Storage">${_dLoc.opt_none_storage}</option>` +
-        _sortedLoc.map(l => `<option value="${l.name}">${l.name}</option>`).join('');
+    locSel.innerHTML = buildLocationOptionsHtml();
     locSel.value = t.location;
 
     // Show manuring round picker only for Fertilizer Out
@@ -11350,6 +11699,37 @@ function bootApp(session) {
         }
     }
 
+    // Apply gw_company_id from URL (passed by portal) so the right company is active —
+    // identical to how estate/index.html initialises: read → apply → strip from URL.
+    (function() {
+        var _p = new URLSearchParams(window.location.search);
+        var _coId = _p.get('gw_company_id');
+        if (!_coId) return;
+        // Strip ALL Intranet company hint params immediately so applyIntranetCompany()
+        // below does not see gw_company_name etc. and try to match the portal company
+        // name against estate names (which would show a spurious "no estate matches" error).
+        try {
+            var _uC = new URL(window.location.href);
+            ['gw_company_id','gw_estate','gw_estate_short','gw_company','gw_company_name','gw_company_short'].forEach(function(k){_uC.searchParams.delete(k);});
+            history.replaceState(null, '', _uC.pathname + _uC.search + _uC.hash);
+        } catch(e0) {}
+        var _companies = Array.isArray(session.companies) ? session.companies : [];
+        var _co = _companies.find(function(c) { return c.id === _coId; });
+        if (!_co || _co.id === session.company_id) return;
+        var _acc = session.company_access && session.company_access[_co.id];
+        if (_acc && session.role !== 'superadmin') { session.role = _acc.role; session.permissions = _acc.permissions; }
+        var _est = session.company_estates && session.company_estates[_co.id];
+        // Always reset estates on company switch. Mirror estate/index.html setEstates():
+        // when no company_estates configured, fall back to [company.name] so the picker
+        // is never empty and queries always filter to the right company's data.
+        session.estates = (Array.isArray(_est) && _est.length) ? _est : [_co.name];
+        session.estate = '';
+        session.company_id = _co.id;
+        session.company_name = _co.name;
+        saveSession(session);
+        try { localStorage.setItem('port_company_id', _co.id); localStorage.setItem('port_company', _co.name); } catch(e2) {}
+    })();
+
     // Remove the pre-auth flash-prevention style (no longer needed once booted)
     const _preAuthHide = document.getElementById('pre-auth-hide');
     if (_preAuthHide) _preAuthHide.remove();
@@ -11366,9 +11746,12 @@ function bootApp(session) {
     const estateSelectVisible = document.getElementById('sidebarEstateVisible');
     const isSuperAdmin = session.role === 'superadmin';
 
-    // A company chosen on the PORT front page: only its locations, for everyone
+    // A company chosen on the PORT front page: only its locations, for everyone.
+    // When a specific company is active, never fall back to GLOBAL_ESTATES — that
+    // would mix estates from other companies. GLOBAL_ESTATES is only for superadmin
+    // with no company selected (direct access, no portal navigation).
     const allowedEstates = (session.company_id && session.estates && session.estates.length) ? session.estates
-        : isSuperAdmin ? GLOBAL_ESTATES
+        : (isSuperAdmin && !session.company_id) ? GLOBAL_ESTATES
         : (session.estates && session.estates.length > 0 ? session.estates : []);
 
     const estateOptionsHtml = '<option value="">— Select estate —</option>' +
@@ -11391,12 +11774,14 @@ function bootApp(session) {
 
     // Resume the estate the user had selected before the page reloaded
     // (session.estate, persisted by onSidebarEstateChange) if it's still one
-    // they're allowed to access. Otherwise — first login, or that estate was
-    // revoked — fall back to their first available estate so they're never
-    // forced to pick one manually every time.
+    // they're allowed to access. Also check the per-company key estate/index.html
+    // uses ('port_location:<companyId>') as a cross-module fallback.
+    var _portLocFallback = '';
+    if (session.company_id) { try { _portLocFallback = localStorage.getItem('port_location:' + session.company_id) || ''; } catch(e) {} }
     const defaultEstate = (session.estate && allowedEstates.includes(session.estate))
         ? session.estate
-        : (allowedEstates.length > 0 ? allowedEstates[0] : '');
+        : (_portLocFallback && allowedEstates.includes(_portLocFallback) ? _portLocFallback
+        : (allowedEstates.length > 0 ? allowedEstates[0] : ''));
     estateSelect.value = defaultEstate;
     if (estateSelectVisible) estateSelectVisible.value = defaultEstate;
     if (topEstateLabelEl && topEstateLabelEl.tagName === 'SELECT') {
@@ -11527,6 +11912,11 @@ function bootApp(session) {
     if (activeEstate) loadFromSupabase();
 
     setLang(localStorage.getItem('opp_lang') || 'en');
+    if (typeof initWeighbridgeFilters === 'function') initWeighbridgeFilters();
+    if (sessionStorage.getItem('opp_active_section') === 'weighbridge') {
+        wbShowTab('ffb');
+        if (typeof loadWeighbridgeData === 'function') loadWeighbridgeData();
+    }
     renderUsersTable();
 
     // Deep link from MJM Intranet: ?module=stock opens Home, ?module=report
@@ -11541,8 +11931,9 @@ function bootApp(session) {
         else if (_module === 'rainfall') navigateToFirstRainfallSection();
         else if (_module === 'stock') navigateToSection('home');
         else if (_module === 'carlos') navigateToSection('carlos');
+        else if (_module === 'weighbridge') navigateToSection('weighbridge');
         const _url = new URL(window.location.href);
-        ['module', 'gw_estate', 'gw_estate_short', 'gw_company', 'gw_company_name', 'gw_company_short'].forEach((k) => _url.searchParams.delete(k));
+        ['module', 'gw_company_id', 'gw_estate', 'gw_estate_short', 'gw_company', 'gw_company_name', 'gw_company_short'].forEach((k) => _url.searchParams.delete(k));
         history.replaceState(null, '', _url.pathname + _url.search + _url.hash);
     }
 }
@@ -12098,6 +12489,7 @@ function onSidebarEstateChange() {
     activeEstate    = newEstate;
     session.estate  = newEstate;
     saveSession(session);
+    if (session.company_id) { try { localStorage.setItem('port_location:' + session.company_id, newEstate); } catch(e) {} }
 
     // Update the app title
     updateAppTitle(newEstate);
@@ -13024,19 +13416,21 @@ let editingFmRoundId = null;
 function renderFmBlocksGrid(checkedBlocks) {
     const grid = document.getElementById('fmBlocksGrid');
     if (!grid) return;
-    if (locations.length === 0) {
-        grid.innerHTML = '<p class="text-xs text-gray-400 col-span-full italic">No blocks registered yet. Add blocks in Location Area first.</p>';
+    if (estateBlocks.length === 0) {
+        grid.innerHTML = '<p class="text-xs text-gray-400 col-span-full italic">No blocks registered yet. Add blocks in Estate Info first.</p>';
         return;
     }
-    const sorted = locations.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true, sensitivity: 'base' }));
-    grid.innerHTML = sorted.map(l => `
+    grid.innerHTML = estateBlocks.map(r => {
+        const lbl = _estateBlockLabel(r);
+        return `
         <label class="flex items-center gap-2 text-sm cursor-pointer select-none">
             <input type="checkbox" class="fm-block-cb accent-green-700 w-4 h-4"
-                value="${l.name}"
-                ${checkedBlocks && checkedBlocks.includes(l.name) ? 'checked' : ''} />
-            <span>${l.name}</span>
-            <span class="text-xs text-gray-400">(${l.numPalms || 0} palms)</span>
-        </label>`).join('');
+                value="${lbl}"
+                ${checkedBlocks && checkedBlocks.includes(lbl) ? 'checked' : ''} />
+            <span>${lbl}</span>
+            <span class="text-xs text-gray-400">(${r.palm_count || 0} palms)</span>
+        </label>`;
+    }).join('');
 }
 
 /** Tick or untick all block checkboxes in the Field Maintenance form. */
@@ -17773,7 +18167,8 @@ async function saveMgmtInput() {
     if (!estate || !/^\d{4}-\d{2}$/.test(ym)) { err.textContent = d.mgmtreport_month_required || 'Choose the month first.'; err.style.display = ''; return; }
     const num = (id) => { const v = document.getElementById(id).value.trim(); return v === '' ? null : Number(v); };
     const row = {
-        estate, year: parseInt(ym.slice(0, 4), 10), month: parseInt(ym.slice(5, 7), 10),
+        estate, company_id: (loadSession() || {}).company_id || null,
+        year: parseInt(ym.slice(0, 4), 10), month: parseInt(ym.slice(5, 7), 10),
         ffb_mt: num('mrInFfb'), grading_pct: num('mrInGrading'), harvesters: num('mrInHarvesters'),
         notes: document.getElementById('mrInNotes').value.trim() || null,
         source: 'manual', updated_by: (loadSession() || {}).name || null, updated_at: new Date().toISOString(),
@@ -17874,6 +18269,7 @@ function navigateToSection(target) {
     if (target === 'plantrecord') renderPlantRecord();
     if (target === 'ffbrecord') renderFfbModule();
     if (target === 'carlos') renderCarlosModule();
+    if (target === 'weighbridge') { showWeighbridgeMain(); wbShowTab('ffb'); if (typeof initWeighbridgeFilters === 'function') initWeighbridgeFilters(); if (typeof loadWeighbridgeData === 'function') loadWeighbridgeData(); }
     if (target === 'rainfall') {
         const rfDate = document.getElementById('rfDate');
         if (rfDate && !rfDate.value) rfDate.valueAsDate = new Date();
@@ -18004,7 +18400,7 @@ async function saveSettingsBlock() {
             if (error) throw error;
         } else {
             const { error } = await supabaseClient.from('port_locations')
-                .insert({ id: Date.now(), name, area, numPalms, estate: settingsBlocksEstate });
+                .insert({ id: Date.now(), name, area, numPalms, estate: settingsBlocksEstate, company_id: (loadSession() || {}).company_id || null });
             if (error) throw error;
         }
         cancelEditSettingsBlock();
@@ -18371,6 +18767,7 @@ function _ffbBlockYieldUpdateAll(blocks, daysInMonth) {
 async function ffbSaveBlockYieldMonth() {
     var estate = (typeof activeEstate !== 'undefined') ? activeEstate : '';
     if (!estate) return;
+    var _bySess = loadSession(); var _byCoId = _bySess && _bySess.company_id ? _bySess.company_id : null;
     if (typeof supabaseClient === 'undefined') { alert('Not connected to database.'); return; }
     var year = _ffbBlockYieldYear, month = _ffbBlockYieldMonth;
     var blocks = await ffbLoadBlocks(estate);
@@ -18383,7 +18780,7 @@ async function ffbSaveBlockYieldMonth() {
             var el = document.getElementById('ffbBY_' + d + '_' + colKey);
             if (!el || el.value === '') return;
             var v = parseFloat(el.value);
-            if (!isNaN(v)) toUpsert.push({ estate: estate, year: year, month: month, day: d, block_name: b.block_name, ffb_mt: v });
+            if (!isNaN(v)) toUpsert.push({ estate: estate, company_id: _byCoId, year: year, month: month, day: d, block_name: b.block_name, ffb_mt: v });
         });
     }
     try {
@@ -18769,34 +19166,19 @@ function switchTopCompany(id) {
     if (!sess) return;
     var companies = Array.isArray(sess.companies) ? sess.companies : [];
     var c = companies.find(function(x) { return x.id === id; });
-    if (!c) return;
-    var acc = sess.company_access && sess.company_access[c.id];
-    if (acc && sess.role !== 'superadmin') { sess.role = acc.role; sess.permissions = acc.permissions; }
-    var est = sess.company_estates && sess.company_estates[c.id];
-    if (Array.isArray(est) && est.length) { sess.estates = est; sess.estate = ''; }
-    sess.company_id = c.id; sess.company_name = c.name;
-    saveSession(sess);
-    populateTopCompanyPicker(sess);
-    // Re-populate estate selectors: only the new company's locations (mirror portal —
-    // no GLOBAL_ESTATES fallback; if the company has no locations, hide the picker).
-    var companyLocs = (Array.isArray(est) && est.length) ? est : [];
-    var opts = '<option value="">— Select estate —</option>' +
-        companyLocs.map(function(e) { return '<option value="' + e + '">' + e + '</option>'; }).join('');
-    ['sidebarEstate', 'sidebarEstateVisible', 'topEstateLabel'].forEach(function(elId) {
-        var sel = document.getElementById(elId);
-        if (sel && sel.tagName === 'SELECT') { sel.innerHTML = opts; sel.value = ''; }
-    });
-    activeEstate = '';
-    var first = companyLocs[0] || '';
-    if (first) {
-        ['sidebarEstate', 'sidebarEstateVisible', 'topEstateLabel'].forEach(function(elId) {
-            var sel = document.getElementById(elId);
-            if (sel && sel.tagName === 'SELECT') sel.value = first;
-        });
-        activeEstate = first;
-    }
-    populateTopEstatePicker(companyLocs, first);
-    if (first) onSidebarEstateChange();
+    if (!c || (sess.company_id && c.id === sess.company_id)) return;
+    // Mirror estate/index.html: save shared keys then reload (clean state for new company)
+    try { localStorage.setItem('port_company_id', c.id); localStorage.setItem('port_company', c.name); } catch(e) {}
+    var sw = document.createElement('div');
+    sw.style.cssText = 'position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:rgba(248,250,252,.92);backdrop-filter:blur(6px);font-family:Inter,sans-serif;font-weight:600;color:#14532D;font-size:15px;';
+    sw.textContent = 'Switching to ' + c.name + '…';
+    document.body.appendChild(sw);
+    var _url = new URL(window.location.href);
+    _url.searchParams.set('gw_company_id', c.id);
+    var _sec = sessionStorage.getItem('opp_active_section') || '';
+    var _modMap = { mgmtreport: 'report', ffbrecord: 'ffbrecord', rainfall: 'rainfall', carlos: 'carlos', weighbridge: 'weighbridge' };
+    if (_modMap[_sec]) _url.searchParams.set('module', _modMap[_sec]);
+    setTimeout(function() { location.href = _url.pathname + _url.search; }, 350);
 }
 // Close menus when clicking outside
 document.addEventListener('click', function(e) {
@@ -18809,6 +19191,513 @@ document.addEventListener('click', function(e) {
         if (m2) m2.classList.remove('open');
     }
 });
+
+// ── Weighbridge Module ────────────────────────────────────────────────
+var _wbCurrentEditId = null;
+
+function _wbGetEstate() {
+    var el = document.getElementById('topEstateLabel');
+    if (el && el.tagName === 'SELECT' && el.value) return el.value;
+    el = document.getElementById('sidebarEstate');
+    if (el && el.tagName === 'SELECT' && el.value) return el.value;
+    return typeof activeEstate !== 'undefined' ? (activeEstate || '') : '';
+}
+
+function showWeighbridgeMain() {
+    document.getElementById('weighbridgeMain').style.display = '';
+    document.getElementById('weighbridgeAddPage').style.display = 'none';
+    document.getElementById('stoneAddPOPage').style.display = 'none';
+    document.getElementById('stoneAddEntryPage').style.display = 'none';
+    _wbCurrentEditId = null;
+}
+
+function showWeighbridgeAddForm(editId) {
+    _wbCurrentEditId = editId || null;
+    document.getElementById('weighbridgeMain').style.display = 'none';
+    document.getElementById('weighbridgeAddPage').style.display = '';
+    var estate = _wbGetEstate();
+    var subEl = document.getElementById('wbAddSubtitle');
+    if (subEl) subEl.textContent = 'FFB Weighbridge Variance' + (estate ? ' — ' + estate : '');
+    var titleEl = document.getElementById('wbAddTitle');
+    if (titleEl) titleEl.textContent = editId ? 'Edit Weighbridge Entry' : 'Add Weighbridge Entry';
+    if (editId) {
+        _wbLoadEntryForEdit(editId);
+    } else {
+        var today = new Date().toISOString().slice(0, 10);
+        document.getElementById('wbEstateDate').value = today;
+        document.getElementById('wbEstateDoNo').value = '';
+        document.getElementById('wbEstateNetWt').value = '';
+        document.getElementById('wbMillDate').value = today;
+        document.getElementById('wbMillDoNo').value = '';
+        document.getElementById('wbMillNetWt').value = '';
+        calculateWbVariance();
+    }
+}
+
+function calculateWbVariance() {
+    var estWt = parseFloat(document.getElementById('wbEstateNetWt').value) || 0;
+    var millWt = parseFloat(document.getElementById('wbMillNetWt').value) || 0;
+    var varKg = millWt - estWt;
+    var varPct = estWt !== 0 ? (varKg / estWt) * 100 : 0;
+    var kgEl = document.getElementById('wbCalcVarKg');
+    var pctEl = document.getElementById('wbCalcVarPct');
+    var empty = estWt === 0 && millWt === 0;
+    if (kgEl) {
+        kgEl.textContent = empty ? '—' : (varKg >= 0 ? '+' : '') + varKg.toLocaleString('en-MY', {maximumFractionDigits: 2});
+        kgEl.className = 'wb-calc-field ' + (empty ? 'wb-zero' : varKg < 0 ? 'wb-neg' : 'wb-pos');
+    }
+    if (pctEl) {
+        pctEl.textContent = empty ? '—' : (varPct >= 0 ? '+' : '') + varPct.toFixed(2) + '%';
+        pctEl.className = 'wb-calc-field ' + (empty ? 'wb-zero' : varPct < 0 ? 'wb-neg' : 'wb-pos');
+    }
+}
+
+function initWeighbridgeFilters() {
+    var now = new Date();
+    var monthSel = document.getElementById('wbFilterMonth');
+    var yearSel = document.getElementById('wbFilterYear');
+    if (monthSel) monthSel.value = now.getMonth() + 1;
+    if (yearSel) {
+        yearSel.innerHTML = '';
+        for (var y = now.getFullYear() + 1; y >= 2020; y--) {
+            yearSel.innerHTML += '<option value="' + y + '"' + (y === now.getFullYear() ? ' selected' : '') + '>' + y + '</option>';
+        }
+    }
+}
+
+async function loadWeighbridgeData() {
+    var month = parseInt(document.getElementById('wbFilterMonth').value);
+    var year = parseInt(document.getElementById('wbFilterYear').value);
+    var estate = _wbGetEstate();
+    var tbody = document.getElementById('weighbridgeTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:#94A3B8;">Loading…</td></tr>';
+    var q = supabaseClient.from('ffb_weighbridge_variance').select('*').eq('year', year).eq('month', month).order('estate_date', {ascending: true});
+    if (estate) q = q.eq('estate', estate);
+    var res = await q;
+    if (res.error) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:#ef4444;">Error: ' + res.error.message + '</td></tr>';
+        return;
+    }
+    _wbRenderTable(res.data || [], month, year);
+}
+
+var WB_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function _wbFmtDate(d) {
+    if (!d) return '—';
+    var dt = new Date(d + 'T00:00:00');
+    return dt.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
+}
+
+function _wbRenderTable(rows, month, year) {
+    var tbody = document.getElementById('weighbridgeTableBody');
+    var summaryRow = document.getElementById('weighbridgeSummaryRow');
+    if (!tbody) return;
+    if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:#94A3B8;">No entries for this period.</td></tr>';
+        if (summaryRow) summaryRow.style.display = 'none';
+        return;
+    }
+    var totalEst = 0, totalMill = 0;
+    var html = '';
+    rows.forEach(function(r) {
+        var estWt = parseFloat(r.estate_net_weight) || 0;
+        var millWt = parseFloat(r.mill_net_weight) || 0;
+        var varKg = millWt - estWt;
+        var varPct = estWt !== 0 ? (varKg / estWt) * 100 : 0;
+        totalEst += estWt; totalMill += millWt;
+        var rowCls = varPct < -2 ? ' class="wb-row-warn"' : ' class="wb-data-row"';
+        var kgStr = (varKg >= 0 ? '+' : '') + varKg.toLocaleString('en-MY', {maximumFractionDigits: 2});
+        var pctStr = (varPct >= 0 ? '+' : '') + varPct.toFixed(2) + '%';
+        var kgTag = varKg < 0 ? 'wb-tag-neg' : 'wb-tag-pos';
+        var pctTag = varPct < -2 ? 'wb-tag-warn' : (varPct < 0 ? 'wb-tag-neg' : 'wb-tag-pos');
+        html += '<tr' + rowCls + '>'
+            + '<td>' + _wbFmtDate(r.estate_date) + '</td>'
+            + '<td class="wb-est-col">' + (r.estate_do_no || '—') + '</td>'
+            + '<td class="wb-est-col">' + estWt.toLocaleString('en-MY') + '</td>'
+            + '<td>' + _wbFmtDate(r.mill_date) + '</td>'
+            + '<td class="wb-mill-col">' + (r.mill_do_no || '—') + '</td>'
+            + '<td class="wb-mill-col">' + millWt.toLocaleString('en-MY') + '</td>'
+            + '<td><span class="wb-tag ' + kgTag + '">' + kgStr + '</span></td>'
+            + '<td><span class="wb-tag ' + pctTag + '">' + pctStr + (varPct < -2 ? ' ⚠' : '') + '</span></td>'
+            + '<td><div class="wb-row-actions">'
+            + '<button class="wb-icon-btn" onclick="showWeighbridgeAddForm(\'' + r.id + '\')" title="Edit">✏️</button>'
+            + '<button class="wb-icon-btn" onclick="deleteWeighbridgeEntry(\'' + r.id + '\')" title="Delete">🗑️</button>'
+            + '</div></td></tr>';
+    });
+    tbody.innerHTML = html;
+    if (summaryRow) {
+        var totalVarKg = totalMill - totalEst;
+        var totalVarPct = totalEst !== 0 ? (totalVarKg / totalEst) * 100 : 0;
+        summaryRow.style.display = '';
+        summaryRow.className = 'wb-summary-row' + (totalVarPct < -1 ? ' wb-summary-warn' : '');
+        document.getElementById('wbSummaryLabel').textContent = 'Monthly Total — ' + (WB_MONTHS[month - 1] || '') + ' ' + year;
+        document.getElementById('wbSummaryEstWt').textContent = totalEst.toLocaleString('en-MY');
+        document.getElementById('wbSummaryMillWt').textContent = totalMill.toLocaleString('en-MY');
+        var tKgStr = (totalVarKg >= 0 ? '+' : '') + totalVarKg.toLocaleString('en-MY', {maximumFractionDigits: 2});
+        var tPctStr = (totalVarPct >= 0 ? '+' : '') + totalVarPct.toFixed(2) + '%';
+        var tKgCls = totalVarKg < 0 ? 'wb-tag-neg' : 'wb-tag-pos';
+        var tPctCls = totalVarPct < -1 ? 'wb-tag-blue' : (totalVarPct < 0 ? 'wb-tag-neg' : 'wb-tag-pos');
+        document.getElementById('wbSummaryVarKg').innerHTML = '<span class="wb-tag ' + tKgCls + '">' + tKgStr + '</span>';
+        document.getElementById('wbSummaryVarPct').innerHTML = '<span class="wb-tag ' + tPctCls + '">' + tPctStr + (totalVarPct < -1 ? ' 🔵' : '') + '</span>';
+    }
+}
+
+async function saveWeighbridgeEntry() {
+    var estateDate = document.getElementById('wbEstateDate').value;
+    var estateDoNo = (document.getElementById('wbEstateDoNo').value || '').trim();
+    var estateNetWt = document.getElementById('wbEstateNetWt').value;
+    var millDate = document.getElementById('wbMillDate').value;
+    var millDoNo = (document.getElementById('wbMillDoNo').value || '').trim();
+    var millNetWt = document.getElementById('wbMillNetWt').value;
+    var estate = _wbGetEstate();
+    if (!estateDate || !estateDoNo || estateNetWt === '') { alert('Please fill in all Estate Weighbridge fields.'); return; }
+    if (!millDate || !millDoNo || millNetWt === '') { alert('Please fill in all Mill Weighbridge fields.'); return; }
+    if (!estate) { alert('Please select an estate first.'); return; }
+    var d = new Date(estateDate + 'T00:00:00');
+    var payload = {
+        estate: estate, company_id: (loadSession() || {}).company_id || null,
+        year: d.getFullYear(), month: d.getMonth() + 1,
+        estate_date: estateDate, estate_do_no: estateDoNo, estate_net_weight: parseFloat(estateNetWt),
+        mill_date: millDate, mill_do_no: millDoNo, mill_net_weight: parseFloat(millNetWt)
+    };
+    var btn = document.getElementById('wbSaveBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    var res = _wbCurrentEditId
+        ? await supabaseClient.from('ffb_weighbridge_variance').update(payload).eq('id', _wbCurrentEditId)
+        : await supabaseClient.from('ffb_weighbridge_variance').insert([payload]);
+    if (btn) { btn.disabled = false; btn.textContent = 'Save Entry'; }
+    if (res.error) { alert('Error saving: ' + res.error.message); return; }
+    showWeighbridgeMain();
+    document.getElementById('wbFilterMonth').value = payload.month;
+    document.getElementById('wbFilterYear').value = payload.year;
+    loadWeighbridgeData();
+}
+
+async function _wbLoadEntryForEdit(id) {
+    var res = await supabaseClient.from('ffb_weighbridge_variance').select('*').eq('id', id).single();
+    if (res.error || !res.data) { alert('Could not load entry.'); showWeighbridgeMain(); return; }
+    var r = res.data;
+    document.getElementById('wbEstateDate').value = r.estate_date || '';
+    document.getElementById('wbEstateDoNo').value = r.estate_do_no || '';
+    document.getElementById('wbEstateNetWt').value = r.estate_net_weight || '';
+    document.getElementById('wbMillDate').value = r.mill_date || '';
+    document.getElementById('wbMillDoNo').value = r.mill_do_no || '';
+    document.getElementById('wbMillNetWt').value = r.mill_net_weight || '';
+    calculateWbVariance();
+}
+
+async function deleteWeighbridgeEntry(id) {
+    if (!confirm('Delete this weighbridge entry?')) return;
+    var res = await supabaseClient.from('ffb_weighbridge_variance').delete().eq('id', id);
+    if (res.error) { alert('Error deleting: ' + res.error.message); return; }
+    loadWeighbridgeData();
+}
+// ── Stone Weighbridge Variance ─────────────────────────────────────────
+var _swCurrentEditPOId = null;
+var _swCurrentEntryPoId = null;
+var _swCurrentEditEntryId = null;
+var _wbActiveTab = 'ffb';
+
+function wbShowTab(tab) {
+    _wbActiveTab = tab;
+    var ffbPanel = document.getElementById('wbFfbPanel');
+    var stonePanel = document.getElementById('wbStonePanel');
+    var tabFfb = document.getElementById('wbTabFfb');
+    var tabStone = document.getElementById('wbTabStone');
+    if (!ffbPanel || !stonePanel) return;
+    ffbPanel.style.display = tab === 'ffb' ? '' : 'none';
+    stonePanel.style.display = tab === 'stone' ? '' : 'none';
+    if (tabFfb) { tabFfb.style.background = tab === 'ffb' ? '#4338CA' : 'transparent'; tabFfb.style.color = tab === 'ffb' ? '#fff' : '#475569'; tabFfb.style.borderColor = tab === 'ffb' ? '#C7D2FE' : 'transparent'; }
+    if (tabStone) { tabStone.style.background = tab === 'stone' ? '#4338CA' : 'transparent'; tabStone.style.color = tab === 'stone' ? '#fff' : '#475569'; tabStone.style.borderColor = tab === 'stone' ? '#C7D2FE' : 'transparent'; }
+    if (tab === 'stone') { initSwFilters(); loadStonePOs(); }
+}
+
+function _swGetEstate() {
+    var el = document.getElementById('estateSelect');
+    if (el && el.tagName === 'SELECT' && el.value) return el.value;
+    return typeof activeEstate !== 'undefined' ? (activeEstate || '') : '';
+}
+
+function showStoneMain() {
+    document.getElementById('weighbridgeMain').style.display = '';
+    document.getElementById('stoneAddPOPage').style.display = 'none';
+    document.getElementById('stoneAddEntryPage').style.display = 'none';
+    wbShowTab('stone');
+}
+
+function showStoneAddPO(editId) {
+    _swCurrentEditPOId = editId || null;
+    document.getElementById('weighbridgeMain').style.display = 'none';
+    document.getElementById('weighbridgeAddPage').style.display = 'none';
+    document.getElementById('stoneAddPOPage').style.display = '';
+    document.getElementById('stoneAddEntryPage').style.display = 'none';
+    var titleEl = document.getElementById('swAddPOTitle');
+    var saveBtn = document.getElementById('swSavePOBtn');
+    if (titleEl) titleEl.textContent = editId ? 'Edit Purchase Order' : 'Add Purchase Order';
+    if (saveBtn) saveBtn.textContent = editId ? 'Update PO' : 'Save PO';
+    if (!editId) {
+        document.getElementById('swPONo').value = '';
+        document.getElementById('swPODate').value = new Date().toISOString().slice(0,10);
+        document.getElementById('swSupplierName').value = '';
+        document.getElementById('swStoneSize').value = '';
+        document.getElementById('swQtyOrdered').value = '';
+    } else {
+        _swLoadPOForEdit(editId);
+    }
+}
+
+function showStoneAddEntry(poId) {
+    _swCurrentEntryPoId = poId;
+    _swCurrentEditEntryId = null;
+    document.getElementById('weighbridgeMain').style.display = 'none';
+    document.getElementById('stoneAddPOPage').style.display = 'none';
+    document.getElementById('stoneAddEntryPage').style.display = '';
+    document.getElementById('swEntrySupDoDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('swEntrySupDoNo').value = '';
+    document.getElementById('swEntrySupNetWt').value = '';
+    document.getElementById('swEntryEstNetWt').value = '';
+    calcStoneEntryVariance();
+    _swLoadPORef(poId);
+}
+
+function showStoneEditEntry(entryId, poId) {
+    _swCurrentEditEntryId = entryId;
+    _swCurrentEntryPoId = poId;
+    document.getElementById('weighbridgeMain').style.display = 'none';
+    document.getElementById('stoneAddPOPage').style.display = 'none';
+    document.getElementById('stoneAddEntryPage').style.display = '';
+    _swLoadPORef(poId);
+    _swLoadEntryForEdit(entryId);
+}
+
+async function _swLoadPORef(poId) {
+    var res = await supabaseClient.from('stone_weighbridge_po').select('*').eq('id', poId).single();
+    if (res.error || !res.data) return;
+    var po = res.data;
+    var ref = document.getElementById('swEntryPORef');
+    if (!ref) return;
+    ref.innerHTML = '<span>PO No.: <strong>' + _swEsc(po.po_no) + '</strong></span>'
+        + '<span>PO Date: <strong>' + (po.po_date ? _swFmtDate(po.po_date) : '—') + '</strong></span>'
+        + '<span>Supplier: <strong>' + _swEsc(po.supplier_name) + '</strong></span>'
+        + '<span>Stone Size: <strong>' + _swEsc(po.stone_size) + '</strong></span>'
+        + '<span>Qty Ordered: <strong>' + parseFloat(po.qty_ordered_mt).toFixed(3) + ' MT</strong></span>';
+}
+
+function calcStoneEntryVariance() {
+    var s = parseFloat(document.getElementById('swEntrySupNetWt').value) || 0;
+    var e = parseFloat(document.getElementById('swEntryEstNetWt').value) || 0;
+    var v = e - s, p = s ? (v / s) * 100 : 0;
+    var empty = s === 0 && e === 0;
+    var vmt = document.getElementById('swEntryVarMT');
+    var vpc = document.getElementById('swEntryVarPct');
+    if (!vmt || !vpc) return;
+    vmt.textContent = empty ? '—' : (v >= 0 ? '+' : '') + v.toFixed(3) + ' MT';
+    vmt.className = 'wb-calc-field ' + (empty ? 'wb-zero' : v < 0 ? 'wb-neg' : 'wb-pos');
+    vpc.textContent = empty ? '—' : (p >= 0 ? '+' : '') + p.toFixed(2) + '%';
+    vpc.className = 'wb-calc-field ' + (empty ? 'wb-zero' : p < 0 ? 'wb-neg' : 'wb-pos');
+}
+
+function initSwFilters() {
+    var sel = document.getElementById('swFilterYear');
+    if (!sel || sel.options.length > 0) return;
+    var now = new Date();
+    for (var y = now.getFullYear(); y >= 2020; y--) {
+        var o = document.createElement('option');
+        o.value = y; o.textContent = y;
+        sel.appendChild(o);
+    }
+}
+
+async function loadStonePOs() {
+    var yearSel = document.getElementById('swFilterYear');
+    if (!yearSel) return;
+    var year = parseInt(yearSel.value);
+    var estate = _swGetEstate();
+    var container = document.getElementById('swPOBlocks');
+    if (!container) return;
+    container.innerHTML = '<div style="text-align:center;padding:28px;color:#94A3B8;">Loading…</div>';
+    var q = supabaseClient.from('stone_weighbridge_po').select('*')
+        .gte('po_date', year + '-01-01').lte('po_date', year + '-12-31')
+        .order('po_date', {ascending: true});
+    if (estate) q = q.eq('estate', estate);
+    var poRes = await q;
+    if (poRes.error) { container.innerHTML = '<div style="color:#DC2626;padding:20px;">Error: ' + poRes.error.message + '</div>'; return; }
+    if (!poRes.data || poRes.data.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:28px;color:#94A3B8;">No POs found for ' + year + '. Click &ldquo;+ Add PO&rdquo; to create one.</div>';
+        return;
+    }
+    var poIds = poRes.data.map(function(p){ return p.id; });
+    var entRes = await supabaseClient.from('stone_weighbridge_entries').select('*').in('po_id', poIds).order('supplier_do_date', {ascending: true});
+    var entries = entRes.data || [];
+    _swRenderPOBlocks(poRes.data, entries, container);
+}
+
+function _swRenderPOBlocks(pos, allEntries, container) {
+    var html = '';
+    pos.forEach(function(po) {
+        var entries = allEntries.filter(function(e){ return e.po_id === po.id; });
+        var totalSup = 0, totalEst = 0;
+        entries.forEach(function(e){ totalSup += parseFloat(e.supplier_net_weight_mt); totalEst += parseFloat(e.estate_net_weight_mt); });
+        var totalVar = totalEst - totalSup;
+        var totalVarPct = totalSup ? (totalVar / totalSup) * 100 : 0;
+        var poDateFmt = po.po_date ? _swFmtDate(po.po_date) : '';
+        html += '<div class="sw-po-block">';
+        html += '<div class="sw-po-header">';
+        html += '<div style="display:flex;flex-wrap:wrap;gap:6px 20px;align-items:center;">';
+        html += '<span style="font-size:13px;font-weight:700;color:#B45309;">' + _swEsc(po.po_no) + '</span>';
+        html += '<span style="font-size:12.5px;color:#475569;">Date: <strong style="color:#0F172A;">' + poDateFmt + '</strong></span>';
+        html += '<span style="font-size:12.5px;color:#475569;font-weight:600;color:#0F172A;">' + _swEsc(po.supplier_name) + '</span>';
+        html += '<span style="font-size:12.5px;color:#475569;">Size: <strong style="color:#0F172A;">' + _swEsc(po.stone_size) + '</strong></span>';
+        html += '<span style="font-size:12.5px;color:#475569;">Qty Ordered: <strong style="color:#0F172A;">' + parseFloat(po.qty_ordered_mt).toFixed(3) + ' MT</strong></span>';
+        html += '</div>';
+        html += '<div style="display:flex;gap:6px;flex-shrink:0;">';
+        html += '<button class="wb-btn" style="background:transparent;border:1px solid #B45309;color:#B45309;height:30px;font-size:12px;padding:0 12px;" onclick="showStoneAddEntry(\'' + po.id + '\')">&#xFF0B; Add Entry</button>';
+        html += '<button class="wb-btn" style="background:transparent;border:1px solid #E2E8F0;color:#475569;height:30px;font-size:12px;padding:0 12px;" onclick="showStoneAddPO(\'' + po.id + '\')">&#9998; Edit PO</button>';
+        html += '<button class="wb-btn" style="background:transparent;border:1px solid #DC2626;color:#DC2626;height:30px;font-size:12px;padding:0 12px;" onclick="deleteStonePO(\'' + po.id + '\',\'' + _swEsc(po.po_no) + '\')">&#128465; Delete PO</button>';
+        html += '</div>';
+        html += '</div>';
+        html += '<div class="sw-tbl-wrap">';
+        html += '<table class="wb-table" style="min-width:680px;">';
+        html += '<thead><tr>';
+        html += '<th style="color:#0F766E;background:#F0FDFA;">Supplier DO Date</th>';
+        html += '<th style="color:#0F766E;background:#F0FDFA;">Supplier DO No.</th>';
+        html += '<th style="color:#0F766E;background:#F0FDFA;">Supplier Net Wt (MT)</th>';
+        html += '<th style="color:#0F766E;background:#F0FDFA;">Estate Net Wt (MT)</th>';
+        html += '<th style="color:#15803D;background:#F0FDF4;">Variance (MT)</th>';
+        html += '<th style="color:#15803D;background:#F0FDF4;">Variance (%)</th>';
+        html += '<th style="text-align:center;">Action</th>';
+        html += '</tr></thead><tbody>';
+        if (entries.length === 0) {
+            html += '<tr><td colspan="7" style="text-align:center;padding:20px;color:#94A3B8;font-style:italic;">No delivery entries yet. Click &ldquo;+ Add Entry&rdquo; to record a delivery.</td></tr>';
+        } else {
+            entries.forEach(function(e, idx) {
+                var sup = parseFloat(e.supplier_net_weight_mt);
+                var est = parseFloat(e.estate_net_weight_mt);
+                var v = est - sup, vp = sup ? (v / sup) * 100 : 0;
+                var isWarn = vp < -3;
+                var isLast = idx === entries.length - 1;
+                html += '<tr class="wb-data-row' + (isWarn ? ' wb-row-warn' : '') + '">';
+                html += '<td>' + (e.supplier_do_date ? _swFmtDate(e.supplier_do_date) : '—') + '</td>';
+                html += '<td class="sw-col-del">' + _swEsc(e.supplier_do_no) + '</td>';
+                html += '<td class="sw-col-del">' + sup.toFixed(3) + '</td>';
+                html += '<td class="sw-col-del">' + est.toFixed(3) + '</td>';
+                html += '<td>' + _swTag(v, v.toFixed(3) + ' MT', isWarn) + '</td>';
+                html += '<td>' + _swTag(vp, vp.toFixed(2) + '%', isWarn) + '</td>';
+                html += '<td style="text-align:center;"><div class="wb-row-actions">';
+                html += '<button class="wb-icon-btn" onclick="showStoneEditEntry(\'' + e.id + '\',\'' + po.id + '\')" title="Edit">&#9998;</button>';
+                html += '<button class="wb-icon-btn" onclick="deleteStoneEntry(\'' + e.id + '\')" title="Delete">&#128465;</button>';
+                html += '</div></td></tr>';
+            });
+            html += '<tr class="wb-summary-row">';
+            html += '<td colspan="2">' + _swEsc(po.po_no) + ' Total</td>';
+            html += '<td style="color:#0F766E;">' + totalSup.toFixed(3) + '</td>';
+            html += '<td style="color:#0F766E;">' + totalEst.toFixed(3) + '</td>';
+            html += '<td>' + _swTagNeutral(totalVar, totalVar.toFixed(3) + ' MT') + '</td>';
+            html += '<td>' + _swTagNeutral(totalVarPct, totalVarPct.toFixed(2) + '%') + '</td>';
+            html += '<td></td></tr>';
+        }
+        html += '</tbody></table></div></div>';
+    });
+    container.innerHTML = html;
+}
+
+function _swTag(val, text, isWarn) {
+    if (isWarn) return '<span class="wb-tag wb-tag-warn">&#9888; ' + (val >= 0 ? '+' : '') + text + '</span>';
+    if (val > 0) return '<span class="wb-tag wb-tag-pos">+' + text + '</span>';
+    if (val < 0) return '<span class="wb-tag wb-tag-neg">' + text + '</span>';
+    return '<span class="wb-tag" style="background:#F1F5F9;color:#64748B;">' + text + '</span>';
+}
+
+function _swTagNeutral(val, text) {
+    if (val > 0) return '<span class="wb-tag wb-tag-pos">+' + text + '</span>';
+    if (val < 0) return '<span class="wb-tag wb-tag-neg">' + text + '</span>';
+    return '<span class="wb-tag" style="background:#F1F5F9;color:#64748B;">' + text + '</span>';
+}
+
+function _swEsc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function _swFmtDate(d) { if (!d) return '—'; var dt = new Date(d + 'T00:00:00'); return dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
+
+async function saveStoneAddPO() {
+    var poNo = document.getElementById('swPONo').value.trim();
+    var poDate = document.getElementById('swPODate').value;
+    var supplierName = document.getElementById('swSupplierName').value.trim();
+    var stoneSize = document.getElementById('swStoneSize').value.trim();
+    var qtyOrdered = parseFloat(document.getElementById('swQtyOrdered').value);
+    if (!poNo || !poDate || !supplierName || !stoneSize || isNaN(qtyOrdered) || qtyOrdered <= 0) {
+        alert('Please fill in all PO fields.'); return;
+    }
+    var estate = _swGetEstate();
+    var payload = { estate: estate, company_id: (loadSession() || {}).company_id || null, po_no: poNo, po_date: poDate, supplier_name: supplierName, stone_size: stoneSize, qty_ordered_mt: qtyOrdered };
+    var btn = document.getElementById('swSavePOBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    var res = _swCurrentEditPOId
+        ? await supabaseClient.from('stone_weighbridge_po').update(payload).eq('id', _swCurrentEditPOId)
+        : await supabaseClient.from('stone_weighbridge_po').insert([payload]);
+    if (btn) { btn.disabled = false; btn.textContent = _swCurrentEditPOId ? 'Update PO' : 'Save PO'; }
+    if (res.error) { alert('Error: ' + res.error.message); return; }
+    showStoneMain();
+}
+
+async function _swLoadPOForEdit(id) {
+    var res = await supabaseClient.from('stone_weighbridge_po').select('*').eq('id', id).single();
+    if (res.error || !res.data) return;
+    var po = res.data;
+    document.getElementById('swPONo').value = po.po_no;
+    document.getElementById('swPODate').value = po.po_date;
+    document.getElementById('swSupplierName').value = po.supplier_name;
+    document.getElementById('swStoneSize').value = po.stone_size;
+    document.getElementById('swQtyOrdered').value = po.qty_ordered_mt;
+}
+
+async function _swLoadEntryForEdit(id) {
+    var res = await supabaseClient.from('stone_weighbridge_entries').select('*').eq('id', id).single();
+    if (res.error || !res.data) return;
+    var e = res.data;
+    document.getElementById('swEntrySupDoDate').value = e.supplier_do_date;
+    document.getElementById('swEntrySupDoNo').value = e.supplier_do_no;
+    document.getElementById('swEntrySupNetWt').value = e.supplier_net_weight_mt;
+    document.getElementById('swEntryEstNetWt').value = e.estate_net_weight_mt;
+    calcStoneEntryVariance();
+    var saveBtn = document.getElementById('swSaveEntryBtn');
+    if (saveBtn) saveBtn.textContent = 'Update Entry';
+}
+
+async function saveStoneEntry() {
+    var supDoDate = document.getElementById('swEntrySupDoDate').value;
+    var supDoNo = document.getElementById('swEntrySupDoNo').value.trim();
+    var supNetWt = parseFloat(document.getElementById('swEntrySupNetWt').value);
+    var estNetWt = parseFloat(document.getElementById('swEntryEstNetWt').value);
+    if (!supDoDate || !supDoNo || isNaN(supNetWt) || isNaN(estNetWt)) {
+        alert('Please fill in all delivery fields.'); return;
+    }
+    var payload = { po_id: _swCurrentEntryPoId, supplier_do_date: supDoDate, supplier_do_no: supDoNo, supplier_net_weight_mt: supNetWt, estate_net_weight_mt: estNetWt };
+    var btn = document.getElementById('swSaveEntryBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    var res = _swCurrentEditEntryId
+        ? await supabaseClient.from('stone_weighbridge_entries').update(payload).eq('id', _swCurrentEditEntryId)
+        : await supabaseClient.from('stone_weighbridge_entries').insert([payload]);
+    if (btn) { btn.disabled = false; btn.textContent = _swCurrentEditEntryId ? 'Update Entry' : 'Save Entry'; }
+    if (res.error) { alert('Error: ' + res.error.message); return; }
+    _swCurrentEditEntryId = null;
+    showStoneMain();
+}
+
+async function deleteStoneEntry(id) {
+    if (!confirm('Delete this delivery entry?')) return;
+    var res = await supabaseClient.from('stone_weighbridge_entries').delete().eq('id', id);
+    if (res.error) { alert('Error deleting: ' + res.error.message); return; }
+    loadStonePOs();
+}
+
+async function deleteStonePO(id, poNo) {
+    if (!confirm('Delete PO ' + poNo + ' and all its delivery entries? This cannot be undone.')) return;
+    var res = await supabaseClient.from('stone_weighbridge_po').delete().eq('id', id);
+    if (res.error) { alert('Error deleting: ' + res.error.message); return; }
+    loadStonePOs();
+}
+// ── End Weighbridge Module ─────────────────────────────────────────────
 
 var _carlosCasesRows = { estate: '', rows: [], loaded: false };
 var _carlosExtraYears = [];
@@ -19045,6 +19934,7 @@ function carlosAddYear() {
 async function carlosSaveYear(year) {
     var estate = (typeof activeEstate !== 'undefined') ? activeEstate : '';
     if (!estate) { alert('Please select an estate first.'); return; }
+    var _cSess = loadSession(); var _cCoId = _cSess && _cSess.company_id ? _cSess.company_id : null;
     var btn = document.getElementById('carlosSaveBtn_' + year);
     if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
     try {
@@ -19056,7 +19946,7 @@ async function carlosSaveYear(year) {
             var closeEl = document.getElementById('carlosClose_' + year + '_' + m);
             var opened  = openEl  ? (parseInt(openEl.value)  || 0) : 0;
             var closed  = closeEl ? (parseInt(closeEl.value) || 0) : 0;
-            var row = { estate: estate, year: year, month: m, opened_cases: opened, closed_cases: closed };
+            var row = { estate: estate, company_id: _cCoId, year: year, month: m, opened_cases: opened, closed_cases: closed };
             if (m === 1) row.bring_forward = janBF;
             upserts.push(row);
         }
@@ -19227,6 +20117,7 @@ function _renderFfbHarvesterTargetSummary(prodRows) {
 async function ffbSaveHarvesterTargetYear(year) {
     var estate=(typeof activeEstate!=='undefined')?activeEstate:'';
     if(!estate)return;
+    var _htCoId=(loadSession()||{}).company_id||null;
     var yRows=_ffbProdRows.rows.filter(function(r){return r.year===year;});
     var toUpsert=[];
     for(var m=1;m<=12;m++){
@@ -19235,7 +20126,7 @@ async function ffbSaveHarvesterTargetYear(year) {
         var val=el.value!==''?parseInt(el.value,10):null;
         var existing=yRows.find(function(r){return r.month===m;});
         if(val!==null||(existing&&existing.harvester_target!=null))
-            toUpsert.push({estate:estate,year:year,month:m,harvester_target:val});
+            toUpsert.push({estate:estate,company_id:_htCoId,year:year,month:m,harvester_target:val});
     }
     try{
         if(toUpsert.length>0){
@@ -19318,6 +20209,7 @@ function _renderFfbGradingSummary(allRows) {
 async function ffbSaveHarvestYear(year) {
     var estate=(typeof activeEstate!=='undefined')?activeEstate:'';
     if (!estate) return;
+    var _hvCoId=(loadSession()||{}).company_id||null;
     var btn=document.getElementById('ffbSaveHarvestBtn_'+year);
     if (btn){btn.disabled=true;btn.textContent='Saving…';}
     var yRows=_ffbAllRows.rows.filter(function(r){return r.year===year;});
@@ -19328,7 +20220,7 @@ async function ffbSaveHarvestYear(year) {
         var val=el.value!==''?parseFloat(el.value):null;
         var existing=yRows.find(function(r){return r.month===m;});
         if (val!==null||(existing&&existing.ffb_mt!=null))
-            toUpsert.push({estate:estate,year:year,month:m,ffb_mt:val});
+            toUpsert.push({estate:estate,company_id:_hvCoId,year:year,month:m,ffb_mt:val});
     }
     try {
         if (toUpsert.length>0){
@@ -19382,6 +20274,7 @@ function _renderFfbTargetSummary(allRows) {
 async function ffbSaveTargetYear(year) {
     var estate=(typeof activeEstate!=='undefined')?activeEstate:'';
     if (!estate) return;
+    var _tgCoId=(loadSession()||{}).company_id||null;
     var btn=document.getElementById('ffbSaveTargetBtn_'+year);
     if (btn){btn.disabled=true;btn.textContent='Saving…';}
     var yRows=_ffbAllRows.rows.filter(function(r){return r.year===year;});
@@ -19392,7 +20285,7 @@ async function ffbSaveTargetYear(year) {
         var val=el.value!==''?parseFloat(el.value):null;
         var existing=yRows.find(function(r){return r.month===m;});
         if (val!==null||(existing&&existing.ffb_target!=null))
-            toUpsert.push({estate:estate,year:year,month:m,ffb_target:val});
+            toUpsert.push({estate:estate,company_id:_tgCoId,year:year,month:m,ffb_target:val});
     }
     try {
         if (toUpsert.length>0){
@@ -19407,6 +20300,7 @@ async function ffbSaveTargetYear(year) {
 async function ffbSaveHarvestersYear(year) {
     var estate=(typeof activeEstate!=='undefined')?activeEstate:'';
     if (!estate) return;
+    var _hrCoId=(loadSession()||{}).company_id||null;
     var btn=document.getElementById('ffbSaveHarvestersBtn_'+year);
     if (btn){btn.disabled=true;btn.textContent='Saving…';}
     var yRows=_ffbAllRows.rows.filter(function(r){return r.year===year;});
@@ -19417,7 +20311,7 @@ async function ffbSaveHarvestersYear(year) {
         var val=el.value!==''?parseInt(el.value,10):null;
         var existing=yRows.find(function(r){return r.month===m;});
         if (val!==null||(existing&&existing.harvesters!=null))
-            toUpsert.push({estate:estate,year:year,month:m,harvesters:val});
+            toUpsert.push({estate:estate,company_id:_hrCoId,year:year,month:m,harvesters:val});
     }
     try {
         if (toUpsert.length>0){
@@ -19432,6 +20326,7 @@ async function ffbSaveHarvestersYear(year) {
 async function ffbSaveGradingYear(year) {
     var estate=(typeof activeEstate!=='undefined')?activeEstate:'';
     if (!estate) return;
+    var _grCoId=(loadSession()||{}).company_id||null;
     var btn=document.getElementById('ffbSaveGradingBtn_'+year);
     if (btn){btn.disabled=true;btn.textContent='Saving…';}
     var yRows=_ffbAllRows.rows.filter(function(r){return r.year===year;});
@@ -19442,7 +20337,7 @@ async function ffbSaveGradingYear(year) {
         var val=el.value!==''?parseFloat(el.value):null;
         var existing=yRows.find(function(r){return r.month===m;});
         if (val!==null||(existing&&existing.grading_pct!=null))
-            toUpsert.push({estate:estate,year:year,month:m,grading_pct:val});
+            toUpsert.push({estate:estate,company_id:_grCoId,year:year,month:m,grading_pct:val});
     }
     try {
         if (toUpsert.length>0){
@@ -19460,7 +20355,7 @@ async function ffbClearField(year, month, field) {
     var estate=(typeof activeEstate!=='undefined')?activeEstate:'';
     if (!estate) return;
     if (!confirm('Clear '+field.replace('_',' ')+' for '+MR_MONTH_NAMES[month-1]+' '+year+'?')) return;
-    var payload={estate:estate,year:year,month:month};
+    var payload={estate:estate,company_id:(loadSession()||{}).company_id||null,year:year,month:month};
     payload[field]=null;
     var existing=_ffbAllRows.rows.find(function(r){return r.year===year&&r.month===month;})||{};
     var merged=Object.assign({},existing,payload);

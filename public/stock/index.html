@@ -42,6 +42,8 @@
     try { s = JSON.parse(localStorage.getItem('opp_auth_session') || 'null'); } catch (e) { return back('unreadable'); }
     if (!s) return back('no_session');
     if (s.role !== 'estate_user') return back('role ' + s.role);
+    // Mantap: no location at all → nothing to open here; the Mantap home page sorts it out
+    if (!Array.isArray(s.estates) || !s.estates.length) return back('no location');
     // Mantap: start on a location (the first one) rather than the empty "Select an Estate" screen.
     // Saving it may fail when the browser's storage is full: open anyway.
     if (Array.isArray(s.estates) && s.estates.length && (!s.estate || s.estates.indexOf(s.estate) < 0)) {
@@ -5061,7 +5063,10 @@ async function loadFromSupabase() {
         // This ensures that if an admin changes this user's access while they
         // are logged in, the nav updates without requiring a re-login.
         const _liveSession = loadSession();
-        if (_liveSession && _liveSession.role !== 'superadmin' && _liveSession.email) {
+        // Mantap: not for Mantap sessions (estate_user) — the Mantap home page keeps
+        // those up to date; the PORT account with the same email (e.g. an HQ user)
+        // would replace the name, locations and role, and lock Stock / Rainfall.
+        if (_liveSession && _liveSession.role !== 'superadmin' && _liveSession.role !== 'estate_user' && _liveSession.email) {
             try {
                 const _freshUser = await fetchUserByEmail(_liveSession.email);
                 if (_freshUser) {
@@ -12850,7 +12855,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            const user = await fetchUserByEmail(email);
+            // Mantap: a Mantap session (estate_user) stays as the Mantap home page set it
+            const user = localSession && localSession.role === 'estate_user' ? null : await fetchUserByEmail(email);
             if (user) {
                 // Role, page access and locations come from the MJM Intranet sign-in and
                 // PORT → User Access for the company chosen on the front page; they are

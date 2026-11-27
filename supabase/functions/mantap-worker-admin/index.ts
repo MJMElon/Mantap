@@ -144,16 +144,30 @@ async function authorize(req: Request, companyId: string | null = null) {
   if (row && row.status !== 'inactive' && (role === 'admin' || role === 'superadmin')) {
     return { email, name: row.name || email, isSuper: role === 'superadmin' };
   }
-  // PORT → User Access for this company: an Admin, or Worker list = View / Edit
-  if (row && row.status !== 'inactive' && companyId) {
-    const { data: acc } = await serviceClient().from('port_user_company_access')
-      .select('role, status, permissions').eq('email', email.toLowerCase()).eq('company_id', companyId).maybeSingle();
-    if (acc && acc.status !== 'inactive') {
-      const w = (acc.permissions as Record<string, unknown> | null)?.workers;
-      if (acc.role === 'admin') return { email, name: row.name || email, isSuper: false };
-      if (w === 'edit') return { email, name: row.name || email, isSuper: false };
-      if (w === 'view') return { email, name: row.name || email, isSuper: false, viewOnly: true };
+  // PORT → User Access: an Admin, or Worker list (Worker Manage) = View / Edit. Set per
+  // company; a company without its own row uses the person's general access (as in PORT).
+  // No company given (e.g. the Mantap mobile view asking who this is): any of their companies.
+  if (row && row.status !== 'inactive') {
+    const level = (r: string, p: Record<string, unknown> | null | undefined): 'edit' | 'view' | null => {
+      if (r === 'admin' || r === 'superadmin') return 'edit';
+      const w = p?.workers;
+      return w === 'edit' ? 'edit' : w === 'view' ? 'view' : null;
+    };
+    let q = serviceClient().from('port_user_company_access').select('company_id, role, status, permissions').eq('email', email.toLowerCase());
+    if (companyId) q = q.eq('company_id', companyId);
+    const { data: accs } = await q;
+    const rows = (accs ?? []) as { company_id: string; role: string; status: string; permissions: Record<string, unknown> | null }[];
+    const general = level(role, row.permissions as Record<string, unknown> | undefined);
+    let best: 'edit' | 'view' | null = null;
+    if (companyId) {
+      const acc = rows[0];
+      best = acc ? (acc.status === 'inactive' ? null : level(acc.role, acc.permissions)) : general;
+    } else {
+      const lv = [general, ...rows.filter((a) => a.status !== 'inactive').map((a) => level(a.role, a.permissions))];
+      best = lv.includes('edit') ? 'edit' : lv.includes('view') ? 'view' : null;
     }
+    if (best === 'edit') return { email, name: row.name || email, isSuper: false };
+    if (best === 'view') return { email, name: row.name || email, isSuper: false, viewOnly: true };
   }
   throw new ApiError('err_forbidden', 403);
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { LangToggle } from '../../components/LangToggle';
-import { getWorker, portalMe, portCompany, previewWorkerFromAdmin, refreshWorker, setPortCompany, signOutAdmin, signOutWorker, updateWorker, type PortalMe } from '../../lib/auth';
+import { getWorker, portalMeOrDenied, portCompany, previewWorkerFromAdmin, refreshWorker, setPortCompany, signOutAdmin, signOutWorker, updateWorker, type PortalMe } from '../../lib/auth';
 import { useI18n } from '../../lib/i18n';
 import { MODULES } from '../../lib/modules';
 
@@ -10,6 +10,8 @@ import { MODULES } from '../../lib/modules';
 export function MobileHomePage() {
   const { t, lang } = useI18n();
   const navigate = useNavigate();
+  // A preview overwritten by an older Stock page (other name / role / id): rebuild it from the portal
+  const [damaged] = useState(() => { const w = getWorker(); return !!w?.preview && (w.role !== 'estate_user' || w.id !== 0); });
   const [worker, setWorker] = useState(() => {
     // The Stock page only opens for an estate-worker session: repair one saved
     // with another role (e.g. by an older Stock page), so the buttons open again.
@@ -27,13 +29,22 @@ export function MobileHomePage() {
 
   // Pick up access / estate / status changes made by the admin.
   useEffect(() => {
-    if (getWorker()?.preview) { portalMe().then(setMe); return; } // Intranet person's preview: companies from the portal
+    // Intranet person's preview: companies from the portal. Not (or no longer) allowed →
+    // drop the old preview instead of showing a home page with nothing to open.
+    if (getWorker()?.preview) {
+      portalMeOrDenied().then(async (m) => {
+        if (m !== 'denied') return m && setMe(m);
+        await signOutWorker();
+        navigate('/m', { replace: true });
+      });
+      return;
+    }
     refreshWorker().then((w) => (w ? setWorker(w) : navigate('/m?inactive=1', { replace: true })));
   }, [navigate]);
 
   // Preview without a location yet (e.g. opened before the companies were known): fill it in
   useEffect(() => {
-    if (!me || !worker?.preview || (worker.estates.length && worker.estate)) return;
+    if (!me || !worker?.preview || (!damaged && worker.estates.length && worker.estate)) return;
     setWorker(previewWorkerFromAdmin(me));
   }, [me]); // eslint-disable-line react-hooks/exhaustive-deps
 

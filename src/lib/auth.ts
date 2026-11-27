@@ -156,6 +156,17 @@ export async function portalMe(): Promise<PortalMe | null> {
   }
 }
 
+/** Like portalMe, but tells "not allowed / not signed in" ('denied') apart from a network hiccup (null). */
+export async function portalMeOrDenied(): Promise<PortalMe | 'denied' | null> {
+  const { data } = await adminSupabase.auth.getSession();
+  if (!data.session) return 'denied';
+  try {
+    return await callFunction<PortalMe>(adminSupabase, 'mantap-worker-admin', { action: 'whoami' });
+  } catch (e) {
+    return e instanceof Error && /forbidden|unauthor/i.test(e.message) ? 'denied' : null;
+  }
+}
+
 /** True when someone is signed in to the web portal. */
 export async function isAdminSignedIn(): Promise<boolean> {
   return !!(await portalMe());

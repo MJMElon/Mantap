@@ -11,6 +11,29 @@ function setWorker(w: WorkerSession, prev: WorkerSession | null) {
   const estate = prev?.estate && w.estates.includes(prev.estate) ? prev.estate : '';
   localStorage.setItem(WORKER_SESSION_KEY, JSON.stringify({ ...w, estate }));
 }
+/** An Intranet / PORT person opens the mobile app as themselves: a preview session
+ *  built from their portal identity (every module allowed, no worker account). */
+export function previewWorkerFromAdmin(me: PortalMe): WorkerSession {
+  // The company PORT opened us for; else the person's first company. Its locations
+  // (from the Intranet) are the estates, so the Stock / Rainfall screens always
+  // open on a location (never the empty "Select an Estate" screen).
+  let co = portCompany();
+  if (!co && me.companies?.length) { co = { id: me.companies[0].id, name: me.companies[0].name }; setPortCompany(co); }
+  const locs = co ? (me.locations?.[co.id] ?? []).filter(Boolean) : [];
+  const estates = locs.length ? locs : co ? [co.name] : [];
+  const prev = getWorker();
+  const estate = prev?.preview && prev.estate && estates.includes(prev.estate) ? prev.estate : estates[0] ?? '';
+  const w: WorkerSession = { id: 0, email: me.email, name: me.name, estates, estate, role: 'estate_user', permissions: {}, preview: true };
+  localStorage.setItem(WORKER_SESSION_KEY, JSON.stringify(w));
+  return w;
+}
+/** Changes the worker / preview session in place (company or location picked in the menu). */
+export function updateWorker(patch: Partial<WorkerSession>): WorkerSession | null {
+  const w = getWorker(); if (!w) return null;
+  const n = { ...w, ...patch };
+  localStorage.setItem(WORKER_SESSION_KEY, JSON.stringify(n));
+  return n;
+}
 export async function signOutWorker() {
   localStorage.removeItem(WORKER_SESSION_KEY);
   sessionStorage.removeItem('opp_active_section');
@@ -120,7 +143,7 @@ export async function takePortSession(): Promise<boolean> {
 }
 
 // ── Web portal (Super Admin or Intranet user with web access) ─────────
-export interface PortalMe { email: string; name: string; isSuper: boolean }
+export interface PortalMe { email: string; name: string; isSuper: boolean; companies?: { id: string; name: string }[]; locations?: Record<string, string[]> }
 
 /** Returns who is signed in to the web portal, or null. */
 export async function portalMe(): Promise<PortalMe | null> {

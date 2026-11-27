@@ -1,13 +1,20 @@
 <!DOCTYPE html>
 <html lang="en" class="">
 <head>
-<!-- Mantap: this Stock module is for signed-in estate workers only.
-     Sign-in happens on the portal page (../); anyone else goes back there. -->
+<!-- Mantap: this Stock module (mobile view) is for people signed in on the Mantap
+     home page (../#/m): estate workers, or Intranet / PORT people previewing it.
+     Copied from Plantation Operation's stock/index.html, with the Mantap changes
+     marked "Mantap:". Anyone else goes back to the Mantap home page. -->
 <script>
 (function () {
     try {
         var s = JSON.parse(localStorage.getItem('opp_auth_session') || 'null');
-        if (!s || s.role !== 'estate_user') { location.replace('../#/m'); }
+        if (!s || s.role !== 'estate_user') { location.replace('../#/m'); return; }
+        // Mantap: start on a location (the first one) rather than the empty "Select an Estate" screen
+        if (Array.isArray(s.estates) && s.estates.length && (!s.estate || s.estates.indexOf(s.estate) < 0)) {
+            s.estate = s.estates[0];
+            localStorage.setItem('opp_auth_session', JSON.stringify(s));
+        }
     } catch (e) { location.replace('../#/m'); }
 })();
 </script>
@@ -1086,6 +1093,19 @@
     #ledgerTable tr.ledger-row-balance td { font-weight:800; background:#F1F8F2; }
     #ledgerTable tr.ledger-row-balance.ledger-group-alt td { background:#EAF5EB; }
     #ledgerTable tr.ledger-closing-row td { border-bottom:2px solid #A5D6A7; }
+    /* Top-bar company/location pickers (matches portal style) */
+    .top-co-pick { position: relative; }
+    .top-co-btn { height: 34px; padding: 0 28px 0 12px; border: 1px solid #CBD5E1; border-radius: 10px; background: #fff; font-family: Inter,sans-serif; font-size: 13px; font-weight: 600; color: #0F172A; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; position: relative; }
+    .top-es-btn { padding-left: 28px; }
+    .top-es-btn::before { content: ''; position: absolute; left: 10px; top: 10px; width: 8px; height: 8px; border: 2px solid #64748B; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); }
+    .top-co-btn::after { content: ''; position: absolute; right: 10px; top: 12px; width: 7px; height: 7px; border-right: 2px solid #64748B; border-bottom: 2px solid #64748B; transform: rotate(45deg); }
+    .top-co-menu { display: none; position: absolute; left: 0; top: 40px; min-width: 100%; width: max-content; max-width: 60vw; max-height: 60vh; overflow: auto; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 16px 40px rgba(15,23,42,.16); padding: 6px; z-index: 400; }
+    .top-co-menu.open { display: block; }
+    .top-co-menu button { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; border: 0; background: transparent; padding: 9px 12px; border-radius: 8px; font-family: Inter,sans-serif; font-size: 13px; color: #0F172A; cursor: pointer; white-space: nowrap; }
+    .top-co-menu button:hover { background: #F1F5F9; }
+    .top-co-menu button.on { font-weight: 700; color: #14532D; }
+    .top-co-menu button.on::before { content: '\2713\00a0'; color: #16A34A; }
+    .top-co-menu button:not(.on)::before { content: ''; display: inline-block; width: 16px; }
     </style>
 </head>
 <body>
@@ -1096,7 +1116,7 @@
 <script>
 // APP_BUILD is checked by the auto-refresh guard below.
 // Bump this string whenever code is deployed to force stale cached pages to reload.
-var APP_BUILD = '20261126-61';
+var APP_BUILD = '20261126-70';
 (function () {
     var _vr = window.location.search.indexOf('_vr') !== -1;
     // Legacy guard: very old cached pages have no APP_BUILD at all.
@@ -1235,7 +1255,7 @@ var APP_BUILD = '20261126-61';
                     Sign in to the Intranet and open the Plantation Operation icon.
                 </p>
                 <p id="loginError" class="hidden"></p>
-                <a id="loginBtn" href="https://mjmelon.github.io/MJM-Intranet/" style="display:flex;align-items:center;justify-content:center;text-decoration:none;">
+                <a id="loginBtn" href="https://mjm.opispro.com/" style="display:flex;align-items:center;justify-content:center;text-decoration:none;">
                     <span id="loginBtnText">Go to MJM Intranet</span>
                 </a>
             </div>
@@ -1319,6 +1339,8 @@ var APP_BUILD = '20261126-61';
             <button data-target="tools" class="nav-item" onclick="navigateToSection('tools')">                  <span class="nav-icon">&#128295;</span><span class="sb-label" data-i18n="sb_lbl_tools">Tools / Peralatan</span></button>
             <button data-target="toolsrecord" class="nav-item" onclick="navigateToSection('toolsrecord')">            <span class="nav-icon">&#128203;</span><span class="sb-label" data-i18n="sb_lbl_toolsrecord">Tools Record</span></button>
             <!-- Management Report is opened from the Plantation Operation portal (../), not from inside Stock -->
+            <p class="sb-section" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,0.42);padding:8px 8px 3px;">Cases</p>
+            <button data-target="carlos" class="nav-item" onclick="navigateToSection('carlos')"><span class="nav-icon">&#128269;</span><span class="sb-label">Carlos</span></button>
             <p class="sb-section" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,0.42);padding:8px 8px 3px;">Admin</p>
             <button data-target="settings" id="navSettings" class="nav-item hidden">
                 <span class="nav-icon">&#9881;&#65039;</span><span class="sb-label" data-i18n="sb_lbl_settings">Settings</span>
@@ -1370,7 +1392,7 @@ var APP_BUILD = '20261126-61';
         <div id="topHeaderBar">
             <!-- Left: home button + collapse toggle + estate name pill -->
             <div style="flex:1;display:flex;align-items:center;gap:10px;">
-                <button id="topHomeBtn" onclick="['home','rainfall','ffbrecord','mgmtreport'].includes(sessionStorage.getItem('opp_active_section'))?location.href='../':navigateToSection('home')" title="Home"
+                <button id="topHomeBtn" onclick="['home','rainfall','ffbrecord','mgmtreport','carlos'].includes(sessionStorage.getItem('opp_active_section'))?location.href='../':navigateToSection('home')" title="Home"
                     style="display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:8px;border:1px solid #D1FAE5;background:#F0FDF4;color:#1B5E20;font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;flex-shrink:0;transition:background .13s;"
                     onmouseover="this.style.background='#D1FAE5'" onmouseout="this.style.background='#F0FDF4'">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -1382,9 +1404,19 @@ var APP_BUILD = '20261126-61';
                 <button id="mobileTopHomeBtn" onclick="navToSection('estate_hub')" class="mobile-home-btn" aria-label="Home">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V21a1 1 0 01-1 1H5a1 1 0 01-1-1V9.75z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"/></svg>
                 </button>
-                <select id="topEstateLabel"
-                    onchange="document.getElementById('sidebarEstate').value=this.value;document.getElementById('sidebarEstateVisible').value=this.value;onSidebarEstateChange();resizeTopEstateSelect(this);"
-                    style="font-size:13px;font-weight:600;color:#1B5E20;background:#E8F5E9;padding:5px 14px;border-radius:99px;border:1px solid #A5D6A7;white-space:nowrap;outline:none;cursor:pointer;font-family:Inter,sans-serif;display:none;">
+                <!-- Company picker (portal style) -->
+                <div class="top-co-pick" id="topCompanyPick" style="display:none;">
+                    <button type="button" class="top-co-btn" id="topCompanyBtn" aria-haspopup="listbox"></button>
+                    <div class="top-co-menu" id="topCompanyMenu" role="listbox"></div>
+                </div>
+                <!-- Location picker (portal style) -->
+                <div class="top-co-pick" id="topEstatePick" style="display:none;">
+                    <button type="button" class="top-co-btn top-es-btn" id="topEstateBtn" aria-haspopup="listbox" title="Location"></button>
+                    <div class="top-co-menu" id="topEstateMenu" role="listbox"></div>
+                </div>
+                <!-- Hidden SELECT kept for existing JS data-binding (topEstateLabel.value) -->
+                <select id="topEstateLabel" style="display:none;"
+                    onchange="document.getElementById('sidebarEstate').value=this.value;document.getElementById('sidebarEstateVisible').value=this.value;onSidebarEstateChange();resizeTopEstateSelect(this);">
                     <option value="">— Select Estate —</option>
                 </select>
             </div>
@@ -3634,6 +3666,58 @@ var APP_BUILD = '20261126-61';
             </div>
         </section>
 
+        <!-- ============ CARLOS ============ -->
+        <section id="carlos" class="page-section">
+            <h2 class="text-3xl font-bold mb-2">&#128269; Carlos</h2>
+            <p class="text-sm text-indigo-700 mb-5">Track and manage Carlos cases by month and year.</p>
+
+            <!-- Sub-module tabs -->
+            <div id="carlosTabBar" class="flex gap-1 border-b-2 border-indigo-200 mb-0">
+                <button id="carlosTabBtn_cases" onclick="switchCarlosTab('cases')"
+                    class="px-5 py-2.5 text-sm font-semibold rounded-t-lg border border-b-0 border-indigo-700 bg-indigo-700 text-white relative" style="margin-bottom:-2px;">Carlos Cases</button>
+            </div>
+
+            <!-- Panel: Carlos Cases -->
+            <div id="carlosPanel_cases" class="pt-4">
+                <div class="bg-white p-4 rounded-xl shadow mb-6">
+                    <h3 class="text-base font-bold text-indigo-800 mb-1">Summary of Carlos Cases</h3>
+                    <p class="text-xs text-indigo-600 mb-3">Record Total Opened and Closed Cases per month. Bring Forward and Pending Cases are calculated automatically.</p>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm" style="border-collapse:collapse;white-space:nowrap;">
+                            <thead class="bg-indigo-100 text-indigo-800">
+                                <tr>
+                                    <th class="px-3 py-2 text-center border border-indigo-200">Year</th>
+                                    <th class="px-3 py-2 text-left border border-indigo-200">Metric</th>
+                                    <th class="px-2 py-2 text-center border border-indigo-200">Jan</th>
+                                    <th class="px-2 py-2 text-center border border-indigo-200">Feb</th>
+                                    <th class="px-2 py-2 text-center border border-indigo-200">Mar</th>
+                                    <th class="px-2 py-2 text-center border border-indigo-200">Apr</th>
+                                    <th class="px-2 py-2 text-center border border-indigo-200">May</th>
+                                    <th class="px-2 py-2 text-center border border-indigo-200">Jun</th>
+                                    <th class="px-2 py-2 text-center border border-indigo-200">Jul</th>
+                                    <th class="px-2 py-2 text-center border border-indigo-200">Aug</th>
+                                    <th class="px-2 py-2 text-center border border-indigo-200">Sep</th>
+                                    <th class="px-2 py-2 text-center border border-indigo-200">Oct</th>
+                                    <th class="px-2 py-2 text-center border border-indigo-200">Nov</th>
+                                    <th class="px-2 py-2 text-center border border-indigo-200">Dec</th>
+                                    <th class="px-2 py-2 text-center border border-indigo-200">Total</th>
+                                    <th class="px-2 py-2 text-center border border-indigo-200">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="carlosCasesSummaryBody">
+                                <tr><td colspan="16" class="text-center text-gray-400 py-6">Select an estate to load data.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3 flex items-center gap-2">
+                        <input type="number" id="carlosAddYearInput" min="2010" max="2100" placeholder="Year e.g. 2024"
+                            class="border border-gray-300 rounded px-2 py-1 text-sm w-36 focus:outline-none focus:ring-1 focus:ring-indigo-400">
+                        <button onclick="carlosAddYear()" class="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded hover:bg-indigo-700 font-semibold">+ Add Year</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- ============ MANAGEMENT REPORT (Penilaian Prestasi Ladang dashboard) ============ -->
         <section id="mgmtreport" class="page-section">
             <div class="mr-toolbar">
@@ -4926,6 +5010,8 @@ async function loadFromSupabase() {
           if (_mrSec && _mrSec.classList.contains('active')) renderMgmtReport(); }
         { const _ffbSec = document.getElementById('ffbrecord');
           if (_ffbSec && _ffbSec.classList.contains('active') && typeof renderFfbModule === 'function') renderFfbModule(); }
+        { const _carlosSec = document.getElementById('carlos');
+          if (_carlosSec && _carlosSec.classList.contains('active') && typeof renderCarlosModule === 'function') renderCarlosModule(); }
 
         // Re-render mobile panes that are open but not covered by refreshAll().
         // Critical on a fresh-browser login: localStorage was empty at boot, so
@@ -11163,7 +11249,7 @@ function toggleLoginPw() {
 // Estate workers (estate_user) now use the standalone Worker Portal
 // (MJMElon/Mantap). When one signs in here they are sent there instead.
 // Set to '' to fall back to the old built-in mobile view.
-const WORKER_PORTAL_URL = ''; // Inside Mantap: use the built-in worker view
+const WORKER_PORTAL_URL = ''; // Mantap: use the built-in worker (mobile) view
 
 // ── Boot the app after successful login ────────────────────────────
 function bootApp(session) {
@@ -11246,9 +11332,12 @@ function bootApp(session) {
     const topEstateLabelEl = document.getElementById('topEstateLabel');
     if (topEstateLabelEl && topEstateLabelEl.tagName === 'SELECT') {
         topEstateLabelEl.innerHTML = estateOptionsHtml;
-        topEstateLabelEl.style.display = '';
-        resizeTopEstateSelect(topEstateLabelEl);
+        // keep display:none — it's a hidden data-binding SELECT; the visible
+        // portal-style picker (topEstatePick) is used instead
     }
+
+    // Company + location pickers in top bar (portal style)
+    if (typeof populateTopCompanyPicker === 'function') populateTopCompanyPicker(session);
 
     // Resume the estate the user had selected before the page reloaded
     // (session.estate, persisted by onSidebarEstateChange) if it's still one
@@ -11264,6 +11353,14 @@ function bootApp(session) {
         topEstateLabelEl.value = defaultEstate;
         resizeTopEstateSelect(topEstateLabelEl);
     }
+
+    // Location picker: only show when this company has locations (mirror portal).
+    // company_estates[companyId] is the authoritative list; fall back to
+    // allowedEstates only when no company is selected (direct access, no portal).
+    const companyLocs = (session.company_id && session.company_estates && Array.isArray(session.company_estates[session.company_id]))
+        ? session.company_estates[session.company_id].filter(Boolean)
+        : (session.company_id ? [] : allowedEstates);
+    if (typeof populateTopEstatePicker === 'function') populateTopEstatePicker(companyLocs, defaultEstate);
 
     activeEstate = defaultEstate;
 
@@ -11333,6 +11430,12 @@ function bootApp(session) {
         try { refreshAll(); } catch (_rErr) { console.error('[refreshAll mobile]', _rErr); }
         if (activeEstate) loadFromSupabase();       // then fetch fresh data from Supabase
         setLang(localStorage.getItem('opp_lang') || 'en');
+        // Mantap: the home page's Rainfall button opens ?module=rainfall → the mobile rainfall screen
+        try {
+            const _mUrl = new URL(window.location.href);
+            if (_mUrl.searchParams.get('module') === 'rainfall') navToSection('mobile_rainfall');
+            if (_mUrl.searchParams.has('module')) { _mUrl.searchParams.delete('module'); history.replaceState(null, '', _mUrl.pathname + _mUrl.search + _mUrl.hash); }
+        } catch (_mErr) { console.warn('[Mantap module link]', _mErr); }
         return;
     }
 
@@ -11385,6 +11488,7 @@ function bootApp(session) {
         else if (_module === 'ffbrecord') navigateToSection('ffbrecord');
         else if (_module === 'rainfall') navigateToFirstRainfallSection();
         else if (_module === 'stock') navigateToSection('home');
+        else if (_module === 'carlos') navigateToSection('carlos');
         const _url = new URL(window.location.href);
         ['module', 'gw_estate', 'gw_estate_short', 'gw_company', 'gw_company_name', 'gw_company_short'].forEach((k) => _url.searchParams.delete(k));
         history.replaceState(null, '', _url.pathname + _url.search + _url.hash);
@@ -11789,36 +11893,9 @@ function logoutUser() {
     if (!confirm('Sign out?')) return;
     stopStatusWatcher();
     clearSession();
-    supabaseClient.auth.signOut().catch(e => console.warn('[Auth] signOut error', e));
-    document.getElementById('sidebarEstate').value = '';
-    // Reset app title back to default
-    updateAppTitle('');
-    document.body.classList.remove('estate-mobile');
-    // Re-boot as Super Admin instead of showing login screen
-    const autoSession = {
-        email:       SUPER_ADMIN.email,
-        name:        SUPER_ADMIN.name,
-        estate:      '',
-        role:        'superadmin',
-        permissions: ALL_SECTIONS.map(s => s.id),
-    };
-    saveSession(autoSession);
-    bootApp(autoSession);
-
-    // Reset which page section is "active" back to the Dashboard so the
-    // next person to log in on this device — who may have far fewer
-    // permissions than whoever just logged out — never lands on a
-    // restricted section (e.g. User Management) just because that's
-    // whatever page was left open before logging out.
-    document.querySelectorAll('.page-section').forEach(sec => {
-        sec.classList.toggle('active', sec.id === 'dashboard');
-    });
-    document.querySelectorAll('.nav-item[data-target]').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-target') === 'dashboard');
-    });
-    // Also forget the last-viewed section so the next login starts fresh
-    // instead of resuming whatever page this user was last on.
     sessionStorage.removeItem('opp_active_section');
+    // Mantap: back to the Mantap home page (it signs in again there)
+    supabaseClient.auth.signOut({ scope: 'local' }).catch(() => {}).finally(() => { window.location.href = '../#/m'; });
 }
 
 // Auto-logout when an admin deactivates the currently logged-in user.
@@ -12700,9 +12777,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // the page shows "open from MJM Intranet".
     {
         const _s = loadSession();
-        if (!_s || (_s.via !== 'intranet' && _s.role !== 'estate_user')) { // Mantap: worker sessions come from the Mantap sign-in
-            localStorage.removeItem(AUTH_KEYS.session);
-            try { await supabaseClient.auth.signOut(); } catch (e) {}
+        if (!_s || _s.role !== 'estate_user') { // Mantap: signed in on the Mantap home page
+            window.location.replace('../#/m');
             return;
         }
     }
@@ -14996,14 +15072,16 @@ function populateChemFilters() {
     window.resizeTopEstateSelect = resizeTopEstateSelect;
     function updateTopEstateLabel(estate){
         var el = document.getElementById('topEstateLabel');
-        if(!el) return;
-        if(el.tagName === 'SELECT'){
+        if(el && el.tagName === 'SELECT'){
             el.value = estate || '';
             resizeTopEstateSelect(el);
-        } else {
-            el.innerHTML = estate ? '&#127968;&nbsp;' + estate : '';
-            el.style.display = estate ? '' : 'none';
         }
+        // Sync visible portal-style estate button
+        var btn = document.getElementById('topEstateBtn');
+        if(btn) btn.textContent = estate || '— Location —';
+        // Update active state in estate menu
+        var menu = document.getElementById('topEstateMenu');
+        if(menu) menu.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.es === estate); });
     }
     function updateTopWelcome(name){
         var el = document.getElementById('topWelcomeMsg');
@@ -17075,10 +17153,11 @@ function navigateToFirstToolsSection() {
     }
 }
 
-// The Stock and Rainfall mobile screens now live in Mantap's mobile view
-// (MJMElon/Mantap: Stock and Rainfall cards); this card opens it there.
 function previewMobileInterface() {
-    window.open(WORKER_PORTAL_URL || 'https://mjmelon.github.io/Mantap/#/m', '_blank', 'noopener');
+    document.body.classList.add('estate-mobile');
+    var banner = document.getElementById('mobilePreviewBanner');
+    if (banner) banner.style.display = 'block';
+    navToSection('estate_hub');
 }
 
 function exitMobilePreview() {
@@ -17732,6 +17811,7 @@ function navigateToSection(target) {
     if (target === 'chemrecord') renderChemRecord();
     if (target === 'plantrecord') renderPlantRecord();
     if (target === 'ffbrecord') renderFfbModule();
+    if (target === 'carlos') renderCarlosModule();
     if (target === 'rainfall') {
         const rfDate = document.getElementById('rfDate');
         if (rfDate && !rfDate.value) rfDate.valueAsDate = new Date();
@@ -18562,6 +18642,377 @@ async function ffbSavePenaltyYear(year) {
     }
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// CARLOS MODULE
+// ══════════════════════════════════════════════════════════════════════════════
+// ── Top-bar company + location pickers (portal style) ────────────────────────
+function populateTopCompanyPicker(session) {
+    var companies = Array.isArray(session && session.companies) ? session.companies : [];
+    var companyName = (session && session.company_name) || (companies[0] && companies[0].name) || '';
+    var pick = document.getElementById('topCompanyPick');
+    var btn  = document.getElementById('topCompanyBtn');
+    var menu = document.getElementById('topCompanyMenu');
+    if (!pick) return;
+    if (!companyName) { pick.style.display = 'none'; return; }
+    pick.style.display = '';
+    if (btn) btn.textContent = companyName;
+    if (menu) {
+        menu.innerHTML = companies.map(function(c) {
+            var on = c.name === companyName;
+            return '<button type="button" data-co="' + c.id + '" class="' + (on ? 'on' : '') + '">' + c.name + '</button>';
+        }).join('');
+        menu.onclick = function(e) {
+            var b = e.target.closest('[data-co]'); if (!b) return;
+            menu.classList.remove('open');
+            switchTopCompany(b.dataset.co);
+        };
+    }
+    if (btn) {
+        btn.onclick = function() { menu && menu.classList.toggle('open'); };
+    }
+}
+function populateTopEstatePicker(allowedEstates, currentEstate) {
+    var pick = document.getElementById('topEstatePick');
+    var btn  = document.getElementById('topEstateBtn');
+    var menu = document.getElementById('topEstateMenu');
+    if (!pick) return;
+    if (!allowedEstates || !allowedEstates.length) { pick.style.display = 'none'; return; }
+    pick.style.display = '';
+    if (btn) btn.textContent = currentEstate || allowedEstates[0] || '— Location —';
+    if (menu) {
+        menu.innerHTML = allowedEstates.map(function(e) {
+            return '<button type="button" data-es="' + e + '" class="' + (e === currentEstate ? 'on' : '') + '">' + e + '</button>';
+        }).join('');
+        menu.onclick = function(ev) {
+            var b = ev.target.closest('[data-es]'); if (!b) return;
+            menu.classList.remove('open');
+            var estate = b.dataset.es;
+            if (btn) btn.textContent = estate;
+            // Sync all hidden selects + sidebar
+            ['sidebarEstate', 'sidebarEstateVisible', 'topEstateLabel'].forEach(function(id) {
+                var sel = document.getElementById(id);
+                if (sel && sel.tagName === 'SELECT') sel.value = estate;
+            });
+            // Update active class
+            menu.querySelectorAll('button').forEach(function(x) { x.classList.toggle('on', x.dataset.es === estate); });
+            onSidebarEstateChange();
+        };
+    }
+    if (btn) {
+        btn.onclick = function() { menu && menu.classList.toggle('open'); };
+    }
+}
+function switchTopCompany(id) {
+    var sess = loadSession();
+    if (!sess) return;
+    var companies = Array.isArray(sess.companies) ? sess.companies : [];
+    var c = companies.find(function(x) { return x.id === id; });
+    if (!c) return;
+    var acc = sess.company_access && sess.company_access[c.id];
+    if (acc && sess.role !== 'superadmin') { sess.role = acc.role; sess.permissions = acc.permissions; }
+    var est = sess.company_estates && sess.company_estates[c.id];
+    if (Array.isArray(est) && est.length) { sess.estates = est; sess.estate = ''; }
+    sess.company_id = c.id; sess.company_name = c.name;
+    saveSession(sess);
+    populateTopCompanyPicker(sess);
+    // Re-populate estate selectors: only the new company's locations (mirror portal —
+    // no GLOBAL_ESTATES fallback; if the company has no locations, hide the picker).
+    var companyLocs = (Array.isArray(est) && est.length) ? est : [];
+    var opts = '<option value="">— Select estate —</option>' +
+        companyLocs.map(function(e) { return '<option value="' + e + '">' + e + '</option>'; }).join('');
+    ['sidebarEstate', 'sidebarEstateVisible', 'topEstateLabel'].forEach(function(elId) {
+        var sel = document.getElementById(elId);
+        if (sel && sel.tagName === 'SELECT') { sel.innerHTML = opts; sel.value = ''; }
+    });
+    activeEstate = '';
+    var first = companyLocs[0] || '';
+    if (first) {
+        ['sidebarEstate', 'sidebarEstateVisible', 'topEstateLabel'].forEach(function(elId) {
+            var sel = document.getElementById(elId);
+            if (sel && sel.tagName === 'SELECT') sel.value = first;
+        });
+        activeEstate = first;
+    }
+    populateTopEstatePicker(companyLocs, first);
+    if (first) onSidebarEstateChange();
+}
+// Close menus when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#topCompanyPick')) {
+        var m = document.getElementById('topCompanyMenu');
+        if (m) m.classList.remove('open');
+    }
+    if (!e.target.closest('#topEstatePick')) {
+        var m2 = document.getElementById('topEstateMenu');
+        if (m2) m2.classList.remove('open');
+    }
+});
+
+var _carlosCasesRows = { estate: '', rows: [], loaded: false };
+var _carlosExtraYears = [];
+var _carlosActiveTab = 'cases';
+
+async function carlosLoadRows(estate) {
+    if (_carlosCasesRows.estate === estate && _carlosCasesRows.loaded) return _carlosCasesRows.rows;
+    var { data, error } = await supabaseClient.from('port_carlos_cases')
+        .select('*').eq('estate', estate).order('year').order('month');
+    if (error) throw error;
+    _carlosCasesRows = { estate: estate, rows: data || [], loaded: true };
+    return _carlosCasesRows.rows;
+}
+
+function renderCarlosModule() {
+    var sec = document.getElementById('carlos');
+    if (!sec || !sec.classList.contains('active')) return;
+    var estate = (typeof activeEstate !== 'undefined') ? activeEstate : '';
+    if (_carlosCasesRows.estate !== estate) {
+        _carlosCasesRows = { estate: '', rows: [], loaded: false };
+        _carlosExtraYears = [];
+    }
+    if (_carlosActiveTab === 'cases') renderCarlosCasesTab();
+}
+
+function switchCarlosTab(tab) {
+    _carlosActiveTab = tab;
+    var styles = {
+        cases: { on: 'border-indigo-700 bg-indigo-700 text-white', off: 'border-gray-200 bg-gray-50 text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }
+    };
+    ['cases'].forEach(function(t) {
+        var btn = document.getElementById('carlosTabBtn_' + t);
+        var panel = document.getElementById('carlosPanel_' + t);
+        if (btn) { btn.className = btn.className.replace(/border-\S+ bg-\S+ text-\S+/g, '').trim() + ' ' + (t === tab ? styles[t].on : styles[t].off); }
+        if (panel) panel.style.display = (t === tab) ? '' : 'none';
+    });
+    if (tab === 'cases') renderCarlosCasesTab();
+}
+
+function renderCarlosCasesTab() {
+    var estate = (typeof activeEstate !== 'undefined') ? activeEstate : '';
+    var tbody = document.getElementById('carlosCasesSummaryBody');
+    if (!estate) {
+        if (tbody) tbody.innerHTML = '<tr><td colspan="16" class="text-center text-gray-400 py-6">Please select an estate.</td></tr>';
+        return;
+    }
+    carlosLoadRows(estate).then(function(rows) { _renderCarlosCasesSummary(rows); });
+}
+
+function _renderCarlosCasesSummary(rows) {
+    var tbody = document.getElementById('carlosCasesSummaryBody');
+    if (!tbody) return;
+    var curYear = new Date().getFullYear();
+    var years = [];
+    rows.forEach(function(r) { if (years.indexOf(r.year) === -1) years.push(r.year); });
+    if (years.indexOf(curYear) === -1) years.push(curYear);
+    _carlosExtraYears.forEach(function(y) { if (years.indexOf(y) === -1) years.push(y); });
+    years.sort(function(a, b) { return b - a; });
+
+    var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    // Helper: get opened/closed for a given year/month from rows
+    function getVal(yr, m, field) {
+        var r = rows.find(function(x) { return x.year === yr && x.month === m; });
+        return (r && r[field] != null) ? Number(r[field]) : 0;
+    }
+
+    // Calculate pending chain: BF(Jan year Y) = Pending(Dec year Y-1)
+    function calcBF(yr, m) {
+        if (m === 1) {
+            // BF Jan = Pending Dec of previous year
+            var prevYr = yr - 1;
+            var bf = calcBF(prevYr, 1);
+            for (var i = 1; i <= 12; i++) {
+                bf = bf + getVal(prevYr, i, 'opened_cases') - getVal(prevYr, i, 'closed_cases');
+            }
+            return Math.max(0, bf);
+        }
+        // BF(m) = BF(m-1) + opened(m-1) - closed(m-1)
+        return Math.max(0, calcBF(yr, m - 1) + getVal(yr, m - 1, 'opened_cases') - getVal(yr, m - 1, 'closed_cases'));
+    }
+    // Limit recursion depth: only go back up to 5 years before stopping
+    var _bfCache = {};
+    function getBF(yr, m) {
+        var key = yr + '_' + m;
+        if (_bfCache[key] !== undefined) return _bfCache[key];
+        var result = 0;
+        if (m === 1) {
+            // Use stored bring_forward if available, else chain from previous year
+            var janRow = rows.find(function(x) { return x.year === yr && x.month === 1; });
+            if (janRow && janRow.bring_forward != null) {
+                result = Math.max(0, Number(janRow.bring_forward));
+            } else {
+                var prevYrRows = rows.filter(function(x) { return x.year === yr - 1; });
+                if (prevYrRows.length > 0) {
+                    var prevBF = getBF(yr - 1, 1);
+                    for (var i = 1; i <= 12; i++) {
+                        prevBF = prevBF + getVal(yr - 1, i, 'opened_cases') - getVal(yr - 1, i, 'closed_cases');
+                    }
+                    result = Math.max(0, prevBF);
+                } else {
+                    result = 0;
+                }
+            }
+        } else {
+            var prevPending = getBF(yr, m - 1) + getVal(yr, m - 1, 'opened_cases') - getVal(yr, m - 1, 'closed_cases');
+            result = Math.max(0, prevPending);
+        }
+        _bfCache[key] = result;
+        return result;
+    }
+
+    var rowBg  = '#f5f3ff';  // indigo-50
+    var hdrBg  = '#e0e7ff';  // indigo-100
+    var pendBg = '#ede9fe';  // violet-100
+    var inputStyle = 'width:52px;text-align:center;border:1px solid #c7d2fe;border-radius:4px;padding:2px;font-size:12px;display:block;margin:0 auto;';
+
+    var html = '';
+    years.forEach(function(yr) {
+        // Pre-compute BF and pending for all 12 months
+        var bf = [], opened = [], closed = [], pending = [];
+        for (var m = 1; m <= 12; m++) {
+            bf[m]      = getBF(yr, m);
+            opened[m]  = getVal(yr, m, 'opened_cases');
+            closed[m]  = getVal(yr, m, 'closed_cases');
+            pending[m] = Math.max(0, bf[m] + opened[m] - closed[m]);
+        }
+        var totalOpened  = opened.slice(1).reduce(function(a,b){return a+b;},0);
+        var totalClosed  = closed.slice(1).reduce(function(a,b){return a+b;},0);
+        var totalBF      = bf[1];   // opening balance of Jan
+        var totalPending = pending[12]; // closing balance of Dec
+
+        // Row 1: Total Bring Forward (Jan editable, Feb-Dec auto-calculated)
+        html += '<tr style="background:' + hdrBg + ';">';
+        html += '<td rowspan="4" style="text-align:center;font-weight:700;border:1px solid #c7d2fe;padding:4px 10px;vertical-align:middle;font-size:13px;">' + yr + '</td>';
+        html += '<td style="padding:4px 8px;border:1px solid #c7d2fe;font-weight:600;white-space:nowrap;font-size:12px;">Total Bring Forward</td>';
+        for (var bfm = 1; bfm <= 12; bfm++) {
+            if (bfm === 1) {
+                html += '<td style="border:1px solid #c7d2fe;padding:2px;">';
+                html += '<input type="number" min="0" id="carlosBF_' + yr + '_1" value="' + bf[1] + '" style="width:52px;text-align:center;border:2px solid #4f46e5;border-radius:4px;padding:2px;font-size:12px;background:#fff;display:block;margin:0 auto;" oninput="carlosRecalcRow(' + yr + ')" title="Enter opening Bring Forward for January">';
+                html += '</td>';
+            } else {
+                html += '<td style="text-align:center;border:1px solid #c7d2fe;padding:4px 2px;font-size:12px;" id="carlosBF_' + yr + '_' + bfm + '">' + bf[bfm] + '</td>';
+            }
+        }
+        html += '<td style="text-align:center;border:1px solid #c7d2fe;padding:4px 4px;font-weight:600;font-size:12px;" id="carlosBFTotal_' + yr + '">' + totalBF + '</td>';
+        html += '<td rowspan="4" style="text-align:center;border:1px solid #c7d2fe;padding:4px 6px;vertical-align:middle;">';
+        html += '<button onclick="carlosSaveYear(' + yr + ')" id="carlosSaveBtn_' + yr + '" class="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded hover:bg-indigo-700 font-semibold">Save</button>';
+        html += '</td></tr>';
+
+        // Row 2: Total Opened Cases (editable)
+        html += '<tr style="background:#fff;">';
+        html += '<td style="padding:4px 8px;border:1px solid #c7d2fe;font-weight:600;white-space:nowrap;font-size:12px;">Total Opened Cases</td>';
+        for (var m = 1; m <= 12; m++) {
+            html += '<td style="border:1px solid #c7d2fe;padding:2px;">';
+            html += '<input type="number" min="0" id="carlosOpen_' + yr + '_' + m + '" value="' + opened[m] + '" style="' + inputStyle + '" oninput="carlosRecalcRow(' + yr + ')">';
+            html += '</td>';
+        }
+        html += '<td style="text-align:center;border:1px solid #c7d2fe;padding:4px 4px;font-weight:600;font-size:12px;" id="carlosOpenTotal_' + yr + '">' + totalOpened + '</td>';
+        html += '</tr>';
+
+        // Row 3: Total Closed Cases (editable)
+        html += '<tr style="background:#fff;">';
+        html += '<td style="padding:4px 8px;border:1px solid #c7d2fe;font-weight:600;white-space:nowrap;font-size:12px;">Total Closed Cases</td>';
+        for (var m = 1; m <= 12; m++) {
+            html += '<td style="border:1px solid #c7d2fe;padding:2px;">';
+            html += '<input type="number" min="0" id="carlosClose_' + yr + '_' + m + '" value="' + closed[m] + '" style="' + inputStyle + '" oninput="carlosRecalcRow(' + yr + ')">';
+            html += '</td>';
+        }
+        html += '<td style="text-align:center;border:1px solid #c7d2fe;padding:4px 4px;font-weight:600;font-size:12px;" id="carlosCloseTotal_' + yr + '">' + totalClosed + '</td>';
+        html += '</tr>';
+
+        // Row 4: Total Pending Cases (read-only, calculated)
+        html += '<tr style="background:' + pendBg + ';">';
+        html += '<td style="padding:4px 8px;border:1px solid #c7d2fe;font-weight:700;white-space:nowrap;font-size:12px;color:#5b21b6;">Total Pending Cases</td>';
+        for (var m = 1; m <= 12; m++) {
+            html += '<td style="text-align:center;border:1px solid #c7d2fe;padding:4px 2px;font-size:12px;font-weight:600;color:#5b21b6;" id="carlosPend_' + yr + '_' + m + '">' + pending[m] + '</td>';
+        }
+        html += '<td style="text-align:center;border:1px solid #c7d2fe;padding:4px 4px;font-weight:700;font-size:12px;color:#5b21b6;" id="carlosPendTotal_' + yr + '">' + totalPending + '</td>';
+        html += '</tr>';
+    });
+
+    tbody.innerHTML = html || '<tr><td colspan="16" class="text-center text-gray-400 py-6">No data yet. Add a year to begin.</td></tr>';
+}
+
+function carlosRecalcRow(yr) {
+    // Recalculate BF + Pending for all months of the given year on the fly
+    // Uses current input values
+    var rows = _carlosCasesRows.rows;
+    function getLive(y, m, type) {
+        var el = document.getElementById('carlos' + (type === 'open' ? 'Open' : 'Close') + '_' + y + '_' + m);
+        if (el) return Math.max(0, parseInt(el.value) || 0);
+        var r = rows.find(function(x) { return x.year === y && x.month === m; });
+        return (r && r[type === 'open' ? 'opened_cases' : 'closed_cases'] != null) ? Number(r[type === 'open' ? 'opened_cases' : 'closed_cases']) : 0;
+    }
+    // Jan BF comes from its editable input; Feb-Dec chain from there
+    var janBFEl = document.getElementById('carlosBF_' + yr + '_1');
+    var bf = janBFEl ? Math.max(0, parseInt(janBFEl.value) || 0) : 0;
+    var totalOpened = 0, totalClosed = 0;
+    for (var m = 1; m <= 12; m++) {
+        var open   = getLive(yr, m, 'open');
+        var close_ = getLive(yr, m, 'close');
+        var pend   = Math.max(0, bf + open - close_);
+        totalOpened  += open;
+        totalClosed  += close_;
+        // Feb-Dec BF cells are read-only spans; Jan is an input (skip updating it)
+        if (m > 1) {
+            var bfEl = document.getElementById('carlosBF_' + yr + '_' + m);
+            if (bfEl) bfEl.textContent = bf;
+        }
+        var pendEl = document.getElementById('carlosPend_' + yr + '_' + m);
+        if (pendEl) pendEl.textContent = pend;
+        bf = pend; // next month BF = this month pending
+    }
+    var oTot  = document.getElementById('carlosOpenTotal_' + yr);
+    var cTot  = document.getElementById('carlosCloseTotal_' + yr);
+    var pTot  = document.getElementById('carlosPendTotal_' + yr);
+    var bfTot = document.getElementById('carlosBFTotal_' + yr);
+    if (oTot)  oTot.textContent  = totalOpened;
+    if (cTot)  cTot.textContent  = totalClosed;
+    if (pTot)  pTot.textContent  = bf; // bf at this point = Dec pending
+    if (bfTot) bfTot.textContent = janBFEl ? (parseInt(janBFEl.value) || 0) : 0;
+}
+
+function carlosAddYear() {
+    var input = document.getElementById('carlosAddYearInput');
+    var yr = parseInt(input ? input.value : '');
+    if (!yr || yr < 2000 || yr > 2100) { alert('Please enter a valid year (2000-2100).'); return; }
+    if (_carlosExtraYears.indexOf(yr) === -1) _carlosExtraYears.push(yr);
+    if (input) input.value = '';
+    _renderCarlosCasesSummary(_carlosCasesRows.rows);
+}
+
+async function carlosSaveYear(year) {
+    var estate = (typeof activeEstate !== 'undefined') ? activeEstate : '';
+    if (!estate) { alert('Please select an estate first.'); return; }
+    var btn = document.getElementById('carlosSaveBtn_' + year);
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+    try {
+        var janBFEl = document.getElementById('carlosBF_' + year + '_1');
+        var janBF   = janBFEl ? (parseInt(janBFEl.value) || 0) : null;
+        var upserts = [];
+        for (var m = 1; m <= 12; m++) {
+            var openEl  = document.getElementById('carlosOpen_'  + year + '_' + m);
+            var closeEl = document.getElementById('carlosClose_' + year + '_' + m);
+            var opened  = openEl  ? (parseInt(openEl.value)  || 0) : 0;
+            var closed  = closeEl ? (parseInt(closeEl.value) || 0) : 0;
+            var row = { estate: estate, year: year, month: m, opened_cases: opened, closed_cases: closed };
+            if (m === 1) row.bring_forward = janBF;
+            upserts.push(row);
+        }
+        var { error } = await supabaseClient.from('port_carlos_cases')
+            .upsert(upserts, { onConflict: 'estate,year,month' });
+        if (error) throw error;
+        _carlosCasesRows = { estate: '', rows: [], loaded: false };
+        await carlosLoadRows(estate);
+        _renderCarlosCasesSummary(_carlosCasesRows.rows);
+        if (btn) { btn.disabled = false; btn.textContent = '✓ Saved'; setTimeout(function() { if (btn) btn.textContent = 'Save'; }, 2000); }
+        if (typeof showSyncSuccess === 'function') showSyncSuccess('Carlos Cases for ' + year + ' saved.');
+    } catch(e) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Save'; }
+        alert('Error saving: ' + e.message);
+    }
+}
+// ══════════════════════════════════════════════════════════════════════════════
+
 function renderFfbModule() {
     var sec = document.getElementById('ffbrecord');
     if (!sec || !sec.classList.contains('active')) return;
@@ -18992,69 +19443,6 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js')
         .catch(function(err) { console.warn('[SW] Registration failed:', err); });
 }
-</script>
-<!-- Mantap portal adapter: sign-out returns to the portal; a back button
-     returns to the portal's module list. Opened as Stock (stock/) or as
-     Rainfall (stock/?open=rainfall), the two cards on the Mantap home. -->
-<style>
-    body.mtp-stock #estateHubRainfallCard { display: none !important; }
-    .mtp-back { display:inline-flex;align-items:center;margin:16px 20px 0;padding:6px 12px;border-radius:999px;background:#fff;border:1px solid #BBF7D0;color:#166534;font-size:13px;font-weight:700;text-decoration:none;font-family:Inter,sans-serif; }
-    #mobileRfCardGrid .mtp-back-row { grid-column: 1 / -1; }
-    #mobileRfCardGrid .mtp-back { margin: 0; }
-</style>
-<script>
-(function () {
-    var MODE = new URLSearchParams(location.search).get('open') === 'rainfall' ? 'rainfall' : 'stock';
-    document.body.classList.add('mtp-' + MODE);
-
-    // Rainfall card: the rainfall page is this module's home screen
-    if (MODE === 'rainfall' && typeof navToSection === 'function') {
-        var _nav = navToSection;
-        navToSection = window.navToSection = function (id) {
-            if (id === 'estate_hub') {
-                _nav('estate_hub'); // keeps the hub's clean-up (category freeze etc.)
-                id = 'mobile_rainfall';
-            }
-            return _nav.apply(this, [id].concat([].slice.call(arguments, 1)));
-        };
-    }
-
-    // Sign out of the worker session only. The Mantap admin session is
-    // stored under a different key, so the Mobile View leaves it alone.
-    window.logoutUser = function () {
-        if (!confirm('Sign out?')) return;
-        try { stopStatusWatcher(); } catch (e) {}
-        clearSession();
-        sessionStorage.removeItem('opp_active_section');
-        supabaseClient.auth.signOut({ scope: 'local' }).catch(function () {});
-        location.replace('../#/m');
-    };
-    window.forceLogoutInactive = function () {
-        try { stopStatusWatcher(); } catch (e) {}
-        clearSession();
-        sessionStorage.removeItem('opp_active_section');
-        supabaseClient.auth.signOut({ scope: 'local' }).catch(function () {});
-        location.replace('../#/m?inactive=1');
-    };
-    function addBack(sel) {
-        var box = document.querySelector(sel);
-        if (!box) return;
-        var row = document.createElement('div');
-        row.className = 'mtp-back-row';
-        var a = document.createElement('a');
-        a.href = '../#/m/home';
-        a.className = 'mtp-back';
-        a.textContent = '\u2190 Mantap';
-        row.appendChild(a);
-        box.insertBefore(row, box.firstChild);
-    }
-    function init() {
-        addBack('#estate_hub > div');
-        // Rainfall: on the card grid (hidden with it while a form is open)
-        if (MODE === 'rainfall') addBack('#mobileRfCardGrid');
-    }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
-})();
 </script>
 </body>
 </html>

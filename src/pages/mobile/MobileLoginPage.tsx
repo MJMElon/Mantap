@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Brand } from '../../components/Brand';
 import { LangToggle } from '../../components/LangToggle';
-import { getWorker, signIn, signOutAdmin } from '../../lib/auth';
+import { getWorker, portalMe, previewWorkerFromAdmin, signIn, signOutAdmin } from '../../lib/auth';
 import { useErrorText, useI18n } from '../../lib/i18n';
 
 /** Mobile sign-in (workers with User ID + password). Also shown inside the web portal's Mobile View. */
@@ -21,7 +21,9 @@ export function MobileLoginPage() {
 
   useEffect(() => {
     if (getWorker()) { navigate('/m/home', { replace: true }); return; }
-  }, [navigate]);
+    // Signed in from the Intranet / Plantation Operation (session handed over): straight to the mobile home, no worker login
+    if (!isDemo) portalMe().then((me) => { if (me) { previewWorkerFromAdmin(me); navigate('/m/home', { replace: true }); } });
+  }, [navigate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function submit(e: FormEvent) {
     e.preventDefault();

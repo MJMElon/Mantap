@@ -43,16 +43,15 @@ export const MODULES: PortalModule[] = [
     name: { en: 'Stock', ms: 'Stok' },
     desc: { en: 'Fertilizer, chemical, seedling and tools', ms: 'Baja, racun, anak sawit dan peralatan' },
     href: `${import.meta.env.BASE_URL}stock/`,
-    allowed: (w) => STOCK_SECTIONS.some((s) => s.id !== 'mobile_rainfall' && hasAccess(w, s.id)),
+    allowed: (w) => STOCK_SECTIONS.some((s) => s.id !== 'mobile_rainfall' && stockAccess(w.permissions, s.id) !== 'none'),
   },
   {
     id: 'rainfall',
     icon: '🌧️',
-    color: '#0284c7',
+    color: '#0369a1',
     name: { en: 'Rainfall', ms: 'Hujan' },
-    desc: { en: 'Record and view daily rainfall', ms: 'Rekod dan lihat hujan harian' },
-    // Same Stock app, opened on its rainfall screens
-    href: `${import.meta.env.BASE_URL}stock/?open=rainfall`,
-    allowed: (w) => hasAccess(w, 'mobile_rainfall'),
+    desc: { en: 'Daily rainfall record', ms: 'Rekod hujan harian' },
+    href: `${import.meta.env.BASE_URL}stock/?module=rainfall`,
+    allowed: (w) => stockAccess(w.permissions, 'mobile_rainfall') !== 'none',
   },
 ];

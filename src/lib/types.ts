@@ -13,6 +13,9 @@ export interface Worker {
   intranet?: boolean;  /** Set in PORT → Worker list: 'male' | 'female' | '' and 'local' | 'foreign' | '' */
   gender?: string;
   workerType?: string;
+  /** Set in PORT → Worker list */
+  workerNo?: string;
+  opisproId?: string;
 }
 
 /** Shape the legacy Stock module expects in localStorage. */
@@ -24,4 +27,5 @@ export interface WorkerSession {
   estate: string;
   role: 'estate_user';
   permissions: Record<string, unknown>;
+  preview?: boolean; // an Intranet / PORT person looking at the mobile app (not a worker account)
 }

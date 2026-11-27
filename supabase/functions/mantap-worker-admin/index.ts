@@ -3,7 +3,7 @@
 // Workers: list, create, update, set_details, reset_password, set_status, delete.
 // User Access: whoami, portal_list, portal_save, portal_remove.
 import {
-  ApiError, callerEmail, getPortalUser, handler, roleOf, serviceClient, sha256Hex, STOCK_ITEMS,
+  ApiError, callerEmail, lockPin, unlockPin, getPortalUser, handler, roleOf, serviceClient, sha256Hex, STOCK_ITEMS,
   SUPER_ADMIN_EMAIL, toAuthEmail, USERS_TABLE, WORKER_ROLE, type UserRow,
 } from '../_shared/common.ts';
 
@@ -94,6 +94,42 @@ async function write(q: PromiseLike<{ error: unknown }>) {
   return { ok: true };
 }
 
+// ── The caller's companies and each company's Locations (as set in the Intranet) ──
+const INTRANET_URL = Deno.env.get('INTRANET_SUPABASE_URL') ?? 'https://briqzyxfxsvulyizzbiu.supabase.co';
+const INTRANET_KEY = Deno.env.get('INTRANET_MODULE_API_KEY') ?? '';
+interface IntranetLoc { company_id: string; group_id?: string | null; name: string; sort_order: number | null; is_active: boolean }
+let mdCache: { at: number; locations: IntranetLoc[]; businesses: { id: string }[] } | null = null;
+async function intranetLocations(): Promise<{ locations: IntranetLoc[]; businesses: { id: string }[] }> {
+  if (mdCache && Date.now() - mdCache.at < 10 * 60 * 1000) return mdCache;
+  if (!INTRANET_KEY) return { locations: [], businesses: [] };
+  try {
+    const res = await fetch(`${INTRANET_URL}/functions/v1/gw-master-data`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-gw-api-key': INTRANET_KEY }, body: '{}' });
+    if (!res.ok) return { locations: [], businesses: [] };
+    const md = await res.json();
+    mdCache = { at: Date.now(), locations: md.locations ?? [], businesses: md.businesses ?? [] };
+    return mdCache;
+  } catch { return { locations: [], businesses: [] }; }
+}
+async function myCompanies(email: string): Promise<{ companies: { id: string; name: string }[]; locations: Record<string, string[]> }> {
+  const db = serviceClient();
+  const { data: uc } = await db.from('port_user_companies').select('company_id').eq('email', email.toLowerCase());
+  const ids = [...new Set(((uc ?? []) as { company_id: string }[]).map((r) => r.company_id))];
+  if (!ids.length) return { companies: [], locations: {} };
+  const { data: cos } = await db.from('port_companies').select('id, code, name, is_active').in('id', ids).order('code').order('name');
+  const companies = ((cos ?? []) as { id: string; name: string; is_active: boolean }[]).filter((c) => c.is_active !== false).map((c) => ({ id: c.id, name: c.name }));
+  const md = await intranetLocations();
+  const bizOrder = new Map(md.businesses.map((b, i) => [b.id, i]));
+  const locations: Record<string, string[]> = {};
+  for (const c of companies) {
+    const out: string[] = [];
+    md.locations.filter((l) => l.company_id === c.id && l.is_active !== false)
+      .sort((a, b) => ((a.group_id && bizOrder.get(a.group_id)) ?? 1e6) - ((b.group_id && bizOrder.get(b.group_id)) ?? 1e6) || (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name))
+      .forEach((l) => { const n = l.name.trim(); if (n && !out.includes(n)) out.push(n); });
+    locations[c.id] = out;
+  }
+  return { companies, locations };
+}
+
 /** Who is calling: Super Admin, or Intranet user with web access. */
 async function authorize(req: Request, companyId: string | null = null) {
   const email = await callerEmail(req);
@@ -138,13 +174,29 @@ async function syncMobileWorker(email: string, name: string, mobile: boolean, es
   else await write(db.from(USERS_TABLE).insert({ id: Date.now(), name, email, password_hash: '', estates, permissions, status: 'active' }));
 }
 
+/** Keeps the locked, readable copy of a worker's PIN (needs the 20261130 SQL; skipped before it). */
+async function keepPin(userId: number, pin: string) {
+  try {
+    const { error } = await serviceClient().from('port_worker_details')
+      .upsert({ user_id: userId, pin_locked: await lockPin(pin) }, { onConflict: 'user_id' });
+    if (error) console.warn('[mantap-worker-admin] PIN copy skipped:', error.message);
+  } catch (e) { console.warn('[mantap-worker-admin] PIN copy skipped:', e instanceof Error ? e.message : e); }
+}
+
 Deno.serve(handler(async (req, body) => {
   const companyId = companyArg(body.company_id);
   const me: { email: string; name: string; isSuper: boolean; viewOnly?: boolean } = await authorize(req, companyId);
   const db = serviceClient();
   // View only (Worker list = View in PORT → User Access): reading is allowed, changing is not
   if (me.viewOnly && !['whoami', 'list', 'portal_list'].includes(String(body.action))) throw new ApiError('err_forbidden', 403);
-  const scope = companyId ? new Set(await companyEstates(companyId)) : null;
+  // The company's locations: its old estate names, plus its MJM Intranet Locations
+  // as PORT sends them (body.locations), plus the company name itself
+  const intranetLocs = Array.isArray(body.locations) ? body.locations.map((x: unknown) => String(x ?? '').trim()).filter((x: string) => x && x.length <= 100).slice(0, 200) : [];
+  const scope = companyId ? new Set([...await companyEstates(companyId), ...intranetLocs]) : null;
+  if (companyId && scope) {
+    const { data: co } = await serviceClient().from('port_companies').select('name').eq('id', companyId).maybeSingle();
+    if (co?.name) scope.add(String(co.name));
+  }
   /** A worker of another company cannot be changed from this company. */
   const mine = async (id: unknown) => {
     const w = await getWorker(id);
@@ -154,7 +206,7 @@ Deno.serve(handler(async (req, body) => {
 
   switch (body.action) {
     case 'whoami':
-      return me;
+      return { ...me, ...(await myCompanies(me.email)) };
 
     case 'portal_list': {
       const [{ data, error }, linked] = await Promise.all([
@@ -217,6 +269,8 @@ Deno.serve(handler(async (req, body) => {
       // One company: only its workers, with only its estates shown
       const workers = (data as UserRow[]).filter((r) => inScope(r.estates, scope)).map((r) => ({
         gender: String(details.get(r.id)?.gender ?? ''), workerType: String(details.get(r.id)?.worker_type ?? ''),
+        workerNo: String(details.get(r.id)?.worker_no ?? ''), opisproId: String(details.get(r.id)?.opispro_id ?? ''),
+        pinReadable: !!details.get(r.id)?.pin_locked,
         id: r.id, name: r.name, email: r.email, estates: (r.estates ?? []).filter((e) => !scope || scope.has(e)), permissions: r.permissions ?? {},
         status: r.status === 'inactive' ? 'inactive' : 'active', lastActive: r.last_active,
         intranet: !r.email.endsWith('@psms.app'),
@@ -231,15 +285,19 @@ Deno.serve(handler(async (req, body) => {
       if (email === SUPER_ADMIN_EMAIL) throw new ApiError('err_reserved');
       const { data: existing } = await db.from(USERS_TABLE).select('id').eq('email', email).maybeSingle();
       if (existing) throw new ApiError('err_exists', 409);
-      return write(db.from(USERS_TABLE).insert({
-        id: Date.now(),
+      const newId = Date.now();
+      const pin = password(body.password);
+      await write(db.from(USERS_TABLE).insert({
+        id: newId,
         name: str(body.name),
         email,
-        password_hash: await sha256Hex(password(body.password)),
+        password_hash: await sha256Hex(pin),
         estates: await estatesArg(body.estates, companyId),
         permissions: { __role: WORKER_ROLE, ...accessArg(body.access) },
         status: 'active',
       }));
+      await keepPin(newId, pin);
+      return { ok: true };
     }
 
     case 'update': {
@@ -252,19 +310,44 @@ Deno.serve(handler(async (req, body) => {
     }
 
     case 'set_details': {
-      // PORT → Worker list: gender and type (more columns later)
+      // PORT → Worker list: gender, type, Worker ID, Opispro Worker ID (more later)
       const w = await mine(body.id);
       const gender = String(body.gender ?? '');
       const workerType = String(body.workerType ?? '');
       if (!['', 'male', 'female'].includes(gender) || !['', 'local', 'foreign'].includes(workerType)) throw new ApiError('err_invalid');
-      return write(db.from('port_worker_details').upsert({
-        user_id: w.id, gender, worker_type: workerType, updated_by: me.email, updated_at: new Date().toISOString(),
-      }, { onConflict: 'user_id' }));
+      // Location (one of the company's Intranet Locations): replaces the worker's
+      // location in this company; their estates in other companies stay
+      if (body.location !== undefined) {
+        const loc = String(body.location ?? '').trim();
+        if (!loc || !intranetLocs.includes(loc)) throw new ApiError('err_invalid');
+        const estates = mergeEstates(w.estates, [loc], scope);
+        await write(db.from(USERS_TABLE).update({ estates }).eq('id', w.id));
+      }
+      const row: Record<string, unknown> = { user_id: w.id, gender, worker_type: workerType, updated_by: me.email, updated_at: new Date().toISOString() };
+      for (const [k, col] of [['workerNo', 'worker_no'], ['opisproId', 'opispro_id']] as const) {
+        if (body[k] === undefined) continue;
+        const v = String(body[k] ?? '').trim();
+        if (v.length > 50) throw new ApiError('err_invalid');
+        row[col] = v;
+      }
+      return write(db.from('port_worker_details').upsert(row, { onConflict: 'user_id' }));
+    }
+
+    case 'reveal_pin': {
+      // PORT → Worker list, eye button (Edit access only; View-only is refused above)
+      const w = await mine(body.id);
+      const { data: d } = await db.from('port_worker_details').select('pin_locked').eq('user_id', w.id).maybeSingle();
+      const pin = await unlockPin((d as { pin_locked?: string } | null)?.pin_locked);
+      console.log('[mantap-worker-admin] PIN shown', w.id, 'to', me.email, pin ? 'ok' : 'not available');
+      return { pin };
     }
 
     case 'reset_password': {
       const w = await mine(body.id);
-      return write(db.from(USERS_TABLE).update({ password_hash: await sha256Hex(password(body.password)) }).eq('id', w.id));
+      const pin = password(body.password);
+      await write(db.from(USERS_TABLE).update({ password_hash: await sha256Hex(pin) }).eq('id', w.id));
+      await keepPin(w.id, pin);
+      return { ok: true };
     }
 
     case 'set_status': {

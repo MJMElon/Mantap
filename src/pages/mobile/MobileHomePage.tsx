@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { LangToggle } from '../../components/LangToggle';
 import { getWorker, portalMeOrDenied, portCompany, previewWorkerFromAdmin, refreshWorker, setPortCompany, signOutAdmin, signOutWorker, updateWorker, type PortalMe } from '../../lib/auth';
 import { useI18n } from '../../lib/i18n';
@@ -10,17 +10,15 @@ import { MODULES } from '../../lib/modules';
 export function MobileHomePage() {
   const { t, lang } = useI18n();
   const navigate = useNavigate();
+  // Stock sends people back here with the reason it could not open (?why=…)
+  const [params] = useSearchParams();
+  const why = params.get('why');
   // A preview overwritten by an older Stock page (other name / role / id): rebuild it from the portal
   const [damaged] = useState(() => { const w = getWorker(); return !!w?.preview && (w.role !== 'estate_user' || w.id !== 0); });
   const [worker, setWorker] = useState(() => {
-    // The Stock page only opens for an estate-worker session: repair one saved
-    // with another role (e.g. by an older Stock page), so the buttons open again.
+    // The Stock page only opens for an estate-worker session: repair one saved with another role
     const w = getWorker();
     return w && w.role !== 'estate_user' ? updateWorker({ role: 'estate_user' }) : w;
-  });
-  // Set by the Stock page when it had to send the person back here
-  const [bounce] = useState(() => {
-    try { const v = sessionStorage.getItem('mtp_stock_bounce'); sessionStorage.removeItem('mtp_stock_bounce'); return v; } catch { return null; }
   });
   const [me, setMe] = useState<PortalMe | null>(null);
   const [drawer, setDrawer] = useState(false);
@@ -97,9 +95,10 @@ export function MobileHomePage() {
       <main className="worker-wrap">
         <p className="hello">{t('welcome')}</p>
         <h1 className="name" id="who">{worker.name}</h1>
-        {bounce && <p className="bounce">{t('stock_bounce').replace('{why}', bounce)}</p>}
         <div className="mod-grid">
           {modules.length === 0 && <div className="empty">{t('no_modules')}</div>}
+          {modules.length > 0 && !worker.estates.length && <div className="empty">{t('no_location')}</div>}
+          {why && <div className="empty">{t('stock_bounced')} ({why})</div>}
           {modules.map((m) => (
             <a key={m.id} className="mod" href={m.href}>
               <span className="mod-icon" style={{ background: `${m.color}1f` }}>{m.icon}</span>

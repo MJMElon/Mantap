@@ -110,12 +110,23 @@ async function intranetLocations(): Promise<{ locations: IntranetLoc[]; business
     return mdCache;
   } catch { return { locations: [], businesses: [] }; }
 }
-async function myCompanies(email: string): Promise<{ companies: { id: string; name: string }[]; locations: Record<string, string[]> }> {
+async function myCompanies(email: string, all = false): Promise<{ companies: { id: string; name: string }[]; locations: Record<string, string[]> }> {
   const db = serviceClient();
-  const { data: uc } = await db.from('port_user_companies').select('company_id').eq('email', email.toLowerCase());
-  const ids = [...new Set(((uc ?? []) as { company_id: string }[]).map((r) => r.company_id))];
-  if (!ids.length) return { companies: [], locations: {} };
-  const { data: cos } = await db.from('port_companies').select('id, code, name, is_active').in('id', ids).order('code').order('name');
+  // The companies the Intranet gave this person (saved at each Intranet sign-in), plus the
+  // companies set for them in PORT → User Access. The Super Admin: every company.
+  const who = email.toLowerCase();
+  const [{ data: uc }, { data: ua }] = await Promise.all([
+    db.from('port_user_companies').select('company_id').eq('email', who),
+    db.from('port_user_company_access').select('company_id, status').eq('email', who),
+  ]);
+  const ids = [...new Set([
+    ...((uc ?? []) as { company_id: string }[]).map((r) => r.company_id),
+    ...((ua ?? []) as { company_id: string; status: string }[]).filter((r) => r.status !== 'inactive').map((r) => r.company_id),
+  ])];
+  if (!ids.length && !all) return { companies: [], locations: {} };
+  let cq = db.from('port_companies').select('id, code, name, is_active');
+  if (!all) cq = cq.in('id', ids);
+  const { data: cos } = await cq.order('code').order('name');
   const companies = ((cos ?? []) as { id: string; name: string; is_active: boolean }[]).filter((c) => c.is_active !== false).map((c) => ({ id: c.id, name: c.name }));
   const md = await intranetLocations();
   const bizOrder = new Map(md.businesses.map((b, i) => [b.id, i]));
@@ -224,7 +235,7 @@ Deno.serve(handler(async (req, body) => {
 
   switch (body.action) {
     case 'whoami':
-      return { ...me, ...(await myCompanies(me.email)) };
+      return { ...me, ...(await myCompanies(me.email, me.isSuper)) };
 
     case 'portal_list': {
       const [{ data, error }, linked] = await Promise.all([

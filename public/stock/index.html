@@ -7,49 +7,19 @@
      marked "Mantap:". Anyone else goes back to the Mantap home page. -->
 <script>
 (function () {
-    // Mantap: if this page sends the person back, tell the home page why (it shows it)
-    function back(why) {
-        try { sessionStorage.setItem('mtp_stock_bounce', why); } catch (e) {}
-        location.replace('../#/m');
-    }
-    // Mantap: when the browser's storage (shared by every page on this site) is
-    // full, the Stock page cannot start. Make room by clearing downloaded copies
-    // of Stock data (downloaded again from the server). Unsynced entries
-    // (opp_sync_queue), deleted-record marks and counters are kept.
-    function roomy() {
-        try { localStorage.setItem('mtp_probe', new Array(300001).join('x')); localStorage.removeItem('mtp_probe'); return true; }
-        catch (e) { try { localStorage.removeItem('mtp_probe'); } catch (e2) {} return false; }
-    }
-    function clearCaches(test) {
-        var ks = [];
-        for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && test(k)) ks.push(k); }
-        ks.forEach(function (k) { localStorage.removeItem(k); });
-    }
     try {
-        var DATA = /^(opp|port)_(items|locations|transactions|manuring_rounds|fieldmaint_rounds|maint_claims|chem_ingredients|rainfall_txns)::(.*)$/;
-        if (!roomy()) {
-            // 1. copies under the old table names (opp_…), no longer used; the users cache
-            clearCaches(function (k) { return /^opp_/.test(k) && DATA.test(k) || k === 'opp_auth_users'; });
-            if (!roomy()) {
-                // 2. copies for the other locations, then 3. for every location
-                var cur = ''; try { cur = (JSON.parse(localStorage.getItem('opp_auth_session') || '{}') || {}).estate || ''; } catch (e) {}
-                clearCaches(function (k) { var m = DATA.exec(k); return !!m && m[3] !== cur; });
-                if (!roomy()) clearCaches(function (k) { return DATA.test(k); });
-            }
+        var s = JSON.parse(localStorage.getItem('opp_auth_session') || 'null');
+        // Mantap: anything that stops Stock from opening goes back to the Mantap home with the reason (shown there)
+        if (!s) { location.replace('../#/m/home?why=nosession'); return; }
+        if (s.role !== 'estate_user') { location.replace('../#/m/home?why=' + encodeURIComponent('role ' + s.role)); return; }
+        // Mantap: no location at all → nothing to open here; the Mantap home page sorts it out
+        if (!Array.isArray(s.estates) || !s.estates.length) { location.replace('../#/m/home?noloc=1'); return; }
+        // Mantap: start on a location (the first one) rather than the empty "Select an Estate" screen
+        if (Array.isArray(s.estates) && s.estates.length && (!s.estate || s.estates.indexOf(s.estate) < 0)) {
+            s.estate = s.estates[0];
+            localStorage.setItem('opp_auth_session', JSON.stringify(s));
         }
-    } catch (e) {}
-    var s = null;
-    try { s = JSON.parse(localStorage.getItem('opp_auth_session') || 'null'); } catch (e) { return back('unreadable'); }
-    if (!s) return back('no_session');
-    if (s.role !== 'estate_user') return back('role ' + s.role);
-    // Mantap: no location at all → nothing to open here; the Mantap home page sorts it out
-    if (!Array.isArray(s.estates) || !s.estates.length) return back('no location');
-    // Mantap: start on a location (the first one) rather than the empty "Select an Estate" screen.
-    // Saving it may fail when the browser's storage is full: open anyway.
-    if (Array.isArray(s.estates) && s.estates.length && (!s.estate || s.estates.indexOf(s.estate) < 0)) {
-        s.estate = s.estates[0];
-        try { localStorage.setItem('opp_auth_session', JSON.stringify(s)); } catch (e) {}
-    }
+    } catch (e) { location.replace('../#/m/home?why=' + encodeURIComponent('error ' + (e && e.message))); }
 })();
 </script>
     <meta charset="UTF-8" />
@@ -1150,7 +1120,7 @@
 <script>
 // APP_BUILD is checked by the auto-refresh guard below.
 // Bump this string whenever code is deployed to force stale cached pages to reload.
-var APP_BUILD = '20261126-70';
+var APP_BUILD = '20261127-71';
 (function () {
     var _vr = window.location.search.indexOf('_vr') !== -1;
     // Legacy guard: very old cached pages have no APP_BUILD at all.
@@ -4627,6 +4597,31 @@ function btnLoadThen(btn, work, label) {
     setTimeout(work, 300);
 }
 
+// Browser copy of the data (offline use). Browsers allow only ~5 MB per site, shared
+// with every app on the same address; when it is full, copies of the OTHER locations
+// are dropped and the write is tried again. If it still does not fit, the copy is
+// skipped: the data is already on screen (and in Supabase), so the page keeps working.
+function cacheSet(key, value) {
+    try { localStorage.setItem(key, value); return true; } catch (e) {}
+    try {
+        var cur = '::' + (typeof activeEstate !== 'undefined' ? activeEstate : '');
+        var drop = [];
+        for (var i = 0; i < localStorage.length; i++) {
+            var k = localStorage.key(i);
+            if (k && k.indexOf('::') > 0 && k.slice(-cur.length) !== cur && k !== SYNC_QUEUE_KEY) drop.push(k);
+        }
+        // never drop a location's copy that still has changes waiting to be sent
+        var waiting = {};
+        try { (JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY)) || []).forEach(function (q) { waiting[q.key + '::' + q.estate] = 1; }); } catch (e2) {}
+        drop.filter(function (k) { return !waiting[k]; }).forEach(function (k) { localStorage.removeItem(k); });
+        localStorage.setItem(key, value);
+        return true;
+    } catch (e3) {
+        console.warn('[cache] browser storage full, not keeping a copy of', key);
+        return false;
+    }
+}
+
 // Persist a key back to localStorage AND sync to Supabase.
 function save(key, data) {
     // Guard: never write to a key scoped to an empty estate
@@ -4636,7 +4631,7 @@ function save(key, data) {
     }
     // key is a STORAGE_KEYS value (table name); scope it to active estate
     const estateKey = `${key}::${activeEstate}`;
-    localStorage.setItem(estateKey, JSON.stringify(data));
+    cacheSet(estateKey, JSON.stringify(data));
     syncToSupabase(key, data);
 }
 
@@ -4972,7 +4967,7 @@ async function loadFromSupabase() {
             if (activeEstate) {
                 try {
                     const _estKey = getEstateKeys(activeEstate);
-                    localStorage.setItem(_estKey.transactions, JSON.stringify(transactions));
+                    cacheSet(_estKey.transactions, JSON.stringify(transactions));
                 } catch(e) {}
             }
             if (localUnsynced.length > 0) syncToSupabase(STORAGE_KEYS.transactions, transactions);
@@ -5007,14 +5002,14 @@ async function loadFromSupabase() {
 
         // Cache all tables with estate-scoped localStorage keys
         const keys = getEstateKeys(activeEstate);
-        localStorage.setItem(keys.items,            JSON.stringify(items));
-        localStorage.setItem(keys.locations,        JSON.stringify(locations));
-        localStorage.setItem(keys.transactions,     JSON.stringify(transactions));
-        localStorage.setItem(keys.manuringRounds,   JSON.stringify(manuringRounds));
-        localStorage.setItem(keys.fieldMaintRounds, JSON.stringify(fieldMaintRounds));
-        localStorage.setItem(keys.maintClaims,      JSON.stringify(maintClaims));
-        localStorage.setItem(keys.chemIngredients,  JSON.stringify(chemIngredients));
-        localStorage.setItem(keys.rainfallTxns,     JSON.stringify(rainfallTxns));
+        cacheSet(keys.items,            JSON.stringify(items));
+        cacheSet(keys.locations,        JSON.stringify(locations));
+        cacheSet(keys.transactions,     JSON.stringify(transactions));
+        cacheSet(keys.manuringRounds,   JSON.stringify(manuringRounds));
+        cacheSet(keys.fieldMaintRounds, JSON.stringify(fieldMaintRounds));
+        cacheSet(keys.maintClaims,      JSON.stringify(maintClaims));
+        cacheSet(keys.chemIngredients,  JSON.stringify(chemIngredients));
+        cacheSet(keys.rainfallTxns,     JSON.stringify(rainfallTxns));
 
         // Refresh lastKnownIds snapshots for all tables
         lastKnownIds.port_items              = new Set(items.map(r => r.id));
@@ -5064,8 +5059,9 @@ async function loadFromSupabase() {
         // are logged in, the nav updates without requiring a re-login.
         const _liveSession = loadSession();
         // Mantap: not for Mantap sessions (estate_user) — the Mantap home page keeps
-        // those up to date; the PORT account with the same email (e.g. an HQ user)
-        // would replace the name, locations and role, and lock Stock / Rainfall.
+        // those up to date; the PORT account with the same email (e.g. the Super Admin
+        // saved as 'Janice Pau', role admin) would replace the name, locations and role,
+        // and Stock / Rainfall would no longer open.
         if (_liveSession && _liveSession.role !== 'superadmin' && _liveSession.role !== 'estate_user' && _liveSession.email) {
             try {
                 const _freshUser = await fetchUserByEmail(_liveSession.email);
@@ -12815,8 +12811,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     {
         const _s = loadSession();
         if (!_s || _s.role !== 'estate_user') { // Mantap: signed in on the Mantap home page
-            try { sessionStorage.setItem('mtp_stock_bounce', _s ? 'role ' + _s.role : 'no_session'); } catch (e) {}
-            window.location.replace('../#/m');
+            window.location.replace('../#/m/home?why=' + encodeURIComponent(_s ? 'role ' + _s.role : 'nosession2'));
             return;
         }
     }
@@ -15394,7 +15389,7 @@ async function deleteRainfallTxn(id) {
     rainfallTxns = rainfallTxns.filter(r => String(r.id) !== String(id));
     lastKnownIds.port_rainfall_txns = new Set(rainfallTxns.map(r => r.id));
     const estateKey2 = STORAGE_KEYS.rainfallTxns + '::' + activeEstate;
-    localStorage.setItem(estateKey2, JSON.stringify(rainfallTxns));
+    cacheSet(estateKey2, JSON.stringify(rainfallTxns));
 
     renderRainfallTxns();
     renderRainfallReport();

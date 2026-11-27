@@ -12,7 +12,7 @@ export function MobileLoginPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   // The admin's Mobile Demo shows the worker side even when an admin is signed in.
-  const isDemo = params.has('demo') || window.self !== window.top;
+  const isDemo = params.has('demo');
 
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');

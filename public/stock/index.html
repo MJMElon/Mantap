@@ -7,15 +7,47 @@
      marked "Mantap:". Anyone else goes back to the Mantap home page. -->
 <script>
 (function () {
+    // Mantap: if this page sends the person back, tell the home page why (it shows it)
+    function back(why) {
+        try { sessionStorage.setItem('mtp_stock_bounce', why); } catch (e) {}
+        location.replace('../#/m');
+    }
+    // Mantap: when the browser's storage (shared by every page on this site) is
+    // full, the Stock page cannot start. Make room by clearing downloaded copies
+    // of Stock data (downloaded again from the server). Unsynced entries
+    // (opp_sync_queue), deleted-record marks and counters are kept.
+    function roomy() {
+        try { localStorage.setItem('mtp_probe', new Array(300001).join('x')); localStorage.removeItem('mtp_probe'); return true; }
+        catch (e) { try { localStorage.removeItem('mtp_probe'); } catch (e2) {} return false; }
+    }
+    function clearCaches(test) {
+        var ks = [];
+        for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && test(k)) ks.push(k); }
+        ks.forEach(function (k) { localStorage.removeItem(k); });
+    }
     try {
-        var s = JSON.parse(localStorage.getItem('opp_auth_session') || 'null');
-        if (!s || s.role !== 'estate_user') { location.replace('../#/m'); return; }
-        // Mantap: start on a location (the first one) rather than the empty "Select an Estate" screen
-        if (Array.isArray(s.estates) && s.estates.length && (!s.estate || s.estates.indexOf(s.estate) < 0)) {
-            s.estate = s.estates[0];
-            localStorage.setItem('opp_auth_session', JSON.stringify(s));
+        var DATA = /^(opp|port)_(items|locations|transactions|manuring_rounds|fieldmaint_rounds|maint_claims|chem_ingredients|rainfall_txns)::(.*)$/;
+        if (!roomy()) {
+            // 1. copies under the old table names (opp_…), no longer used; the users cache
+            clearCaches(function (k) { return /^opp_/.test(k) && DATA.test(k) || k === 'opp_auth_users'; });
+            if (!roomy()) {
+                // 2. copies for the other locations, then 3. for every location
+                var cur = ''; try { cur = (JSON.parse(localStorage.getItem('opp_auth_session') || '{}') || {}).estate || ''; } catch (e) {}
+                clearCaches(function (k) { var m = DATA.exec(k); return !!m && m[3] !== cur; });
+                if (!roomy()) clearCaches(function (k) { return DATA.test(k); });
+            }
         }
-    } catch (e) { location.replace('../#/m'); }
+    } catch (e) {}
+    var s = null;
+    try { s = JSON.parse(localStorage.getItem('opp_auth_session') || 'null'); } catch (e) { return back('unreadable'); }
+    if (!s) return back('no_session');
+    if (s.role !== 'estate_user') return back('role ' + s.role);
+    // Mantap: start on a location (the first one) rather than the empty "Select an Estate" screen.
+    // Saving it may fail when the browser's storage is full: open anyway.
+    if (Array.isArray(s.estates) && s.estates.length && (!s.estate || s.estates.indexOf(s.estate) < 0)) {
+        s.estate = s.estates[0];
+        try { localStorage.setItem('opp_auth_session', JSON.stringify(s)); } catch (e) {}
+    }
 })();
 </script>
     <meta charset="UTF-8" />
@@ -12778,6 +12810,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     {
         const _s = loadSession();
         if (!_s || _s.role !== 'estate_user') { // Mantap: signed in on the Mantap home page
+            try { sessionStorage.setItem('mtp_stock_bounce', _s ? 'role ' + _s.role : 'no_session'); } catch (e) {}
             window.location.replace('../#/m');
             return;
         }

@@ -10,7 +10,16 @@ import { MODULES } from '../../lib/modules';
 export function MobileHomePage() {
   const { t, lang } = useI18n();
   const navigate = useNavigate();
-  const [worker, setWorker] = useState(getWorker);
+  const [worker, setWorker] = useState(() => {
+    // The Stock page only opens for an estate-worker session: repair one saved
+    // with another role (e.g. by an older Stock page), so the buttons open again.
+    const w = getWorker();
+    return w && w.role !== 'estate_user' ? updateWorker({ role: 'estate_user' }) : w;
+  });
+  // Set by the Stock page when it had to send the person back here
+  const [bounce] = useState(() => {
+    try { const v = sessionStorage.getItem('mtp_stock_bounce'); sessionStorage.removeItem('mtp_stock_bounce'); return v; } catch { return null; }
+  });
   const [me, setMe] = useState<PortalMe | null>(null);
   const [drawer, setDrawer] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -76,6 +85,7 @@ export function MobileHomePage() {
       <main className="worker-wrap">
         <p className="hello">{t('welcome')}</p>
         <h1 className="name" id="who">{worker.name}</h1>
+        {bounce && <p className="bounce">{t('stock_bounce').replace('{why}', bounce)}</p>}
         <div className="mod-grid">
           {modules.length === 0 && <div className="empty">{t('no_modules')}</div>}
           {modules.map((m) => (

@@ -1181,7 +1181,7 @@
 <script>
 // APP_BUILD is checked by the auto-refresh guard below.
 // Bump this string whenever code is deployed to force stale cached pages to reload.
-var APP_BUILD = '20261127-98';
+var APP_BUILD = '20261127-99';
 (function () {
     var _vr = window.location.search.indexOf('_vr') !== -1;
     // Legacy guard: very old cached pages have no APP_BUILD at all.
@@ -3155,7 +3155,10 @@ var APP_BUILD = '20261127-98';
             <div style="min-height:100vh;background:#F8FAFC;padding-bottom:80px;">
                 <!-- Header -->
                 <div style="background:#fff;border-bottom:1px solid #E2E8F0;padding:12px 20px;display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:10;">
-                    <button id="mobileRfBackBtn" onclick="showMobileRainfallCardGrid()" style="display:none;position:absolute;left:16px;background:none;border:none;cursor:pointer;font-size:24px;color:#374151;font-family:Inter,sans-serif;line-height:1;padding:0 8px;">&#8249;</button>
+                    <!-- Back to hub (shown on card grid) -->
+                    <button id="mobileRfHubBackBtn" onclick="navToSection('estate_hub')" style="position:absolute;left:16px;background:none;border:none;cursor:pointer;font-size:26px;color:#374151;font-family:Inter,sans-serif;line-height:1;padding:0 8px;-webkit-tap-highlight-color:transparent;">&#8249;</button>
+                    <!-- Back to card grid (shown inside sub-panes) -->
+                    <button id="mobileRfBackBtn" onclick="showMobileRainfallCardGrid()" style="display:none;position:absolute;left:16px;background:none;border:none;cursor:pointer;font-size:26px;color:#374151;font-family:Inter,sans-serif;line-height:1;padding:0 8px;-webkit-tap-highlight-color:transparent;">&#8249;</button>
                     <h2 style="font-size:17px;font-weight:800;color:#0F172A;font-family:Inter,sans-serif;margin:0;text-align:center;" data-i18n="mobile_rf_header">&#127783;&#65039; Hujan</h2>
                 </div>
                 <!-- Card Grid Menu -->
@@ -16422,21 +16425,25 @@ function renderMobileRainfallList() {
 }
 
 function showMobileRainfallCardGrid() {
-    var cardGrid = document.getElementById('mobileRfCardGrid');
-    var backBtn  = document.getElementById('mobileRfBackBtn');
-    var listPanel = document.getElementById('mobileRfListPanel');
-    var formPanel = document.getElementById('mobileRfFormPanel');
-    if (cardGrid)  cardGrid.style.display  = 'grid';
-    if (backBtn)   backBtn.style.display   = 'none';
-    if (listPanel) listPanel.style.display = 'none';
-    if (formPanel) formPanel.style.display = 'none';
+    var cardGrid    = document.getElementById('mobileRfCardGrid');
+    var hubBackBtn  = document.getElementById('mobileRfHubBackBtn');
+    var backBtn     = document.getElementById('mobileRfBackBtn');
+    var listPanel   = document.getElementById('mobileRfListPanel');
+    var formPanel   = document.getElementById('mobileRfFormPanel');
+    if (cardGrid)   cardGrid.style.display   = 'grid';
+    if (hubBackBtn) hubBackBtn.style.display = '';      // show back-to-hub on card grid
+    if (backBtn)    backBtn.style.display    = 'none';  // hide sub-pane back
+    if (listPanel)  listPanel.style.display  = 'none';
+    if (formPanel)  formPanel.style.display  = 'none';
 }
 function showMobileRainfallTab(tab) {
     if (tab === 'bulanan') { navToSection('rainfallreport'); return; }
-    var cardGrid = document.getElementById('mobileRfCardGrid');
-    var backBtn  = document.getElementById('mobileRfBackBtn');
-    if (cardGrid) cardGrid.style.display = 'none';
-    if (backBtn)  backBtn.style.display  = '';
+    var cardGrid    = document.getElementById('mobileRfCardGrid');
+    var hubBackBtn  = document.getElementById('mobileRfHubBackBtn');
+    var backBtn     = document.getElementById('mobileRfBackBtn');
+    if (cardGrid)   cardGrid.style.display   = 'none';
+    if (hubBackBtn) hubBackBtn.style.display = 'none';  // hide back-to-hub inside sub-pane
+    if (backBtn)    backBtn.style.display    = '';      // show sub-pane back
     var listPanel = document.getElementById('mobileRfListPanel');
     var formPanel = document.getElementById('mobileRfFormPanel');
     if (listPanel) listPanel.style.display = tab === 'transaksi' ? '' : 'none';

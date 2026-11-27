@@ -10,6 +10,8 @@
     try {
         var s = JSON.parse(localStorage.getItem('opp_auth_session') || 'null');
         if (!s || s.role !== 'estate_user') { location.replace('../#/m'); return; }
+        // Mantap: no location at all → nothing to open here; the Mantap home page sorts it out
+        if (!Array.isArray(s.estates) || !s.estates.length) { location.replace('../#/m/home'); return; }
         // Mantap: start on a location (the first one) rather than the empty "Select an Estate" screen
         if (Array.isArray(s.estates) && s.estates.length && (!s.estate || s.estates.indexOf(s.estate) < 0)) {
             s.estate = s.estates[0];

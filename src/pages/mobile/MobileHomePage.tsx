@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { LangToggle } from '../../components/LangToggle';
-import { getWorker, portalMe, portCompany, previewWorkerFromAdmin, refreshWorker, setPortCompany, signOutAdmin, signOutWorker, updateWorker, type PortalMe } from '../../lib/auth';
+import { getWorker, portalMeOrDenied, portCompany, previewWorkerFromAdmin, refreshWorker, setPortCompany, signOutAdmin, signOutWorker, updateWorker, type PortalMe } from '../../lib/auth';
 import { useI18n } from '../../lib/i18n';
 import { MODULES } from '../../lib/modules';
 
@@ -18,7 +18,16 @@ export function MobileHomePage() {
 
   // Pick up access / estate / status changes made by the admin.
   useEffect(() => {
-    if (getWorker()?.preview) { portalMe().then(setMe); return; } // Intranet person's preview: companies from the portal
+    // Intranet person's preview: companies from the portal. Not (or no longer) allowed →
+    // drop the old preview instead of showing a home page with nothing to open.
+    if (getWorker()?.preview) {
+      portalMeOrDenied().then(async (m) => {
+        if (m !== 'denied') return m && setMe(m);
+        await signOutWorker();
+        navigate('/m', { replace: true });
+      });
+      return;
+    }
     refreshWorker().then((w) => (w ? setWorker(w) : navigate('/m?inactive=1', { replace: true })));
   }, [navigate]);
 
